@@ -1,0 +1,13 @@
+setuptools
+six
+python-dateutil
+pytz
+nose
+numpy
+scipy
+pandas
+h5py
+astropy
+matplotlib
+seaborn
+scikit-image
