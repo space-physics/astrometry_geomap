@@ -1,4 +1,3 @@
-*.txt
 *.pyc
 __pycache__
 obsolete
