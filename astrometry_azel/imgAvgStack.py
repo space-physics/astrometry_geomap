@@ -13,6 +13,7 @@ The error you might get from an ImageJ saved FITS when reading in:
 PyFits, AstroPy, or ImageMagick is:
 IOError: Header missing END card.
 """
+from numpy import mean,median
 from pathlib import Path
 from astropy.io import fits
 from scipy.ndimage import imread
@@ -21,26 +22,25 @@ from skimage.color import rgb2gray
 import h5py
 import tifffile
 
-def meanstack(infn,Navg,ut1=None):
+def meanstack(infn,Navg,ut1=None,method='mean'):
     infn = Path(infn).expanduser()
 #%% parse indicies to load
-    if isinstance(Navg,int):
-        key = range(0,Navg) #DO NOT use s_
-    elif len(Navg) == 1:
-        key = range(0,Navg[0]) #DO NOT use s_
+    if isinstance(Navg,slice):
+        key = Navg
+    elif isinstance(Navg,int):
+        key = range(0,Navg)
+    elif len(Navg) == 1 and isinstance(Navg[0],int):
+        key = range(0,Navg[0])
     else:
-        key = range(Navg[0],Navg[1]) #DO NOT use s_
+        key = range(Navg[0],Navg[1])
 #%% load images
+
     """
     some methods handled individually to improve efficiency with huge memory mapped files
     """
     if infn.suffix =='.h5':
         with h5py.File(str(infn),'r',libver='latest') as f:
-            img = f['/rawimg']
-            if len(img.shape)==2: #h5py has no .ndim like numpy
-                meanimg = img.value
-            elif len(img.shape)==3:
-                meanimg = img[key,...].mean(axis=0).astype(img.dtype)
+            img = collapsestack(f['/rawimg'],key,method)
 
             if ut1 is None:
                 try:
@@ -48,28 +48,37 @@ def meanstack(infn,Navg,ut1=None):
                 except KeyError:
                     pass
 
-        return meanimg,ut1
-
     elif infn.suffix == '.fits':
         with fits.open(str(infn),mode='readonly',memmap=False) as f: #mmap doesn't work with BZERO/BSCALE/BLANK
-            img = f[0].data
+            img = collapsestack(f[0].data, key,method)
+
     elif infn.suffix.startswith('.tif'):
         img = tifffile.imread(str(infn),key=key)
-        if img.ndim==2:
-            return img,ut1
-        return img.mean(axis=0).astype(img.dtype)
+        img = collapsestack(img,key,method)
+
     elif infn.suffix == '.mat':
         img = loadmat(str(infn))
-        img = img['data'].T #matlab is fortran order
+        img = collapsestack(img['data'].T, key, method) #matlab is fortran order
     else:
         img = imread(str(infn))
-        if img.ndim==3 and img.shape[2]==3: #assume RGB
-            img = rgb2gray(img)
+        if img.ndim in (3,4) and img.shape[-1]==3: #assume RGB
+            img = collapsestack(rgb2gray(img),key,method)
 
-    if img.ndim==2: #can't average just one image!
-        return img,ut1
-#%% return mean
-    return img[key,...].mean(axis=0).astype(img.dtype),ut1  #assumes we iterate over first axis
+    return img,ut1
+
+def collapsestack(img,key,method):
+    if len(img.shape)==2: #h5py has no ndim
+        return img
+#%%
+    if len(img.shape)==3: #h5py has no ndim
+        if method=='mean':
+            method=mean
+        elif method=='median':
+            method=median
+        else:
+            raise TypeError('unknown method {}'.format(method))
+
+        return method(img[key,...],axis=0).astype(img.dtype)
 
 def writefits(img,outfn):
     outfn = Path(outfn).expanduser()
