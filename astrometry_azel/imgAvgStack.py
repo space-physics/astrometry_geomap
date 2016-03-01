@@ -13,7 +13,7 @@ The error you might get from an ImageJ saved FITS when reading in:
 PyFits, AstroPy, or ImageMagick is:
 IOError: Header missing END card.
 """
-from numpy import mean,median
+from numpy import mean,median,rot90
 from pathlib import Path
 from astropy.io import fits
 from scipy.ndimage import imread
@@ -28,11 +28,11 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
     if isinstance(Navg,slice):
         key = Navg
     elif isinstance(Navg,int):
-        key = range(0,Navg)
+        key = slice(0,Navg)
     elif len(Navg) == 1 and isinstance(Navg[0],int):
-        key = range(0,Navg[0])
+        key = slice(0,Navg[0])
     else:
-        key = range(Navg[0],Navg[1])
+        key = slice(Navg[0],Navg[1])
 #%% load images
 
     """
@@ -41,12 +41,17 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
     if infn.suffix =='.h5':
         with h5py.File(str(infn),'r',libver='latest') as f:
             img = collapsestack(f['/rawimg'],key,method)
-
+#%% time
             if ut1 is None:
                 try:
-                    ut1 = f['/ut1_unix'][key[0]]
+                    ut1 = f['/ut1_unix'][key][0]
                 except KeyError:
                     pass
+#%% orientation
+            try:
+                img = rot90(img,k=f['/params']['rotccw'])
+            except KeyError:
+                pass
 
     elif infn.suffix == '.fits':
         with fits.open(str(infn),mode='readonly',memmap=False) as f: #mmap doesn't work with BZERO/BSCALE/BLANK
