@@ -72,10 +72,10 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
     return img,ut1
 
 def collapsestack(img,key,method):
-    if len(img.shape)==2: #h5py has no ndim
+    if img.ndim==2: 
         return img
 #%%
-    if len(img.shape)==3: #h5py has no ndim
+    if img.ndim==3: 
         if method=='mean':
             method=mean
         elif method=='median':
