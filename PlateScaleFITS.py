@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 original frontend to fits2azel (requires fits input)
 Consider using the more general PlateScale.py

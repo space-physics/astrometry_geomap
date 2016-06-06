@@ -1,12 +1,13 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
  uses astrometry.net program to register FITS to WCS and RA/Dec.
 
  Michael Hirsch 2014
 """
+from . import Path
+from distutils.spawn import find_executable
 import subprocess
 import logging
-from pathlib import Path
 from astropy.wcs import wcs
 from astropy.io import fits #instead of obsolete pyfits
 from scipy.io import savemat
@@ -18,9 +19,6 @@ import h5py
 #
 from pymap3d.radec2azel import radec2azel
 from .plots import plotazel,plotradec
-#
-BINPATH='/usr/bin' #where python2 lives
-
 
 def fits2azel(fitsfn,camLatLon,specTime,makeplot, clim=None):
     fitsfn = Path(fitsfn).expanduser()
@@ -99,11 +97,11 @@ def doSolve(fitsfn):
     Worst case, consider their public web solver service and bring the .wcs file
     back here.
     """
-    #cmdlist = ['PATH='+BINPATH+' solve-field','--overwrite',str(fitsfn)]
-    #print(' '.join(cmdlist))
-    cmd = 'PATH='+BINPATH+' solve-field --overwrite {}'.format(fitsfn)
+#    cmd = ['solve-field','--overwrite',str(fitsfn)]
+    BINPATH = Path(find_executable('solve-field')).parent # this is NECESSARY or solve-field will crash trying to use python3
+    cmd = 'PATH={} solve-field --overwrite {}'.format(BINPATH,fitsfn) #shell true
     print(cmd)
-    ret = subprocess.run(cmd,shell=True)
+    ret = subprocess.call(cmd,shell=True)
 #    print(ret.stdout)
 #    print(ret.stderr)
     print('\n\n *** done with astrometry.net ***\n ')
@@ -124,7 +122,7 @@ def r2ae(fitsFN,ra,dec,x,y,camLatLon,specTime,makeplot):
                 with fits.open(fitsFN,mode='readonly') as f:
                     frameTime = f[0].header['FRAME'] #TODO this only works from Solis?
                     timeFrame = parse(frameTime).replace(tzinfo=UTC)
-                    print('assumed UTC time zone, using FITS header for time')
+                    logging.warning('assumed UTC time zone, using FITS header for time')
             elif isinstance(specTime,datetime):
                 timeFrame = specTime
             elif isinstance(specTime,(float,int)): #assume UT1_Unix
