@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-from __future__ import division
+#!/usr/bin/env python
 from numpy import atleast_1d, empty_like,pi,nan
 from datetime import datetime
 from astropy.time import Time

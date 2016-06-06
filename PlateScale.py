@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 """
 script to plate scale data in FITS or HDF5 format.
 
 Michael Hirsch
 """
+from astrometry_azel import Path
 import h5py
-from pathlib import Path
 from tempfile import mkstemp
 from warnings import warn
 #
