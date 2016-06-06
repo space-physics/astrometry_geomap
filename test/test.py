@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from datetime import datetime
 from numpy import radians
 from numpy.testing import assert_allclose,run_module_suite

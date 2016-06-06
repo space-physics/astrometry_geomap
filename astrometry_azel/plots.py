@@ -1,5 +1,6 @@
+#!/usr/bin/env python
+from . import Path
 import logging
-from pathlib import Path
 from matplotlib.pyplot import figure
 
 def plotazel(az,el,x=None,y=None, fn='',camLatLon='',timeFrame='',makeplot='',ttxt=''):
