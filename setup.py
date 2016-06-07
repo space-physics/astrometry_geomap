@@ -15,9 +15,9 @@ setup(name='astrometry_azel',
 	  long_description=long_description,
 	  author='Michael Hirsch',
 	  url='https://github.com/scienceopen/astrometry_azel',
-     install_requires=['pymap3d',
+      install_requires=['pymap3d',
                        'pathlib2'],
       dependency_links = ['https://github.com/scienceopen/pymap3d/tarball/master#egg=pymap3d',],
-    extras_require={'pyfits':'pyfits'},
+      extras_require={'pyfits':'pyfits'},
 	  )
 
