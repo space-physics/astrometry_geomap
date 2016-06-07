@@ -13,6 +13,8 @@
 Azimuth/Elevation converter for `Astrometry.net <https://github.com/dstndstn/astrometry.net>`_
 ================================================================================================
 
+.. contents::
+
 Note: If you want to work with the intermediate steps (source extraction) or photometry, `see my AstroPy-based examples <https://github.com/scienceopen/starscale>`_.
 
 Prerequisites
