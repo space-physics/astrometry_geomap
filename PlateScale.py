@@ -21,14 +21,17 @@ def doplatescale(infn,outfn,latlon,ut1):
     writefits(meanimg,fitsfn)
 #%% try to get site coordinates from file
     if not latlon:
-        with h5py.File(str(infn),'r',libver='latest') as f:
-            try:
-                latlon = [f['/sensorloc']['glat'], f['/sensorloc']['glon']]
-            except KeyError:
+        if infn.suffix=='.h5':
+            with h5py.File(str(infn),'r',libver='latest') as f:
                 try:
-                    latlon = f['/lla'][:2]
-                except KeyError as e:
-                    warn('could not get camera coordinates from {}, will compute only RA/DEC  {}'.format(infn,e))
+                    latlon = [f['/sensorloc']['glat'], f['/sensorloc']['glon']]
+                except KeyError:
+                    try:
+                        latlon = f['/lla'][:2]
+                    except KeyError as e:
+                        warn('could not get camera coordinates from {}, will compute only RA/DEC  {}'.format(infn,e))
+        else:
+            warn('could not get camera coordinates from {}, will compute only RA/DEC'.format(infn))
 #%%
     x,y,ra,dec,az,el,timeFrame = fits2azel(fitsfn,latlon,ut1,['show','h5','png'],(0,2800))
 
