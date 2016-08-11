@@ -66,12 +66,7 @@ def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
         doSolve(fitsfn)
 
     with fits.open(str(fitsfn),mode='readonly') as f:
-        try:
-            xPix = f[0].header['IMAGEW']
-            yPix = f[0].header['IMAGEH']
-        except KeyError:
-            xPix = f[0].header['NAXIS1']
-            yPix = f[0].header['NAXIS2']
+        yPix,xPix = f[0].shape
 
     x,y = meshgrid(range(xPix), range(yPix)) #pixel indices to find RA/dec of
     xy = column_stack((x.ravel(order='C'), y.ravel(order='C')))
