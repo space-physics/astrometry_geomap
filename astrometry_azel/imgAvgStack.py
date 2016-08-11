@@ -34,9 +34,8 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
     else:
         key = slice(Navg[0],Navg[1])
 #%% load images
-
     """
-    some methods handled individually to improve efficiency with huge memory mapped files
+    some methods handled individually to improve efficiency with huge files
     """
     if infn.suffix =='.h5':
         with h5py.File(str(infn),'r',libver='latest') as f:
@@ -72,10 +71,10 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
     return img,ut1
 
 def collapsestack(img,key,method):
-    if img.ndim==2: 
+    if img.ndim==2:
         return img
 #%%
-    if img.ndim==3: 
+    if img.ndim==3:
         if method=='mean':
             method=mean
         elif method=='median':
