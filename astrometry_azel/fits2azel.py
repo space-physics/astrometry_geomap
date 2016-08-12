@@ -96,16 +96,14 @@ def doSolve(fitsfn):
     BINPATH = Path(find_executable('solve-field')).parent # this is NECESSARY or solve-field will crash trying to use python3
     cmd = 'PATH={} solve-field --overwrite {}'.format(BINPATH,fitsfn) #shell true
     print(cmd)
-    ret = subprocess.call(cmd,shell=True)
-#    print(ret.stdout)
-#    print(ret.stderr)
+    subprocess.call(cmd,shell=True) # NOTE: shell=True is necessary to specify the EXE path, needed to avoid grabbing python3.
     print('\n\n *** done with astrometry.net ***\n ')
 
 def readfitsimagestack(fn):
     fn = Path(fn).expanduser()
 
     with fits.open(str(fn),mode='readonly') as f:
-        if f[0].header['NAXIS']>1:
+        if len(f[0].shape) > 1: #no .ndim in Astropy.io.fits 1.2
             return f[0].data
         else:
             raise TypeError('did not find image data in {} this may be a bug.'.format(fn))
