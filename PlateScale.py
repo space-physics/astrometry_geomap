@@ -40,8 +40,8 @@ if __name__ == '__main__':
     p = ArgumentParser(description='do plate scaling for image data')
     p.add_argument('infn',help='image data file name (HDF5 or FITS)')
     p.add_argument('-o','--outfn',help='platescale data file name to write',default=mkstemp('.h5')[1])
-    p.add_argument('--latlon',help='wgs84 coordinates of cameras (deg.)',nargs=2,type=float)
-    p.add_argument('--ut1',help='override file UT1 time yyyy-mm-ddTHH:MM:SSZ')
+    p.add_argument('-c','--latlon',help='wgs84 coordinates of cameras (deg.)',nargs=2,type=float)
+    p.add_argument('-t','--ut1',help='override file UT1 time yyyy-mm-ddTHH:MM:SSZ')
     p = p.parse_args()
 
     doplatescale(p.infn,p.outfn,p.latlon,p.ut1)
