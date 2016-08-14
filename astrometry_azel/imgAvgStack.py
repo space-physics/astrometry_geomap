@@ -29,10 +29,12 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
         key = Navg
     elif isinstance(Navg,int):
         key = slice(0,Navg)
-    elif len(Navg) == 1 and isinstance(Navg[0],int):
+    elif len(Navg) == 1:
         key = slice(0,Navg[0])
-    else:
+    elif len(Navg) == 2:
         key = slice(Navg[0],Navg[1])
+    else:
+        raise ValueError('not sure what you mean by Navg={}'.format(Navg))
 #%% load images
     """
     some methods handled individually to improve efficiency with huge files
