@@ -6,18 +6,22 @@ Michael Hirsch
 """
 from astrometry_azel import Path
 import h5py
-from tempfile import mkstemp
 from warnings import warn
 #
 from astrometry_azel.imgAvgStack import meanstack,writefits
 from astrometry_azel.fits2azel import fits2azel
 
-def doplatescale(infn,outfn,latlon,ut1):
+def doplatescale(infn,outfn,latlon,ut1,Navg):
     infn = Path(infn).expanduser()
-    outfn = Path(outfn).expanduser()
+
+    if outfn:
+        outfn = Path(outfn).expanduser()
+    else:
+        outfn = infn.with_suffix('.h5')
+
     fitsfn = outfn.with_suffix('.fits')
 #%% convert to mean
-    meanimg,ut1 = meanstack(infn,1,ut1)
+    meanimg,ut1 = meanstack(infn,Navg,ut1)
     writefits(meanimg,fitsfn)
 #%% try to get site coordinates from file
     if not latlon:
@@ -39,9 +43,10 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     p = ArgumentParser(description='do plate scaling for image data')
     p.add_argument('infn',help='image data file name (HDF5 or FITS)')
-    p.add_argument('-o','--outfn',help='platescale data file name to write',default=mkstemp('.h5')[1])
+    p.add_argument('-o','--outfn',help='platescale data path to write')
     p.add_argument('-c','--latlon',help='wgs84 coordinates of cameras (deg.)',nargs=2,type=float)
     p.add_argument('-t','--ut1',help='override file UT1 time yyyy-mm-ddTHH:MM:SSZ')
+    p.add_argument('-N','--navg',help='number of frames or start,stop frames to avg',nargs='+',type=int,default=10)
     p = p.parse_args()
 
-    doplatescale(p.infn,p.outfn,p.latlon,p.ut1)
+    doplatescale(p.infn,p.outfn,p.latlon,p.ut1,p.navg)
