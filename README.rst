@@ -1,3 +1,5 @@
+.. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
+    :target: http://www.astropy.org/
 .. image:: https://travis-ci.org/scienceopen/astrometry_azel.svg?branch=master
     :target: https://travis-ci.org/scienceopen/astrometry_azel
 .. image:: https://codeclimate.com/github/scienceopen/astrometry/badges/gpa.svg
