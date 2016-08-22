@@ -2,7 +2,7 @@
 from astrometry_azel import Path
 from numpy.testing import assert_allclose,run_module_suite
 #
-from astrometry_azel.fits2azel import fits2azel
+from astrometry_azel import fits2azel
 
 rdir = Path(__file__).parent
 
