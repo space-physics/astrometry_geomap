@@ -2,12 +2,6 @@
     :target: http://www.astropy.org/
 .. image:: https://travis-ci.org/scienceopen/astrometry_azel.svg?branch=master
     :target: https://travis-ci.org/scienceopen/astrometry_azel
-.. image:: https://codeclimate.com/github/scienceopen/astrometry/badges/gpa.svg
-   :target: https://codeclimate.com/github/scienceopen/astrometry
-   :alt: Code Climate
-.. image:: https://landscape.io/github/scienceopen/astrometry_azel/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/scienceopen/astrometry_azel/master
-   :alt: Code Health
 .. image:: https://coveralls.io/repos/scienceopen/astrometry/badge.svg?branch=master&service=github 
    :target: https://coveralls.io/github/scienceopen/astrometry?branch=master
 
