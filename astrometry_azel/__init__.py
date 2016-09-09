@@ -9,7 +9,7 @@ from dateutil.parser import parse
 from datetime import datetime
 from pytz import UTC
 #
-from pymap3d.radec2azel import radec2azel
+from pymap3d import radec2azel
 #%%
 try:
     from pathlib import Path
