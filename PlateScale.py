@@ -9,7 +9,7 @@ import h5py
 from warnings import warn
 #
 from astrometry_azel.imgAvgStack import meanstack,writefits
-from astrometry_azel.fits2azel import fits2azel
+from astrometry_azel import fits2azel
 
 def doplatescale(infn,outfn,latlon,ut1,Navg):
     infn = Path(infn).expanduser()
