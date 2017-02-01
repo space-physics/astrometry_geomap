@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from . import Path
+from pathlib import Path
 import logging
 from matplotlib.pyplot import figure
 

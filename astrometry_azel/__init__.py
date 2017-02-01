@@ -1,4 +1,5 @@
 from distutils.spawn import find_executable
+from pathlib import Path
 import subprocess
 import h5py
 from numpy import meshgrid,column_stack
@@ -10,12 +11,6 @@ from datetime import datetime
 from pytz import UTC
 #
 from pymap3d import radec2azel
-#%%
-try:
-    from pathlib import Path
-    Path().expanduser()
-except (ImportError,AttributeError):
-    from pathlib2 import Path
 #
 from .plots import plotazel,plotradec
 #%%

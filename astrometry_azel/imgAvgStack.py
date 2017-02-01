@@ -13,7 +13,7 @@ The error you might get from an ImageJ saved FITS when reading in:
 PyFits, AstroPy, or ImageMagick is:
 IOError: Header missing END card.
 """
-from . import Path
+from pathlib import Path
 from numpy import mean,median,rot90
 from astropy.io import fits
 from scipy.ndimage import imread

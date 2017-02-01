@@ -1,7 +1,5 @@
 setuptools
 nose
-pathlib2
-six
 python-dateutil
 pytz
 numpy
