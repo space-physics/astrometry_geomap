@@ -4,7 +4,7 @@ script to plate scale data in FITS or HDF5 format.
 
 Michael Hirsch
 """
-from astrometry_azel import Path
+from pathlib import Path
 import h5py
 from warnings import warn
 #
