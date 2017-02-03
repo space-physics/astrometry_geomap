@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from astrometry_azel import Path
+from pathlib import Path
 from numpy.testing import assert_allclose,run_module_suite
 #
 from astrometry_azel import fits2azel
