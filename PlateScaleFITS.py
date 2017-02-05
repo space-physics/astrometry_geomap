@@ -5,7 +5,7 @@ Consider using the more general PlateScale.py
 """
 from matplotlib.pyplot import show
 #
-from astrometry_azel.fits2azel import fits2azel
+from astrometry_azel import fits2azel
 
 if __name__ == "__main__":
 
