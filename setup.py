@@ -12,8 +12,8 @@ except Exception as e:
 
 setup(name='astrometry_azel',
       packages=['astrometry_azel'],
+      author='Michael Hirsch, Ph.D.',
       install_requires=['pymap3d',],
-      dependency_links = ['https://github.com/scienceopen/pymap3d/tarball/master#egg=pymap3d',],
       extras_require={'pyfits':'pyfits'},
 	  )
 
