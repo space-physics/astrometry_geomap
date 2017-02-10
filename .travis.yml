@@ -8,29 +8,30 @@ git:
 
 matrix:
   include:
-    - os: osx
-      env: pyv=3.6
+#    - os: osx
+#      env: pyv=3.6
 
+# temp 3.5 waiting for scikit-image to have 3.6 wheel
     - os: linux
-      env: pyv=3.6
+      env: pyv=3.5
 
 install:
     - if [[ $TRAVIS_OS_NAME == osx ]]; then
         wget http://repo.continuum.io/miniconda/Miniconda-latest-MacOSX-x86_64.sh -O miniconda.sh;
-      else 
+      else
         wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
       fi
-      
+
     - bash miniconda.sh -b -p $HOME/miniconda
     - export PATH=$HOME/miniconda/bin:$PATH
     - hash -r
-    
+
     - conda config --set always_yes yes --set changeps1 no
     - conda update -q conda
     - conda create -n test python=$pyv
     - source activate test
     - pip -q install coveralls
-    - python setup.py develop
+    - pip install .
 
 script: coverage run tests/test.py -v
 

@@ -1,19 +1,14 @@
 #!/usr/bin/env python
 from setuptools import setup
 
-try:
-    import conda.cli
-    conda.cli.main('install','--file','requirements.txt')
-except Exception as e:
-    print(e)
-    import pip
-    pip.main(['install','-r','requirements.txt'])
-    
+req = ['pymap3d',
+        'nose','python-dateutil','pytz','numpy','scipy','h5py','astropy','scikit-image','matplotlib','seaborn' ]
 
 setup(name='astrometry_azel',
       packages=['astrometry_azel'],
       author='Michael Hirsch, Ph.D.',
-      install_requires=['pymap3d',],
+      url='https://github.com/scienceopen/astrometry_azel',
+      install_requires=req,
       extras_require={'pyfits':'pyfits'},
 	  )
 
