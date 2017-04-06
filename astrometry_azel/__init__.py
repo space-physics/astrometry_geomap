@@ -18,11 +18,11 @@ from .plots import plotazel,plotradec
 def readfitsimagestack(fn):
     fn = Path(fn).expanduser()
 
-    with fits.open(str(fn),mode='readonly') as f:
+    with fits.open(fn, mode='readonly') as f:
         if len(f[0].shape) > 1: #no .ndim in Astropy.io.fits 1.2
             return f[0].data
         else:
-            raise TypeError('did not find image data in {} this may be a bug.'.format(fn))
+            raise TypeError(f'did not find image data in {fn}. This may be a bug.')
 
 
 def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
@@ -35,19 +35,19 @@ def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
         makeplot.append('skipsolve')
         WCSfn = fitsfn
     else:
-        raise TypeError('please convert {} to GRAYSCALE .fits e.g. with ImageJ or ImageMagick'.format(fitsfn))
+        raise TypeError(f'please convert {fitsfn} to GRAYSCALE .fits e.g. with ImageJ or ImageMagick')
 
     if not 'skipsolve' in makeplot:
         doSolve(fitsfn)
 
-    with fits.open(str(fitsfn),mode='readonly') as f:
+    with fits.open(fitsfn, mode='readonly') as f:
         yPix,xPix = f[0].shape[-2:]
 
     x,y = meshgrid(range(xPix), range(yPix)) #pixel indices to find RA/dec of
     xy = column_stack((x.ravel(order='C'), y.ravel(order='C')))
 #%% use astropy.wcs to register pixels to RA/DEC
     try:
-        with fits.open(str(WCSfn),mode='readonly') as hdul:
+        with fits.open(WCSfn, mode='readonly') as hdul:
             radec = wcs.WCS(hdul[0].header).all_pix2world(xy, 0)
     except IOError:
         raise RuntimeError('It appears the WCS solution is not present, was the FITS image solved?  looking for: {}'.format(WCSfn))
@@ -75,15 +75,15 @@ def r2ae(fitsFN,ra,dec,x,y,camLatLon,specTime,makeplot):
             else: #user override of frame time
                 timeFrame = parse(specTime)
         except (KeyError, TypeError):
-            logging.error('could not read time from ' + fitsFN)
+            logging.error(f'could not read time from {fitsFN}')
             return (None,)*3
     else:
         return (None,)*3
 
-    print('image time: {}'.format(timeFrame))
+    print(f'image time: {timeFrame}')
 
 #%% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel
-    az,el = radec2azel(ra, dec, camLatLon[0],camLatLon[1],timeFrame)
+    az,el = radec2azel(ra, dec, camLatLon[0], camLatLon[1],timeFrame)
 
     plotazel(az,el,x,y,fitsFN,camLatLon,timeFrame,makeplot)
 
@@ -94,14 +94,17 @@ def doSolve(fitsfn):
     """
     Astrometry.net as of Feb 2016 is using Python 2, which is causing more and more issues
     as a result, I try to force it to use system Python 2, which mitigates issues sometimes.
+
     Worst case, consider their public web solver service and bring the .wcs file
     back here.
     """
-#    cmd = ['solve-field','--overwrite',str(fitsfn)]
-    BINPATH = Path(find_executable('solve-field')).parent # this is NECESSARY or solve-field will crash trying to use python3
-    cmd = 'PATH={} solve-field --overwrite {}'.format(BINPATH,fitsfn) #shell true
+    binpath = Path(find_executable('solve-field')).parent
+
+    cmd = ['solve-field','--overwrite', str(fitsfn)]
     print(cmd)
-    subprocess.call(cmd,shell=True) # NOTE: shell=True is necessary to specify the EXE path, needed to avoid grabbing python3.
+
+    subprocess.run(cmd, env={'PATH':str(binpath)})
+
     print('\n\n *** done with astrometry.net ***\n ')
 
 
@@ -113,22 +116,24 @@ def fits2azel(fitsfn,camLatLon,specTime,makeplot, clim=None):
 
     if 'h5' in makeplot:
         h5fn = fitsfn.with_suffix('.h5')
-        print('saving {}'.format(h5fn))
+        print(f'saving {h5fn}')
         writeh5(h5fn,az,el,camLatLon,x,y,ra,dec,timeFrame,fitsfn)
 
     return x,y,ra,dec,az,el,timeFrame
 
 
 def writeh5(h5fn,az,el,camLatLon,x,y,ra,dec,timeFrame,fitsfn):
-    with h5py.File(str(h5fn),'w',libver='latest') as f:
-        h5az = f.create_dataset("/az",data=az,compression="gzip",shuffle=True,fletcher32=True)
-        h5az.attrs['Units'] = 'degrees'
+    with h5py.File(h5fn, 'w',libver='latest') as f:
 
-        h5el = f.create_dataset("/el",data=el,compression="gzip",shuffle=True,fletcher32=True)
-        h5el.attrs['Units'] = 'degrees'
+        if az is not None:
+            h5az = f.create_dataset("/az",data=az,compression="gzip",shuffle=True,fletcher32=True)
+            h5az.attrs['Units'] = 'degrees'
 
-        h5ll = f.create_dataset("/sensorloc",data=camLatLon,shuffle=True,fletcher32=True)
-        h5ll.attrs['Units'] = 'WGS-84 degrees'
+            h5el = f.create_dataset("/el",data=el,compression="gzip",shuffle=True,fletcher32=True)
+            h5el.attrs['Units'] = 'degrees'
+
+            h5ll = f.create_dataset("/sensorloc",data=camLatLon,shuffle=True,fletcher32=True)
+            h5ll.attrs['Units'] = 'WGS-84 degrees'
 
         h5x =  f.create_dataset("/x",data=x,compression="gzip",shuffle=True,fletcher32=True)
         h5x.attrs['Units'] = 'pixels'
