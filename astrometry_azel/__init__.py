@@ -1,4 +1,3 @@
-from distutils.spawn import find_executable
 from pathlib import Path
 import subprocess
 import h5py
@@ -29,7 +28,7 @@ def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
     fitsfn = Path(fitsfn).expanduser()
 
     if fitsfn.suffix == '.fits':
-        WCSfn = fitsfn.with_suffix('.new') #using .wcs will also work but gives a spurious warning
+        WCSfn = fitsfn.with_suffix('.wcs') #using .wcs will also work but gives a spurious warning
 
     elif fitsfn.suffix == '.wcs':
         makeplot.append('skipsolve')
@@ -46,13 +45,18 @@ def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
     x,y = meshgrid(range(xPix), range(yPix)) #pixel indices to find RA/dec of
     xy = column_stack((x.ravel(order='C'), y.ravel(order='C')))
 #%% use astropy.wcs to register pixels to RA/DEC
+    """
+    http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS
+    naxis=[0,1] is to take x,y axes in case a color photo was input e.g. to astrometry.net cloud solver
+    """
     try:
-        with fits.open(WCSfn, mode='readonly') as hdul:
-            radec = wcs.WCS(hdul[0].header).all_pix2world(xy, 0)
+        with fits.open(WCSfn, mode='readonly') as f:
+            #radec = wcs.WCS(hdul[0].header,naxis=[0,1]).all_pix2world(xy, 0)
+            radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
     except IOError:
-        raise RuntimeError('It appears the WCS solution is not present, was the FITS image solved?  looking for: {}'.format(WCSfn))
+        raise RuntimeError(f'It appears the WCS solution is not present, was the FITS image solved?  looking for: {WCSfn}')
 
-    ra = radec[:,0].reshape((yPix,xPix),order='C')
+    ra  = radec[:,0].reshape((yPix,xPix),order='C')
     dec = radec[:,1].reshape((yPix,xPix),order='C')
 #%% plot
     plotradec(ra,dec,x,y,camLatLon,fitsfn,makeplot)
@@ -92,18 +96,14 @@ def r2ae(fitsFN,ra,dec,x,y,camLatLon,specTime,makeplot):
 
 def doSolve(fitsfn):
     """
-    Astrometry.net as of Feb 2016 is using Python 2, which is causing more and more issues
-    as a result, I try to force it to use system Python 2, which mitigates issues sometimes.
-
-    Worst case, consider their public web solver service and bring the .wcs file
-    back here.
+    Astrometry.net from at least version 0.67 is OK with Python 3.
     """
-    binpath = Path(find_executable('solve-field')).parent
+    #binpath = Path(find_executable('solve-field')).parent
 
     cmd = ['solve-field','--overwrite', str(fitsfn)]
     print(cmd)
 
-    subprocess.run(cmd, env={'PATH':str(binpath)})
+    subprocess.run(cmd)#, env={'PATH':str(binpath)})
 
     print('\n\n *** done with astrometry.net ***\n ')
 

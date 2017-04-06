@@ -9,7 +9,7 @@ setup(name='astrometry_azel',
       author='Michael Hirsch, Ph.D.',
       description='Register images to az/el using the astrometry.net program',
       url='https://github.com/scivision/astrometry_azel',
-      version='1.0.2',
+      version='1.1.0',
       classifiers=[
       'Intended Audience :: Science/Research',
       'Development Status :: 5 - Production/Stable',
