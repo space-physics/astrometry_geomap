@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 from pathlib import Path
 import logging
 from matplotlib.pyplot import figure
@@ -45,13 +44,17 @@ def plotazel(az,el,x=None,y=None, fn='',camLatLon='',timeFrame='',makeplot='',tt
 #%%
         if 'png' in makeplot:
             plotFN = fn.parent/(fn.stem+'_azel.png')
-            print('writing  {}'.format(plotFN))
-            fg.savefig(str(plotFN),bbox_inches='tight',dpi=150)
+            print(f'writing  {plotFN}')
+            fg.savefig(str(plotFN), bbox_inches='tight',dpi=150)
 
         return fg,axa,axe
 
 def plotradec(ra,dec,x,y,camLatLon,fn,makeplot):
     fn = Path(fn).expanduser()
+
+    ttxt = f'{fn.name}'
+    if camLatLon:
+        ttxt += str(camLatLon)
 
     if 'show' in makeplot or 'png' in makeplot:
         plottype = 'contour'
@@ -68,24 +71,24 @@ def plotradec(ra,dec,x,y,camLatLon,fn,makeplot):
 
         ax.set_xlabel('x-pixel')
         ax.set_ylabel('y-pixel')
-        ax.set_title('RA: {} {}'.format(fn.name, camLatLon))
-
-        axd = fg.add_subplot(1,2,2)
+        ax.set_title('RA: ' + ttxt)
+#%%
+        ax = fg.add_subplot(1,2,2)
         if plottype=='image':
-            hdi = axd.imshow(dec,origin='lower')
+            hdi = ax.imshow(dec,origin='lower')
             hc = fg.colorbar(hdi)
             hc.set_label('Dec [deg]')
         elif plottype == 'contour':
-            cs= axd.contour(x,y,dec)
-            axd.clabel(cs, inline=1,fmt='%0.1f')
-        axd.set_xlabel('x-pixel')
-        axd.set_ylabel('y-pixel')
-        ax.set_title('RA: {} {}'.format(fn.name, camLatLon))
+            cs= ax.contour(x,y,dec)
+            ax.clabel(cs, inline=1,fmt='%0.1f')
+        ax.set_xlabel('x-pixel')
+        ax.set_ylabel('y-pixel')
+        ax.set_title('DECL: ' + ttxt)
 #%%
         if 'png' in makeplot:
             plotFN = fn.parent/(fn.stem+'_radec.png')
-            print('writing  {}'.format(plotFN))
-            fg.savefig(str(plotFN),bbox_inches='tight',dpi=150)
+            print(f'writing  {plotFN}')
+            fg.savefig(str(plotFN), bbox_inches='tight', dpi=150)
 
 def plotimagestack(img,fn,makeplot,clim=None):
     fn = Path(fn).expanduser()
@@ -111,11 +114,11 @@ def plotimagestack(img,fn,makeplot,clim=None):
     if cmap is not None:
         try:
             hc = fg.colorbar(hi)
-            hc.set_label('Data numbers '+ str(img.dtype))
+            hc.set_label(f'Data numbers {img.dtype}')
         except Exception as e:
-            logging.warning('trouble making picture colorbar  {}'.format(e))
+            logging.warning(f'trouble making picture colorbar  {e}')
 #%%
     if 'png' in makeplot:
         plotFN = fn.parent/(fn.stem+'_picture.png')
-        print('writing  {}'.format(plotFN))
-        fg.savefig(str(plotFN),bbox_inches='tight',dpi=150)
+        print(f'writing  {plotFN}')
+        fg.savefig(str(plotFN), bbox_inches='tight', dpi=150)

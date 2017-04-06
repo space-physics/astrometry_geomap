@@ -6,12 +6,12 @@ Michael Hirsch
 """
 from pathlib import Path
 import h5py
-from warnings import warn
+from sys import stderr
 #
 from astrometry_azel.imgAvgStack import meanstack,writefits
 from astrometry_azel import fits2azel
 
-def doplatescale(infn,outfn,latlon,ut1,Navg):
+def doplatescale(infn,outfn,latlon,ut1,Navg,makeplot):
     infn = Path(infn).expanduser()
 
     if outfn:
@@ -26,18 +26,18 @@ def doplatescale(infn,outfn,latlon,ut1,Navg):
 #%% try to get site coordinates from file
     if not latlon:
         if infn.suffix=='.h5':
-            with h5py.File(str(infn),'r',libver='latest') as f:
+            with h5py.File(infn, 'r',libver='latest') as f:
                 try:
                     latlon = [f['/sensorloc']['glat'], f['/sensorloc']['glon']]
                 except KeyError:
                     try:
                         latlon = f['/lla'][:2]
                     except KeyError as e:
-                        warn('could not get camera coordinates from {}, will compute only RA/DEC  {}'.format(infn,e))
+                        print(f'could not get camera coordinates from {infn}, will compute only RA/DEC  {e}',file=stderr)
         else:
-            warn('could not get camera coordinates from {}, will compute only RA/DEC'.format(infn))
+            print(f'could not get camera coordinates from {infn}, will compute only RA/DEC',file=stderr)
 #%%
-    x,y,ra,dec,az,el,timeFrame = fits2azel(fitsfn,latlon,ut1,['show','h5','png'],(0,2800))
+    x,y,ra,dec,az,el,timeFrame = fits2azel(fitsfn,latlon,ut1,makeplot,(0,2800))
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -47,6 +47,10 @@ if __name__ == '__main__':
     p.add_argument('-c','--latlon',help='wgs84 coordinates of cameras (deg.)',nargs=2,type=float)
     p.add_argument('-t','--ut1',help='override file UT1 time yyyy-mm-ddTHH:MM:SSZ')
     p.add_argument('-N','--navg',help='number of frames or start,stop frames to avg',nargs='+',type=int,default=10)
+    p.add_argument('-s','--skip',help='skip solve-field step of astrometry.net',action="store_true") #implies default False
     p = p.parse_args()
 
-    doplatescale(p.infn,p.outfn,p.latlon,p.ut1,p.navg)
+    makeplot = ['show','h5','png']
+    if p.skip: makeplot.append('skipsolve')
+
+    doplatescale(p.infn,p.outfn,p.latlon,p.ut1,p.navg,makeplot)

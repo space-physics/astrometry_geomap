@@ -2,14 +2,14 @@
 from setuptools import setup
 
 req = ['pymap3d',
-        'nose','python-dateutil','pytz','numpy','scipy','h5py','astropy','scikit-image','matplotlib','seaborn' ]
+        'nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy','scikit-image','matplotlib','seaborn' ]
 
 setup(name='astrometry_azel',
       packages=['astrometry_azel'],
       author='Michael Hirsch, Ph.D.',
       description='Register images to az/el using the astrometry.net program',
-      url='https://github.com/scienceopen/astrometry_azel',
-      version='1.0',
+      url='https://github.com/scivision/astrometry_azel',
+      version='1.0.2',
       classifiers=[
       'Intended Audience :: Science/Research',
       'Development Status :: 5 - Production/Stable',

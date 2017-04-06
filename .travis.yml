@@ -11,9 +11,8 @@ matrix:
 #    - os: osx
 #      env: pyv=3.6
 
-# temp 3.5 waiting for scikit-image to have 3.6 wheel
     - os: linux
-      env: pyv=3.5
+      env: pyv=3.6
 
 install:
     - if [[ $TRAVIS_OS_NAME == osx ]]; then
@@ -31,7 +30,9 @@ install:
     - conda create -n test python=$pyv
     - source activate test
     - pip -q install coveralls
-    - pip install .
+
+    - conda install pillow h5py scipy scikit-image matplotlib astropy seaborn
+    - python setup.py develop
 
 script: coverage run tests/test.py -v
 
