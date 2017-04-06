@@ -5,8 +5,8 @@
     :target: http://www.astropy.org/
 .. image:: https://travis-ci.org/scivision/astrometry_azel.svg?branch=master
     :target: https://travis-ci.org/scivision/astrometry_azel
-.. image:: https://coveralls.io/repos/scivision/astrometry/badge.svg?branch=master&service=github 
-   :target: https://coveralls.io/github/scivision/astrometry?branch=master
+.. image:: https://coveralls.io/repos/github/scivision/astrometry_azel/badge.svg?branch=master
+    :target: https://coveralls.io/github/scivision/astrometry_azel?branch=master
 
 ================================================================================================
 Azimuth/Elevation converter for `Astrometry.net <https://github.com/dstndstn/astrometry.net>`_
