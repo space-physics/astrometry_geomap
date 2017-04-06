@@ -40,7 +40,7 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
     some methods handled individually to improve efficiency with huge files
     """
     if infn.suffix =='.h5':
-        with h5py.File(str(infn),'r',libver='latest') as f:
+        with h5py.File(infn,'r',libver='latest') as f:
             img = collapsestack(f['/rawimg'],key,method)
 #%% time
             if ut1 is None:
@@ -55,7 +55,7 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
                 pass
 
     elif infn.suffix == '.fits':
-        with fits.open(str(infn),mode='readonly',memmap=False) as f: #mmap doesn't work with BZERO/BSCALE/BLANK
+        with fits.open(infn,mode='readonly',memmap=False) as f: #mmap doesn't work with BZERO/BSCALE/BLANK
             img = collapsestack(f[0].data, key,method)
 
     elif infn.suffix.startswith('.tif'):
@@ -63,10 +63,10 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
         img = collapsestack(img,key,method)
 
     elif infn.suffix == '.mat':
-        img = loadmat(str(infn))
+        img = loadmat(infn)
         img = collapsestack(img['data'].T, key, method) #matlab is fortran order
     else:
-        img = imread(str(infn))
+        img = imread(infn)
         if img.ndim in (3,4) and img.shape[-1]==3: #assume RGB
             img = collapsestack(rgb2gray(img),key,method)
 
@@ -88,10 +88,10 @@ def collapsestack(img,key,method):
 
 def writefits(img,outfn):
     outfn = Path(outfn).expanduser()
-    print('writing {}'.format(outfn))
+    print(f'writing {outfn}')
 
     f = fits.PrimaryHDU(img)
-    f.writeto(str(outfn),clobber=True,checksum=True)
+    f.writeto(outfn, clobber=True,checksum=True)
     #no close
 
 if __name__ == '__main__':
