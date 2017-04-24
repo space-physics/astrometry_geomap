@@ -1,15 +1,23 @@
 #!/usr/bin/env python
+req = ['nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy','scikit-image','matplotlib','seaborn']
+pipreq = ['pymap3d',]
+# %%
+import pip
+try:
+    import conda.cli
+    conda.cli.main('install',*req)
+except Exception as e:
+    pip.main(['install'] +req)
+pip.main(['install'] + pipreq)
+# %%
 from setuptools import setup
-
-req = ['pymap3d',
-        'nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy','scikit-image','matplotlib','seaborn' ]
 
 setup(name='astrometry_azel',
       packages=['astrometry_azel'],
       author='Michael Hirsch, Ph.D.',
       description='Register images to az/el using the astrometry.net program',
       url='https://github.com/scivision/astrometry_azel',
-      version='1.1.0',
+      version='1.1.1',
       classifiers=[
       'Intended Audience :: Science/Research',
       'Development Status :: 5 - Production/Stable',
