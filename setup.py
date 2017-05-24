@@ -25,7 +25,6 @@ setup(name='astrometry_azel',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
       'Programming Language :: Python :: 3.6',
       ],
-      install_requires=req,
       extras_require={'pyfits':'pyfits'},
 	  )
 

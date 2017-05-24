@@ -14,7 +14,7 @@ Azimuth/Elevation converter for `Astrometry.net <https://github.com/dstndstn/ast
 
 .. contents::
 
-Note: If you want to work with the intermediate steps (source extraction) or photometry, `see my AstroPy-based examples <https://github.com/scienceopen/starscale>`_.
+Note: If you want to work with the intermediate steps (source extraction) or photometry, `see my AstroPy-based examples <https://github.com/scivision/starscale>`_.
 
 Prerequisites
 =============
