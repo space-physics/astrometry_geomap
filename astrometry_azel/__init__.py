@@ -11,7 +11,10 @@ from pytz import UTC
 #
 from pymap3d import radec2azel
 #
-from .plots import plotazel,plotradec
+try:
+    from .plots import plotazel,plotradec
+except RuntimeError:
+    plotazel=plotradec=None
 #%%
 
 def readfitsimagestack(fn):
@@ -59,7 +62,8 @@ def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
     ra  = radec[:,0].reshape((yPix,xPix),order='C')
     dec = radec[:,1].reshape((yPix,xPix),order='C')
 #%% plot
-    plotradec(ra,dec,x,y,camLatLon,fitsfn,makeplot)
+    if plotradec is not None:
+        plotradec(ra,dec,x,y,camLatLon,fitsfn,makeplot)
 
     return x,y,ra,dec
 
@@ -89,7 +93,8 @@ def r2ae(fitsFN,ra,dec,x,y,camLatLon,specTime,makeplot):
 #%% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel
     az,el = radec2azel(ra, dec, camLatLon[0], camLatLon[1],timeFrame)
 
-    plotazel(az,el,x,y,fitsFN,camLatLon,timeFrame,makeplot)
+    if plotazel is not None:
+        plotazel(az,el,x,y,fitsFN,camLatLon,timeFrame,makeplot)
 
     return az,el,timeFrame
 
