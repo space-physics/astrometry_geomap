@@ -24,7 +24,7 @@ def plotazel(az,el,x=None,y=None, fn='',camLatLon='',timeFrame='',makeplot='',tt
         axa.set_xlabel('x-pixel')
         axa.set_ylabel('y-pixel')
 
-        ttxt += 'az.: {} {} {}'.format(fn.name, camLatLon, timeFrame)
+        ttxt += f'az.: {fn.name} {camLatLon} {timeFrame}'
         axa.set_title(ttxt)
 
         axe = fg.add_subplot(1,2,2)
@@ -40,11 +40,11 @@ def plotazel(az,el,x=None,y=None, fn='',camLatLon='',timeFrame='',makeplot='',tt
             axe.clabel(cs, inline=1,fmt='%0.1f')
         axe.set_xlabel('x-pixel')
         axe.set_ylabel('y-pixel')
-        axe.set_title('el.: {} {} {}'.format(fn.name, camLatLon, timeFrame))
+        axe.set_title(f'el.: {fn.name} {camLatLon} {timeFrame}')
 #%%
         if 'png' in makeplot:
-            plotFN = fn.parent/(fn.stem+'_azel.png')
-            print(f'writing  {plotFN}')
+            plotFN = fn.parent / (fn.stem+'_azel.png')
+            print('writing',plotFN)
             fg.savefig(str(plotFN), bbox_inches='tight',dpi=150)
 
         return fg,axa,axe
@@ -86,8 +86,8 @@ def plotradec(ra,dec,x,y,camLatLon,fn,makeplot):
         ax.set_title('DECL: ' + ttxt)
 #%%
         if 'png' in makeplot:
-            plotFN = fn.parent/(fn.stem+'_radec.png')
-            print(f'writing  {plotFN}')
+            plotFN = fn.parent / (fn.stem+'_radec.png')
+            print('writing',plotFN)
             fg.savefig(str(plotFN), bbox_inches='tight', dpi=150)
 
 def plotimagestack(img,fn,makeplot,clim=None):
@@ -120,5 +120,5 @@ def plotimagestack(img,fn,makeplot,clim=None):
 #%%
     if 'png' in makeplot:
         plotFN = fn.parent/(fn.stem+'_picture.png')
-        print(f'writing  {plotFN}')
+        print('writing', plotFN)
         fg.savefig(str(plotFN), bbox_inches='tight', dpi=150)

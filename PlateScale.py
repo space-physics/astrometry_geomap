@@ -6,7 +6,7 @@ Michael Hirsch
 """
 from pathlib import Path
 import h5py
-from sys import stderr
+import logging
 #
 from astrometry_azel.imgAvgStack import meanstack,writefits
 from astrometry_azel import fits2azel
@@ -26,16 +26,16 @@ def doplatescale(infn,outfn,latlon,ut1,Navg,makeplot):
 #%% try to get site coordinates from file
     if not latlon:
         if infn.suffix=='.h5':
-            with h5py.File(infn, 'r',libver='latest') as f:
+            with h5py.File(infn, 'r', libver='latest') as f:
                 try:
                     latlon = [f['/sensorloc']['glat'], f['/sensorloc']['glon']]
                 except KeyError:
                     try:
                         latlon = f['/lla'][:2]
                     except KeyError as e:
-                        print(f'could not get camera coordinates from {infn}, will compute only RA/DEC  {e}',file=stderr)
+                        logging.error(f'could not get camera coordinates from {infn}, will compute only RA/DEC  {e}')
         else:
-            print(f'could not get camera coordinates from {infn}, will compute only RA/DEC',file=stderr)
+            logging.error(f'could not get camera coordinates from {infn}, will compute only RA/DEC')
 #%%
     x,y,ra,dec,az,el,timeFrame = fits2azel(fitsfn,latlon,ut1,makeplot,(0,2800))
 
@@ -51,6 +51,7 @@ if __name__ == '__main__':
     p = p.parse_args()
 
     makeplot = ['show','h5','png']
-    if p.skip: makeplot.append('skipsolve')
+    if p.skip: 
+        makeplot.append('skipsolve')
 
     doplatescale(p.infn,p.outfn,p.latlon,p.ut1,p.navg,makeplot)

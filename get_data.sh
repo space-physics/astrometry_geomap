@@ -2,6 +2,8 @@
 # this copies the necessary star data (one-time) to your PC
 # https://www.scivision.co/setting-up-astrometry-net-program
 
+set -e
+
 (
 cd ~/astrometry.net/data
 

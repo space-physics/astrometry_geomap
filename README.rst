@@ -32,7 +32,7 @@ Astrometry.net index files
 --------------------------
 If you use astrometry.net on your PC, you may need to install the index files and setup your config file to point at them::
 
-  sudo ./setup_data.sh
+  sudo ./get_data.sh
 
 
 Command line options

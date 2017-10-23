@@ -34,13 +34,13 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
     elif len(Navg) == 2:
         key = slice(Navg[0],Navg[1])
     else:
-        raise ValueError('not sure what you mean by Navg={}'.format(Navg))
+        raise ValueError(f'not sure what you mean by Navg={Navg}')
 #%% load images
     """
     some methods handled individually to improve efficiency with huge files
     """
     if infn.suffix =='.h5':
-        with h5py.File(infn,'r',libver='latest') as f:
+        with h5py.File(infn, 'r', libver='latest') as f:
             img = collapsestack(f['/rawimg'],key,method)
 #%% time
             if ut1 is None:
@@ -82,7 +82,7 @@ def collapsestack(img,key,method):
         elif method=='median':
             method=median
         else:
-            raise TypeError('unknown method {}'.format(method))
+            raise TypeError(f'unknown method {method}')
 
         return method(img[key,...],axis=0).astype(img.dtype)
 

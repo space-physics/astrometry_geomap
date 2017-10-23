@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-req = ['nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy','scikit-image','matplotlib','seaborn']
-pipreq = ['pymap3d',]
+req = ['nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy',
+       'scikit-image','matplotlib','seaborn']
+pipreq = ['tifffile',
+          'pymap3d']
 # %%
 import pip
 try:
@@ -23,8 +25,9 @@ setup(name='astrometry_azel',
       'Development Status :: 5 - Production/Stable',
       'License :: OSI Approved :: MIT License',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
-      'Programming Language :: Python :: 3.6',
+      'Programming Language :: Python :: 3',
       ],
+      install_requires=req+pipreq,
       extras_require={'pyfits':'pyfits'},
 	  )
 

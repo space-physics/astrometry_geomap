@@ -4,15 +4,15 @@ Utility program to print source Coordinates in RA,DEC that astrometry.net found
 use this with .rdls files after solving an image
 """
 from pathlib import Path
-from sys import stderr
+import logging
 from astropy.io import fits
 
 def sourceradec(fn):
     fn = Path(fn).expanduser()
     if fn.suffix != '.rdls':
-        print('NOTE: this function is for .rdls files only',file=stderr)
+        logging.error('this function is for .rdls files only')
 
-    with fits.open(fn,'readonly') as f:
+    with fits.open(fn, 'readonly') as f:
         return f[1].data
 
 
