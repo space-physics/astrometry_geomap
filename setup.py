@@ -1,16 +1,7 @@
 #!/usr/bin/env python
-req = ['nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy',
-       'scikit-image','matplotlib','seaborn']
-pipreq = ['tifffile',
-          'pymap3d']
-# %%
-import pip
-try:
-    import conda.cli
-    conda.cli.main('install',*req)
-except Exception as e:
-    pip.main(['install'] +req)
-pip.main(['install'] + pipreq)
+req = ['nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy','scikit-image','matplotlib','seaborn',
+       'tifffile',
+       'pymap3d']
 # %%
 from setuptools import setup
 
@@ -27,7 +18,7 @@ setup(name='astrometry_azel',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
       'Programming Language :: Python :: 3',
       ],
-      install_requires=req+pipreq,
-      extras_require={'pyfits':'pyfits'},
+      install_requires=req,
+      python_requires='>=3.6',
 	  )
 

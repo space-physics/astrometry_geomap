@@ -26,7 +26,7 @@ Installation
 ============
 ::
 
-  python setup.py develop
+  pip install -e .
 
 Astrometry.net index files
 --------------------------
