@@ -3,10 +3,10 @@ req = ['nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy'
        'tifffile',
        'pymap3d']
 # %%
-from setuptools import setup
+from setuptools import setup,find_packages
 
 setup(name='astrometry_azel',
-      packages=['astrometry_azel'],
+      packages=find_packages(),
       author='Michael Hirsch, Ph.D.',
       description='Register images to az/el using the astrometry.net program',
       url='https://github.com/scivision/astrometry_azel',
