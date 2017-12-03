@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-req = ['nose','pillow','python-dateutil','pytz','numpy','scipy','h5py','astropy','scikit-image','matplotlib','seaborn',
+install_requires = ['pillow','python-dateutil','pytz','numpy', 'scipy','h5py', 'astropy','scikit-image',
        'tifffile',
        'pymap3d']
+tests_require=['nose','coveralls']
 # %%
 from setuptools import setup,find_packages
 
@@ -18,7 +19,10 @@ setup(name='astrometry_azel',
       'Topic :: Scientific/Engineering :: Atmospheric Science',
       'Programming Language :: Python :: 3',
       ],
-      install_requires=req,
+      install_requires=install_requires,
       python_requires='>=3.6',
+      tests_require=tests_require,
+      extras_require={'tests':tests_require,
+                      'plot':['matplotlib','seaborn',]},
 	  )
 
