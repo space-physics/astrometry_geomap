@@ -26,7 +26,7 @@ Installation
 ============
 ::
 
-  pip install -e .
+  python -m pip install -e .
 
 Astrometry.net index files
 --------------------------
