@@ -10,7 +10,7 @@ from astrometry_azel import fits2azel
 
 rdir = Path(__file__).parent
 
-class BasicTests(selftest.TestCase):
+class BasicTests(unittest.TestCase):
 
     def test_fits2azel(self):
         makeplot=['skipsolve']
