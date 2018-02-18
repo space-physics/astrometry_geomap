@@ -16,7 +16,7 @@ IOError: Header missing END card.
 from pathlib import Path
 from numpy import mean,median,rot90
 from astropy.io import fits
-from scipy.ndimage import imread
+import imageio
 from scipy.io import loadmat
 from skimage.color import rgb2gray
 import h5py
@@ -66,11 +66,12 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
         img = loadmat(infn)
         img = collapsestack(img['data'].T, key, method) #matlab is fortran order
     else:
-        img = imread(infn)
+        img = imageio.imread(infn)
         if img.ndim in (3,4) and img.shape[-1]==3: #assume RGB
             img = collapsestack(rgb2gray(img),key,method)
 
     return img,ut1
+
 
 def collapsestack(img,key,method):
     if img.ndim==2:
@@ -85,6 +86,7 @@ def collapsestack(img,key,method):
             raise TypeError(f'unknown method {method}')
 
         return method(img[key,...],axis=0).astype(img.dtype)
+
 
 def writefits(img,outfn):
     outfn = Path(outfn).expanduser()

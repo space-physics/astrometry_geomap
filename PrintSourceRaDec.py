@@ -24,7 +24,7 @@ if __name__ == '__main__':
 
     radec = sourceradec(p.fn)
 
-    print(f'{radec.shape[0]} sources found in {p.fn} with ra,dec coordinates:')
+    print(radec.shape[0],'sources found in',p.fn,'with ra,dec coordinates:')
 
     print(radec)
 

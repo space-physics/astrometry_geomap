@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-install_requires = ['pillow','python-dateutil','pytz','numpy', 'scipy','h5py', 'astropy','scikit-image',
-       'tifffile',
+install_requires = ['python-dateutil','pytz','numpy', 'scipy','h5py', 'astropy','scikit-image',
+       'tifffile','imageio',
        'pymap3d']
 tests_require=['nose','coveralls']
 # %%
@@ -10,8 +10,9 @@ setup(name='astrometry_azel',
       packages=find_packages(),
       author='Michael Hirsch, Ph.D.',
       description='Register images to az/el using the astrometry.net program',
+      long_description=open('README.rst').read(),
       url='https://github.com/scivision/astrometry_azel',
-      version='1.1.1',
+      version='1.1.2',
       classifiers=[
       'Intended Audience :: Science/Research',
       'Development Status :: 5 - Production/Stable',

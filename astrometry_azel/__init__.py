@@ -37,7 +37,7 @@ def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
         makeplot.append('skipsolve')
         WCSfn = fitsfn
     else:
-        raise TypeError(f'please convert {fitsfn} to GRAYSCALE .fits e.g. with ImageJ or ImageMagick')
+        raise ValueError(f'please convert {fitsfn} to GRAYSCALE .fits e.g. with ImageJ or ImageMagick')
 
     if not 'skipsolve' in makeplot:
         doSolve(fitsfn)
@@ -88,7 +88,7 @@ def r2ae(fitsFN,ra,dec,x,y,camLatLon,specTime,makeplot):
     else:
         return (None,)*3
 
-    print(f'image time: {timeFrame}')
+    print('image time:',timeFrame)
 
 #%% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel
     az,el = radec2azel(ra, dec, camLatLon[0], camLatLon[1],timeFrame)
@@ -121,7 +121,7 @@ def fits2azel(fitsfn,camLatLon,specTime,makeplot, clim=None):
 
     if 'h5' in makeplot:
         h5fn = fitsfn.with_suffix('.h5')
-        print(f'saving {h5fn}')
+        print('saving',h5fn)
         writeh5(h5fn,az,el,camLatLon,x,y,ra,dec,timeFrame,fitsfn)
 
     return x,y,ra,dec,az,el,timeFrame
