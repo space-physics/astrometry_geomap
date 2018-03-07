@@ -2,7 +2,7 @@
 install_requires = ['python-dateutil','pytz','numpy', 'scipy','h5py', 'astropy','scikit-image',
        'tifffile','imageio',
        'pymap3d']
-tests_require=['nose','coveralls']
+tests_require=['pytest','nose','coveralls']
 # %%
 from setuptools import setup,find_packages
 

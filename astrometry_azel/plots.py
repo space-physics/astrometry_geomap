@@ -45,7 +45,7 @@ def plotazel(az,el,x=None,y=None, fn='',camLatLon='',timeFrame='',makeplot='',tt
         if 'png' in makeplot:
             plotFN = fn.parent / (fn.stem+'_azel.png')
             print('writing',plotFN)
-            fg.savefig(str(plotFN), bbox_inches='tight',dpi=150)
+            fg.savefig(plotFN, bbox_inches='tight',dpi=150)
 
         return fg,axa,axe
 
@@ -88,7 +88,7 @@ def plotradec(ra,dec,x,y,camLatLon,fn,makeplot):
         if 'png' in makeplot:
             plotFN = fn.parent / (fn.stem+'_radec.png')
             print('writing',plotFN)
-            fg.savefig(str(plotFN), bbox_inches='tight', dpi=150)
+            fg.savefig(plotFN, bbox_inches='tight', dpi=150)
 
 def plotimagestack(img,fn,makeplot,clim=None):
     fn = Path(fn).expanduser()
@@ -121,4 +121,4 @@ def plotimagestack(img,fn,makeplot,clim=None):
     if 'png' in makeplot:
         plotFN = fn.parent/(fn.stem+'_picture.png')
         print('writing', plotFN)
-        fg.savefig(str(plotFN), bbox_inches='tight', dpi=150)
+        fg.savefig(plotFN, bbox_inches='tight', dpi=150)
