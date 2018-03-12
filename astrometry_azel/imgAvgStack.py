@@ -17,10 +17,9 @@ from pathlib import Path
 from numpy import mean,median,rot90
 from astropy.io import fits
 import imageio
+import h5py
 from scipy.io import loadmat
 from skimage.color import rgb2gray
-import h5py
-import tifffile
 
 def meanstack(infn,Navg,ut1=None,method='mean'):
     infn = Path(infn).expanduser()
@@ -40,7 +39,7 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
     some methods handled individually to improve efficiency with huge files
     """
     if infn.suffix =='.h5':
-        with h5py.File(infn, 'r', libver='latest') as f:
+        with h5py.File(infn, 'r') as f:
             img = collapsestack(f['/rawimg'],key,method)
 #%% time
             if ut1 is None:
@@ -53,19 +52,13 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
                 img = rot90(img,k=f['/params']['rotccw'])
             except KeyError:
                 pass
-
     elif infn.suffix == '.fits':
         with fits.open(infn,mode='readonly',memmap=False) as f: #mmap doesn't work with BZERO/BSCALE/BLANK
             img = collapsestack(f[0].data, key,method)
-
-    elif infn.suffix.startswith('.tif'):
-        img = tifffile.imread(str(infn),key=key)
-        img = collapsestack(img,key,method)
-
     elif infn.suffix == '.mat':
         img = loadmat(infn)
         img = collapsestack(img['data'].T, key, method) #matlab is fortran order
-    else:
+    else: # .tif etc.
         img = imageio.imread(infn)
         if img.ndim in (3,4) and img.shape[-1]==3: #assume RGB
             img = collapsestack(rgb2gray(img),key,method)

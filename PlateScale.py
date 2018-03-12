@@ -26,7 +26,7 @@ def doplatescale(infn,outfn,latlon,ut1,Navg,makeplot):
 #%% try to get site coordinates from file
     if not latlon:
         if infn.suffix=='.h5':
-            with h5py.File(infn, 'r', libver='latest') as f:
+            with h5py.File(infn, 'r') as f:
                 try:
                     latlon = [f['/sensorloc']['glat'], f['/sensorloc']['glon']]
                 except KeyError:

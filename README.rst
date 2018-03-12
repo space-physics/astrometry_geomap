@@ -3,10 +3,15 @@
    
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
     :target: http://www.astropy.org/
+    
 .. image:: https://travis-ci.org/scivision/astrometry_azel.svg?branch=master
     :target: https://travis-ci.org/scivision/astrometry_azel
+    
 .. image:: https://coveralls.io/repos/github/scivision/astrometry_azel/badge.svg?branch=master
     :target: https://coveralls.io/github/scivision/astrometry_azel?branch=master
+    
+.. image:: https://ci.appveyor.com/api/projects/status/0hfbtk1om99mfy0o?svg=true
+    :target: https://ci.appveyor.com/project/scivision/astrometry-azel
 
 ================================================================================================
 Azimuth/Elevation converter for `Astrometry.net <https://github.com/dstndstn/astrometry.net>`_
@@ -19,7 +24,7 @@ Note: If you want to work with the intermediate steps (source extraction) or pho
 
 Prerequisites
 =============
-`Astrometry.net 0.67 <https://scivision.co/setting-up-astrometry-net-program/>`_ or newer 
+`Astrometry.net >= 0.67 <https://scivision.co/setting-up-astrometry-net-program/>`_ 
 
 or, use the `astrometry.net cloud service--handy for Windows users <http://nova.astrometry.net/upload>`_ 
 
