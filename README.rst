@@ -14,7 +14,8 @@ Azimuth/Elevation converter for `Astrometry.net <https://github.com/dstndstn/ast
 
 .. contents::
 
-Note: If you want to work with the intermediate steps (source extraction) or photometry, `see my AstroPy-based examples <https://github.com/scivision/starscale>`_.
+Note: If you want to work with the intermediate steps (source extraction) or photometry, see my AstroPy-based 
+`examples <https://github.com/scivision/starscale>`_.
 
 Prerequisites
 =============
@@ -32,7 +33,7 @@ Astrometry.net index files
 --------------------------
 If you use astrometry.net on your PC, you may need to install the index files and setup your config file to point at them::
 
-  sudo ./get_data.sh
+    downloadIndex.py
 
 
 Command line options
