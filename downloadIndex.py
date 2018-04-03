@@ -28,7 +28,7 @@ def get_index(odir:Path, source_url:str, irng:list):
         if ofn.is_file(): # no clobber
             print('skipping',ofn)
             continue
-        print(f'{u} => {ofn}')
+        print(f'{u} => {ofn}', end='\r')
         urlretrieve(u,ofn)
 
 if __name__ == '__main__':

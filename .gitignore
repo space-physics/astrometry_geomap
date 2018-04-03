@@ -1,3 +1,5 @@
+.cache/
+*.nc
 build/
 dist/
 *.png

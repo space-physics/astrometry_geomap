@@ -8,16 +8,16 @@ from pathlib import Path
 import h5py
 import logging
 #
-from astrometry_azel.imgAvgStack import meanstack,writefits
+from astrometry_azel.io import meanstack,writefits
 from astrometry_azel import fits2azel
 
-def doplatescale(infn,outfn,latlon,ut1,Navg,makeplot):
+def doplatescale(infn:Path, outfn:Path, latlon:tuple, ut1, Navg, skipsolve:bool):
     infn = Path(infn).expanduser()
 
     if outfn:
         outfn = Path(outfn).expanduser()
     else:
-        outfn = infn.with_suffix('.h5')
+        outfn = infn.with_suffix('.nc')
 
     fitsfn = outfn.with_suffix('.fits')
 #%% convert to mean
@@ -37,7 +37,7 @@ def doplatescale(infn,outfn,latlon,ut1,Navg,makeplot):
         else:
             logging.error(f'could not get camera coordinates from {infn}, will compute only RA/DEC')
 #%%
-    x,y,ra,dec,az,el,timeFrame = fits2azel(fitsfn,latlon,ut1,makeplot,(0,2800))
+    return fits2azel(fitsfn,latlon, ut1, skipsolve)
 
 if __name__ == '__main__':
     from argparse import ArgumentParser
@@ -50,8 +50,5 @@ if __name__ == '__main__':
     p.add_argument('-s','--skip',help='skip solve-field step of astrometry.net',action="store_true") #implies default False
     p = p.parse_args()
 
-    makeplot = ['show','h5','png']
-    if p.skip: 
-        makeplot.append('skipsolve')
 
-    doplatescale(p.infn,p.outfn,p.latlon,p.ut1,p.navg,makeplot)
+    scale = doplatescale(p.infn, p.outfn, p.latlon, p.ut1, p.navg, p.skip)

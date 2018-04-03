@@ -1,45 +1,29 @@
 from pathlib import Path
 import subprocess
-import h5py
 from numpy import meshgrid,column_stack
 from astropy.wcs import wcs
 import logging
+import xarray
 from astropy.io import fits #instead of obsolete pyfits
 from dateutil.parser import parse
 from datetime import datetime
 from pytz import UTC
 #
 from pymap3d import radec2azel
-#
-try:
-    from .plots import plotazel,plotradec
-except RuntimeError:
-    plotazel=plotradec=None
-#%%
-
-def readfitsimagestack(fn):
-    fn = Path(fn).expanduser()
-
-    with fits.open(fn, mode='readonly') as f:
-        if len(f[0].shape) > 1: #no .ndim in Astropy.io.fits 1.2
-            return f[0].data
-        else:
-            raise TypeError(f'did not find image data in {fn}. This may be a bug.')
 
 
-def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
+def fits2radec(fitsfn:Path, skipsolve:bool=False) -> xarray.Dataset:
     fitsfn = Path(fitsfn).expanduser()
 
     if fitsfn.suffix == '.fits':
         WCSfn = fitsfn.with_suffix('.wcs') #using .wcs will also work but gives a spurious warning
 
     elif fitsfn.suffix == '.wcs':
-        makeplot.append('skipsolve')
         WCSfn = fitsfn
     else:
         raise ValueError(f'please convert {fitsfn} to GRAYSCALE .fits e.g. with ImageJ or ImageMagick')
 
-    if not 'skipsolve' in makeplot:
+    if not skipsolve:
         doSolve(fitsfn)
 
     with fits.open(fitsfn, mode='readonly') as f:
@@ -61,42 +45,43 @@ def fits2radec(fitsfn,camLatLon,makeplot,clim=None):
 
     ra  = radec[:,0].reshape((yPix,xPix),order='C')
     dec = radec[:,1].reshape((yPix,xPix),order='C')
-#%% plot
-    if plotradec is not None:
-        plotradec(ra,dec,x,y,camLatLon,fitsfn,makeplot)
+# %% collect output
+    radec = xarray.Dataset({'ra': (('y','x'),ra),
+                            'dec':(('y','x'),dec),},
+                           {'x':range(xPix), 'y':range(yPix)},
+                           attrs={'filename':fitsfn})
 
-    return x,y,ra,dec
+    return radec
 
 
-def r2ae(fitsFN,ra,dec,x,y,camLatLon,specTime,makeplot):
-    if camLatLon is not None and ra is not None:
-        try:
-            if specTime is None:
-                with fits.open(fitsFN,mode='readonly') as f:
-                    frameTime = f[0].header['FRAME'] #TODO this only works from Solis?
-                    timeFrame = parse(frameTime).replace(tzinfo=UTC)
-                    logging.warning('assumed UTC time zone, using FITS header for time')
-            elif isinstance(specTime,datetime):
-                timeFrame = specTime
-            elif isinstance(specTime,(float,int)): #assume UT1_Unix
-                timeFrame = datetime.fromtimestamp(specTime,tz=UTC)
-            else: #user override of frame time
-                timeFrame = parse(specTime)
-        except (KeyError, TypeError):
-            logging.error(f'could not read time from {fitsFN}')
-            return (None,)*3
+def r2ae(scale:xarray.Dataset, camLatLon:tuple, time:datetime) -> xarray.Dataset:
+    if camLatLon is not None and scale is not None:
+        if time is None:
+            with fits.open(scale.filename,mode='readonly') as f:
+                time = f[0].header['FRAME'] #TODO this only works from Solis?
+                time = parse(time).replace(tzinfo=UTC)
+                logging.warning('assumed UTC time zone, using FITS header for time')
+        elif isinstance(time,datetime):
+            pass
+        elif isinstance(time,(float,int)): #assume UT1_Unix
+            time = datetime.fromtimestamp(time, tz=UTC)
+        else: #user override of frame time
+            time = parse(time)
+
     else:
         return (None,)*3
 
-    print('image time:',timeFrame)
-
+    print('image time:',time)
 #%% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel
-    az,el = radec2azel(ra, dec, camLatLon[0], camLatLon[1],timeFrame)
+    az,el = radec2azel(scale['ra'], scale['dec'], camLatLon[0], camLatLon[1], time)
+# %% collect output
+    scale['az'] = (('y','x'),az)
+    scale['el'] = (('y','x'),el)
+    scale.attrs['lat'] = camLatLon[0]
+    scale.attrs['lon'] = camLatLon[1]
+    scale.attrs['time'] = time
 
-    if plotazel is not None:
-        plotazel(az,el,x,y,fitsFN,camLatLon,timeFrame,makeplot)
-
-    return az,el,timeFrame
+    return scale
 
 
 def doSolve(fitsfn):
@@ -108,52 +93,15 @@ def doSolve(fitsfn):
     cmd = ['solve-field','--overwrite', str(fitsfn)]
     print(cmd)
 
-    subprocess.run(cmd)#, env={'PATH':str(binpath)})
+    subprocess.check_call(cmd)
 
     print('\n\n *** done with astrometry.net ***\n ')
 
 
-def fits2azel(fitsfn,camLatLon,specTime,makeplot, clim=None):
+def fits2azel(fitsfn:Path, camLatLon:tuple, time:datetime, skipsolve:bool=False) -> xarray.Dataset:
     fitsfn = Path(fitsfn).expanduser()
 
-    x,y,ra,dec = fits2radec(fitsfn,camLatLon,makeplot, clim)
-    az,el,timeFrame = r2ae(fitsfn,ra,dec,x,y,camLatLon,specTime, makeplot)
+    radec = fits2radec(fitsfn, skipsolve)
+    scale = r2ae(radec, camLatLon, time)
 
-    if 'h5' in makeplot:
-        h5fn = fitsfn.with_suffix('.h5')
-        print('saving',h5fn)
-        writeh5(h5fn,az,el,camLatLon,x,y,ra,dec,timeFrame,fitsfn)
-
-    return x,y,ra,dec,az,el,timeFrame
-
-
-def writeh5(h5fn,az,el,camLatLon,x,y,ra,dec,timeFrame,fitsfn):
-    with h5py.File(h5fn, 'w',libver='latest') as f:
-
-        if az is not None:
-            h5az = f.create_dataset("/az",data=az,compression="gzip",shuffle=True,fletcher32=True)
-            h5az.attrs['Units'] = 'degrees'
-
-            h5el = f.create_dataset("/el",data=el,compression="gzip",shuffle=True,fletcher32=True)
-            h5el.attrs['Units'] = 'degrees'
-
-            h5ll = f.create_dataset("/sensorloc",data=camLatLon,shuffle=True,fletcher32=True)
-            h5ll.attrs['Units'] = 'WGS-84 degrees'
-
-        h5x =  f.create_dataset("/x",data=x,compression="gzip",shuffle=True,fletcher32=True)
-        h5x.attrs['Units'] = 'pixels'
-
-        h5y =  f.create_dataset("/y",data=y,compression="gzip",shuffle=True,fletcher32=True)
-        h5y.attrs['Units'] = 'pixels'
-
-        h5ra = f.create_dataset("/ra",data=ra,compression="gzip",shuffle=True,fletcher32=True)
-        h5ra.attrs['Units'] = 'degrees'
-
-        h5dec =f.create_dataset("/dec",data=dec,compression="gzip",shuffle=True,fletcher32=True)
-        h5dec.attrs['Units'] = 'degrees'
-
-        h5tf = f.create_dataset("/timeFrame",data=str(timeFrame))
-        h5tf.attrs['Units'] = 'UTC time of exposure start'
-
-        h5fn = f.create_dataset('/fitsfn',data=str(fitsfn))
-        h5fn.attrs['Units'] = 'original FITS filename'
+    return scale

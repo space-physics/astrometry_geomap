@@ -21,7 +21,7 @@ import h5py
 from scipy.io import loadmat
 
 
-def meanstack(infn,Navg,ut1=None,method='mean'):
+def meanstack(infn:Path, Navg:int, ut1=None, method:str='mean'):
     infn = Path(infn).expanduser()
 #%% parse indicies to load
     if isinstance(Navg,slice):
@@ -81,9 +81,9 @@ def collapsestack(img,key,method):
         return method(img[key,...],axis=0).astype(img.dtype)
 
 
-def writefits(img,outfn):
+def writefits(img, outfn:Path):
     outfn = Path(outfn).expanduser()
-    print(f'writing {outfn}')
+    print('writing',outfn)
 
     f = fits.PrimaryHDU(img)
     f.writeto(outfn, clobber=True,checksum=True)
