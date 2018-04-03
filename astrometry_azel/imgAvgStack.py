@@ -19,7 +19,7 @@ from astropy.io import fits
 import imageio
 import h5py
 from scipy.io import loadmat
-from skimage.color import rgb2gray
+
 
 def meanstack(infn,Navg,ut1=None,method='mean'):
     infn = Path(infn).expanduser()
@@ -59,9 +59,9 @@ def meanstack(infn,Navg,ut1=None,method='mean'):
         img = loadmat(infn)
         img = collapsestack(img['data'].T, key, method) #matlab is fortran order
     else: # .tif etc.
-        img = imageio.imread(infn)
+        img = imageio.imread(infn, as_gray=True)
         if img.ndim in (3,4) and img.shape[-1]==3: #assume RGB
-            img = collapsestack(rgb2gray(img),key,method)
+            img = collapsestack(img, key, method)
 
     return img,ut1
 

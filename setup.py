@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-install_requires = ['python-dateutil','pytz','numpy', 'scipy', 'astropy','scikit-image','imageio','h5py',
+install_requires = ['python-dateutil','pytz','numpy', 'scipy', 'astropy','imageio','h5py',
        'pymap3d']
 tests_require=['pytest','nose','coveralls']
 # %%
@@ -26,5 +26,6 @@ setup(name='astrometry_azel',
       tests_require=tests_require,
       extras_require={'tests':tests_require,
                       'plot':['matplotlib','seaborn',],},
+      scripts=['downloadIndex.py','PlateScaleFITS.py','PlateScale.py','PrintSourceRaDec.py'],
 	  )
 
