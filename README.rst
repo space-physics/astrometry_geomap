@@ -4,6 +4,10 @@
 .. image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
     :target: http://www.astropy.org/
     
+.. image:: https://img.shields.io/badge/powered%20by-xarray-orange.svg?style=flat
+   :target:  http://xarray.pydata.org/en/stable/why-xarray.html
+
+    
 .. image:: https://travis-ci.org/scivision/astrometry_azel.svg?branch=master
     :target: https://travis-ci.org/scivision/astrometry_azel
     
