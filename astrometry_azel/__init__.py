@@ -41,7 +41,7 @@ def fits2radec(fitsfn: Path, skipsolve: bool=False) -> xarray.Dataset:
         with fits.open(WCSfn, mode='readonly') as f:
             # radec = wcs.WCS(hdul[0].header,naxis=[0,1]).all_pix2world(xy, 0)
             radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
-    except IOError:
+    except OSError:
         raise RuntimeError(f'It appears the WCS solution is not present, was the FITS image solved?  looking for: {WCSfn}')
 
     ra = radec[:, 0].reshape((yPix, xPix), order='C')
