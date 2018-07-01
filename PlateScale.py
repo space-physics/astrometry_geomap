@@ -7,11 +7,19 @@ Michael Hirsch
 from pathlib import Path
 import h5py
 import logging
-#
-from astrometry_azel.io import meanstack,writefits
+from typing import Tuple, Optional
+from datetime import datetime
+from argparse import ArgumentParser
+from astrometry_azel.io import meanstack, writefits
 from astrometry_azel import fits2azel
 
-def doplatescale(infn:Path, outfn:Path, latlon:tuple, ut1, Navg, skipsolve:bool):
+
+def doplatescale(infn: Path, outfn: Path,
+                 latlon: Tuple[float, float],
+                 ut1: Optional[datetime],
+                 Navg: int,
+                 skipsolve: bool):
+
     infn = Path(infn).expanduser()
 
     if outfn:
@@ -20,15 +28,15 @@ def doplatescale(infn:Path, outfn:Path, latlon:tuple, ut1, Navg, skipsolve:bool)
         outfn = infn.with_suffix('.nc')
 
     fitsfn = outfn.with_suffix('.fits')
-#%% convert to mean
-    meanimg,ut1 = meanstack(infn,Navg,ut1)
-    writefits(meanimg,fitsfn)
-#%% try to get site coordinates from file
+# %% convert to mean
+    meanimg, ut1 = meanstack(infn, Navg, ut1)
+    writefits(meanimg, fitsfn)
+# %% try to get site coordinates from file
     if not latlon:
-        if infn.suffix=='.h5':
+        if infn.suffix == '.h5':
             with h5py.File(infn, 'r') as f:
                 try:
-                    latlon = [f['/sensorloc']['glat'], f['/sensorloc']['glon']]
+                    latlon = (f['/sensorloc']['glat'], f['/sensorloc']['glon'])
                 except KeyError:
                     try:
                         latlon = f['/lla'][:2]
@@ -36,19 +44,22 @@ def doplatescale(infn:Path, outfn:Path, latlon:tuple, ut1, Navg, skipsolve:bool)
                         logging.error(f'could not get camera coordinates from {infn}, will compute only RA/DEC  {e}')
         else:
             logging.error(f'could not get camera coordinates from {infn}, will compute only RA/DEC')
-#%%
-    return fits2azel(fitsfn,latlon, ut1, skipsolve)
+# %%
+    return fits2azel(fitsfn, latlon, ut1, skipsolve)
+
+
+def main():
+    p = ArgumentParser(description='do plate scaling for image data')
+    p.add_argument('infn', help='image data file name (HDF5 or FITS)')
+    p.add_argument('-o', '--outfn', help='platescale data path to write')
+    p.add_argument('-c', '--latlon', help='wgs84 coordinates of cameras (deg.)', nargs=2, type=float)
+    p.add_argument('-t', '--ut1', help='override file UT1 time yyyy-mm-ddTHH:MM:SSZ')
+    p.add_argument('-N', '--navg', help='number of frames or start,stop frames to avg', nargs='+', type=int, default=10)
+    p.add_argument('-s', '--skip', help='skip solve-field step of astrometry.net', action="store_true")  # implies default False
+    P = p.parse_args()
+
+    doplatescale(P.infn, P.outfn, P.latlon, P.ut1, P.navg, P.skip)
+
 
 if __name__ == '__main__':
-    from argparse import ArgumentParser
-    p = ArgumentParser(description='do plate scaling for image data')
-    p.add_argument('infn',help='image data file name (HDF5 or FITS)')
-    p.add_argument('-o','--outfn',help='platescale data path to write')
-    p.add_argument('-c','--latlon',help='wgs84 coordinates of cameras (deg.)',nargs=2,type=float)
-    p.add_argument('-t','--ut1',help='override file UT1 time yyyy-mm-ddTHH:MM:SSZ')
-    p.add_argument('-N','--navg',help='number of frames or start,stop frames to avg',nargs='+',type=int,default=10)
-    p.add_argument('-s','--skip',help='skip solve-field step of astrometry.net',action="store_true") #implies default False
-    p = p.parse_args()
-
-
-    scale = doplatescale(p.infn, p.outfn, p.latlon, p.ut1, p.navg, p.skip)
+    main()
