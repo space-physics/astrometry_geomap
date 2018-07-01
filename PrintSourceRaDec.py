@@ -9,10 +9,10 @@ from astropy.io import fits
 from argparse import ArgumentParser
 
 
-def sourceradec(fn):
+def sourceradec(fn: Path):
     fn = Path(fn).expanduser()
     if fn.suffix != '.rdls':
-        logging.error('this function is for .rdls files only')
+        logging.warning('this function is for .rdls files only')
 
     with fits.open(fn, 'readonly') as f:
         return f[1].data

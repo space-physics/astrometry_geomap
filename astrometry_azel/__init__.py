@@ -7,7 +7,6 @@ import xarray
 from astropy.io import fits  # instead of obsolete pyfits
 from dateutil.parser import parse
 from datetime import datetime
-from pytz import UTC
 from typing import Optional
 #
 from pymap3d import radec2azel
@@ -18,7 +17,6 @@ def fits2radec(fitsfn: Path, skipsolve: bool=False) -> xarray.Dataset:
 
     if fitsfn.suffix == '.fits':
         WCSfn = fitsfn.with_suffix('.wcs')  # using .wcs will also work but gives a spurious warning
-
     elif fitsfn.suffix == '.wcs':
         WCSfn = fitsfn
     else:
@@ -42,7 +40,7 @@ def fits2radec(fitsfn: Path, skipsolve: bool=False) -> xarray.Dataset:
             # radec = wcs.WCS(hdul[0].header,naxis=[0,1]).all_pix2world(xy, 0)
             radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
     except OSError:
-        raise RuntimeError(f'It appears the WCS solution is not present, was the FITS image solved?  looking for: {WCSfn}')
+        raise OSError(f'It appears the WCS solution is not present, was the FITS image solved?  looking for: {WCSfn}')
 
     ra = radec[:, 0].reshape((yPix, xPix), order='C')
     dec = radec[:, 1].reshape((yPix, xPix), order='C')
@@ -55,22 +53,23 @@ def fits2radec(fitsfn: Path, skipsolve: bool=False) -> xarray.Dataset:
     return radec
 
 
-def r2ae(scale: xarray.Dataset, camLatLon: tuple, time: Optional[datetime]) -> xarray.Dataset:
-    if camLatLon is not None and scale is not None:
-        if time is None:
-            with fits.open(scale.filename, mode='readonly') as f:
-                t = f[0].header['FRAME']  # TODO this only works from Solis?
-                time = parse(t).replace(tzinfo=UTC)
-                logging.warning('assumed UTC time zone, using FITS header for time')
-        elif isinstance(time, datetime):
-            pass
-        elif isinstance(time, (float, int)):  # assume UT1_Unix
-            time = datetime.fromtimestamp(time, tz=UTC)
-        else:  # user override of frame time
-            time = parse(time)
+def r2ae(scale: xarray.Dataset, camLatLon: tuple,
+         time: Optional[datetime]) -> xarray.Dataset:
 
-    else:
-        return (None,) * 3
+    if camLatLon is None or not isinstance(scale, xarray.Dataset):
+        return None
+
+    if time is None:
+        with fits.open(scale.filename, mode='readonly') as f:
+            t = f[0].header['FRAME']  # TODO this only works from Solis?
+            time = parse(t)
+            logging.info('using FITS header for time')
+    elif isinstance(time, datetime):
+        pass
+    elif isinstance(time, (float, int)):  # assume UT1_Unix
+        time = datetime.utcfromtimestamp(time)
+    else:  # user override of frame time
+        time = parse(time)
 
     print('image time:', time)
 # %% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel

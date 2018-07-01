@@ -13,43 +13,52 @@ Note: If you want to work with the intermediate steps (source extraction) or pho
 ## Prerequisites
 
 [Astrometry.net &ge; 0.67](https://scivision.co/setting-up-astrometry-net-program/)
-or, use the [astrometry.net cloud service\--handy for Windows
-users](http://nova.astrometry.net/upload)
+or, use the 
+[astrometry.net cloud service](http://nova.astrometry.net/upload).
 
-Installation
-------------
-
-    python -m pip install -e .
+## Installation
+```sh
+python -m pip install -e .
+```
 
 ### Astrometry.net index files
 
 If you use astrometry.net on your PC, you may need to install the index
 files and setup your config file to point at them:
+```sh
+downloadIndex ~/data
+```
 
-    downloadIndex.py
+## Command line options
 
-Command line options
---------------------
+* `--h5` write az/el et al to HDF5 
+* `--mat` write az/el et al to .mat Matlab save file 
+* `--png` write az/el et al to PNG 
+* `-h` to see all the options you can use
 
-\--h5 write az/el et al to HDF5 \--mat write az/el et al to .mat Matlab
-save file \--png write az/el et al to PNG -h to see all the options you
-can use
+## Examples
 
-Examples
---------
+### FITS image input
+FITS is a legacy file format commonly used in astronomy.
 
-### Astrometry.net installed on your PC:
+#### Astrometry.net installed on your PC
+```sh
+PlateScaleFITS myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --h5 --png
+```
+gives HDF5 .h5 with az/el ra/dec and PNG plots of the data. 
+Both files contain the same data, just for your convenience.
 
-    python PlateScaleFITS.py myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --h5 --png
+61.2 -149.9 is your WGS84 coordinates, 2013-04-02T12:03:23Z is UTC time of the picture.
 
-gives HDF5 .h5 with az/el ra/dec and PNG plots of the data. Both files
-contain the same data, just for your convenience.
-
-The 61.2 -149.9 is your WGS84 coordinates, 2013-04-02T12:03:23Z is UTC
-time of the picture.
-
-### wcs.fits from the Astrometry.net WEBSITE:
+#### wcs.fits from the Astrometry.net WEBSITE
 
 first rename wcs.fits to myimg.wcs:
+```sh
+PlateScaleFITS myimg.wcs -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --h5 --png
+```
 
-    python PlateScaleFITS.py myimg.wcs -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --h5 --png
+### JPG image input
+JPG is commonly used by prosumer cameras.
+It's preferable to use lossless formats for scientific imaging such as JPEG2000 or newer file formats.
+
+

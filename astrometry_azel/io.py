@@ -15,7 +15,6 @@ IOError: Header missing END card.
 """
 from pathlib import Path
 import numpy as np
-from numpy import rot90
 from astropy.io import fits
 import imageio
 from typing import Tuple, Optional
@@ -26,6 +25,7 @@ from scipy.io import loadmat
 
 def meanstack(infn: Path, Navg: int, ut1: Optional[datetime]=None,
               method: str='mean') -> Tuple[np.ndarray, Optional[datetime]]:
+
     infn = Path(infn).expanduser()
 # %% parse indicies to load
     if isinstance(Navg, slice):
@@ -43,19 +43,7 @@ def meanstack(infn: Path, Navg: int, ut1: Optional[datetime]=None,
     some methods handled individually to improve efficiency with huge files
     """
     if infn.suffix == '.h5':
-        with h5py.File(infn, 'r') as f:
-            img = collapsestack(f['/rawimg'], key, method)
-# %% time
-            if ut1 is None:
-                try:
-                    ut1 = f['/ut1_unix'][key][0]
-                except KeyError:
-                    pass
-# %% orientation
-            try:
-                img = rot90(img, k=f['/params']['rotccw'])
-            except KeyError:
-                pass
+        img, ut1 = _h5mean(infn, ut1, key, method)
     elif infn.suffix == '.fits':
         with fits.open(infn, mode='readonly', memmap=False) as f:  # mmap doesn't work with BZERO/BSCALE/BLANK
             img = collapsestack(f[0].data, key, method)
@@ -70,19 +58,41 @@ def meanstack(infn: Path, Navg: int, ut1: Optional[datetime]=None,
     return img, ut1
 
 
+def _h5mean(fn: Path, ut1: Optional[datetime],
+            key: slice, method: str) -> Tuple[np.ndarray, Optional[datetime]]:
+    with h5py.File(fn, 'r') as f:
+        img = collapsestack(f['/rawimg'], key, method)
+# %% time
+        if ut1 is None:
+            try:
+                ut1 = f['/ut1_unix'][key][0]
+            except KeyError:
+                pass
+# %% orientation
+        try:
+            img = np.rot90(img, k=f['/params']['rotccw'])
+        except KeyError:
+            pass
+
+    return img, ut1
+
+
 def collapsestack(img: np.ndarray, key: slice, method):
+    if img.ndim not in (2, 3):
+        raise ValueError('only 2D or 3D image stacks are handled')
+
+# %% 2-D
     if img.ndim == 2:
         return img
-# %%
-    if img.ndim == 3:
-        if method == 'mean':
-            func = np.mean
-        elif method == 'median':
-            func = np.median
-        else:
-            raise TypeError(f'unknown method {method}')
+# %% 3-D
+    if method == 'mean':
+        func = np.mean
+    elif method == 'median':
+        func = np.median
+    else:
+        raise TypeError(f'unknown method {method}')
 
-        return func(img[key, ...], axis=0).astype(img.dtype)
+    return func(img[key, ...], axis=0).astype(img.dtype)
 
 
 def writefits(img: np.ndarray, outfn: Path):
@@ -90,5 +100,5 @@ def writefits(img: np.ndarray, outfn: Path):
     print('writing', outfn)
 
     f = fits.PrimaryHDU(img)
-    f.writeto(outfn, clobber=True, checksum=True)
+    f.writeto(outfn, overwrite=True, checksum=True)
     # no close
