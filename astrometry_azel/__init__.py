@@ -112,9 +112,14 @@ def doSolve(fitsfn: Path, args: str=None):
 # %% build command
     cmd = ['solve-field', '--overwrite', str(fitsfn)]
     cmd += opts
-    print(cmd)
+    print('\n', ' '.join(cmd), '\n')
 # %% execute
-    subprocess.check_call(cmd)
+    ret = subprocess.check_output(cmd, universal_newlines=True)
+
+    # solve-field returns 0 even if it didn't solve!
+    print(ret)
+    if 'Did not solve' in ret:
+        raise RuntimeError(f'could not solve {fitsfn}')
 
     print('\n\n *** done with astrometry.net ***\n ')
 

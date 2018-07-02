@@ -58,12 +58,15 @@ The parameters I find most useful for citizen science images include:
           at the top ten brightest stars only.
 ```
 
+For extraneous regions of the image, try making a copy of the original image that has the offending regions cropped out. 
+If the original image is in a lossy format such as JPEG, consider saving in a lossless format such as PNG after cropping.
+
 ### FITS image input
 FITS is a legacy file format commonly used in astronomy.
 
 #### Astrometry.net installed on your PC
 ```sh
-PlateScaleFITS myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --h5 --png
+PlateScaleFITS myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --nc --png
 ```
 gives NetCDF .nc with az/el ra/dec and PNG plots of the data. 
 Both files contain the same data, just for your convenience.
@@ -74,7 +77,7 @@ Both files contain the same data, just for your convenience.
 
 first rename wcs.fits to myimg.wcs:
 ```sh
-PlateScaleFITS myimg.wcs -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --h5 --png
+PlateScaleFITS myimg.wcs -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --nc --png
 ```
 
 ### JPG image input
@@ -91,3 +94,4 @@ It's preferable to use lossless formats for scientific imaging such as JPEG2000 
 * astrometry.net [source code releases](http://astrometry.net/downloads/)
 * astrometry.net [GitHub](https://github.com/dstndstn/astrometry.net)
 
+* [article](https://www.dsi.uni-stuttgart.de/institut/mitarbeiter/schindler/Schindler_et_al._2016.pdf) on good robustness of Astrometry.net to shaky, streaked images.
