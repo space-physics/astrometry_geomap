@@ -5,20 +5,18 @@ script to plate scale data in FITS or HDF5 format.
 Michael Hirsch
 """
 from pathlib import Path
-import h5py
-import logging
 from typing import Tuple, Optional
 from datetime import datetime
 from argparse import ArgumentParser
-from astrometry_azel.io import meanstack, writefits
-from astrometry_azel import fits2azel
+import astrometry_azel.io as aio
+import astrometry_azel as ael
 
 
 def doplatescale(infn: Path, outfn: Path,
                  latlon: Tuple[float, float],
                  ut1: Optional[datetime],
                  Navg: int,
-                 skipsolve: bool):
+                 skipsolve: bool, args: str):
 
     infn = Path(infn).expanduser()
 
@@ -29,36 +27,31 @@ def doplatescale(infn: Path, outfn: Path,
 
     fitsfn = outfn.with_suffix('.fits')
 # %% convert to mean
-    meanimg, ut1 = meanstack(infn, Navg, ut1)
-    writefits(meanimg, fitsfn)
+    meanimg, ut1 = aio.meanstack(infn, Navg, ut1)
+
+    aio.writefits(meanimg, fitsfn)
 # %% try to get site coordinates from file
-    if not latlon:
-        if infn.suffix == '.h5':
-            with h5py.File(infn, 'r') as f:
-                try:
-                    latlon = (f['/sensorloc']['glat'], f['/sensorloc']['glon'])
-                except KeyError:
-                    try:
-                        latlon = f['/lla'][:2]
-                    except KeyError as e:
-                        logging.error(f'could not get camera coordinates from {infn}, will compute only RA/DEC  {e}')
-        else:
-            logging.error(f'could not get camera coordinates from {infn}, will compute only RA/DEC')
-# %%
-    return fits2azel(fitsfn, latlon, ut1, skipsolve)
+    if latlon is None:
+        latlon = aio.readh5coord(infn)
+
+    return ael.fits2azel(fitsfn, latlon, ut1, skipsolve, args)
 
 
 def main():
     p = ArgumentParser(description='do plate scaling for image data')
     p.add_argument('infn', help='image data file name (HDF5 or FITS)')
     p.add_argument('-o', '--outfn', help='platescale data path to write')
-    p.add_argument('-c', '--latlon', help='wgs84 coordinates of cameras (deg.)', nargs=2, type=float)
+    p.add_argument('-c', '--latlon', help='wgs84 coordinates of cameras (deg.)',
+                   nargs=2, type=float)
     p.add_argument('-t', '--ut1', help='override file UT1 time yyyy-mm-ddTHH:MM:SSZ')
-    p.add_argument('-N', '--navg', help='number of frames or start,stop frames to avg', nargs='+', type=int, default=10)
-    p.add_argument('-s', '--skip', help='skip solve-field step of astrometry.net', action="store_true")  # implies default False
+    p.add_argument('-N', '--navg', help='number of frames or start,stop frames to avg',
+                   nargs='+', type=int, default=10)
+    p.add_argument('-s', '--skip', help='skip solve-field step of astrometry.net',
+                   action="store_true")
+    p.add_argument('-a', '--args', help='arguments to pass through to solve-field')
     P = p.parse_args()
 
-    doplatescale(P.infn, P.outfn, P.latlon, P.ut1, P.navg, P.skip)
+    doplatescale(P.infn, P.outfn, P.latlon, P.ut1, P.navg, P.skip, P.args)
 
 
 if __name__ == '__main__':

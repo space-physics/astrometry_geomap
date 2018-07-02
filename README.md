@@ -31,12 +31,32 @@ downloadIndex ~/data
 
 ## Command line options
 
-* `--h5` write az/el et al to HDF5 
-* `--mat` write az/el et al to .mat Matlab save file 
-* `--png` write az/el et al to PNG 
-* `-h` to see all the options you can use
+### Pass-through arguments
+
+The `-a` `--args` command line option allows passing through a variety of parameters to `solve-field`, which underlies this program.
+Type `solve-field -h` or `man solve-field` for a brief description of the nearly 100 options available.
+
+Be sure to enclose the options in quotes. 
+For example, to specify that the image field is at least 20 degrees in extent:
+```sh
+PlateScale ~/data/myimg.jpg -a "-L 20"
+```
+ 
 
 ## Examples
+
+Citizen science images often contain extraneous items in the image field of view.
+These can very easily break `solve-field`, which is designed for professional science-grade imagery from telescopes and narrow to medium field of view imagers (at least to 50 degree FOV).
+To mitigate these issues, judicious use of arguments passed to `solve-field` via `--args` is probably a good start.
+
+The parameters I find most useful for citizen science images include:
+```
+-L / --scale-low <scale>: lower bound of image scale estimate
+-H / --scale-high <scale>: upper bound of image scale estimate
+ -d / --depth <number or range>: number of field objects to look at, or range
+          of numbers; 1 is the brightest star, so "-d 10" or "-d 1-10" mean look
+          at the top ten brightest stars only.
+```
 
 ### FITS image input
 FITS is a legacy file format commonly used in astronomy.
@@ -45,7 +65,7 @@ FITS is a legacy file format commonly used in astronomy.
 ```sh
 PlateScaleFITS myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --h5 --png
 ```
-gives HDF5 .h5 with az/el ra/dec and PNG plots of the data. 
+gives NetCDF .nc with az/el ra/dec and PNG plots of the data. 
 Both files contain the same data, just for your convenience.
 
 61.2 -149.9 is your WGS84 coordinates, 2013-04-02T12:03:23Z is UTC time of the picture.
@@ -61,4 +81,13 @@ PlateScaleFITS myimg.wcs -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --h5 --png
 JPG is commonly used by prosumer cameras.
 It's preferable to use lossless formats for scientific imaging such as JPEG2000 or newer file formats.
 
+
+## Notes
+
+* 2MASS [index](http://broiler.astrometry.net/~dstn/4200/)
+* Tycho [index](http://broiler.astrometry.net/~dstn/4100/)
+
+* ways to [use astrometry.net](http://astrometry.net/use.html)
+* astrometry.net [source code releases](http://astrometry.net/downloads/)
+* astrometry.net [GitHub](https://github.com/dstndstn/astrometry.net)
 

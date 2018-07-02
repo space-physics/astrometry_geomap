@@ -1,7 +1,24 @@
 #!/usr/bin/env python
 """
+Astrometry-azel
+Copyright (C) 2013-2018 Michael Hirsch, Ph.D.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+--------------------------------------
 Image stack -> average -> write FITS
-Michael Hirsch
+
 
 Because ImageJ has been a little buggy about writing FITS files, in particular the header
 that astrometry.net then crashes on, we wrote this quick script to ingest a variety
@@ -77,7 +94,7 @@ def _h5mean(fn: Path, ut1: Optional[datetime],
     return img, ut1
 
 
-def collapsestack(img: np.ndarray, key: slice, method):
+def collapsestack(img: np.ndarray, key: slice, method: str):
     if img.ndim not in (2, 3):
         raise ValueError('only 2D or 3D image stacks are handled')
 
@@ -102,3 +119,19 @@ def writefits(img: np.ndarray, outfn: Path):
     f = fits.PrimaryHDU(img)
     f.writeto(outfn, overwrite=True, checksum=True)
     # no close
+
+
+def readh5coord(fn: Path) -> Optional[Tuple[float, float]]:
+    if not fn.suffix == '.h5':
+        return None
+
+    with h5py.File(fn, 'r') as f:
+        try:
+            latlon = (f['/sensorloc']['glat'], f['/sensorloc']['glon'])
+        except KeyError:
+            try:
+                latlon = f['/lla'][:2]
+            except KeyError as e:
+                return None
+
+    return latlon
