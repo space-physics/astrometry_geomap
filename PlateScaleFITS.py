@@ -6,7 +6,7 @@ Consider using the more general PlateScale.py
 from matplotlib.pyplot import show
 from argparse import ArgumentParser
 import astrometry_azel as ael
-import astrometry_azel as aep
+import astrometry_azel.plots as aep
 
 
 def main():

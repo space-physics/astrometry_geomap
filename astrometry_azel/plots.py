@@ -2,9 +2,13 @@ from pathlib import Path
 import logging
 import xarray
 from matplotlib.pyplot import figure
-
+import numpy as np
+from typing import Sequence
 
 def plotazel(scale: xarray.Dataset):
+
+    if 'az' not in scale:
+        return
 
     plottype = 'contour'
 
@@ -43,6 +47,9 @@ def plotazel(scale: xarray.Dataset):
 
 def plotradec(scale: xarray.Dataset):
 
+    if 'ra' not in scale:
+        return
+
     plottype = 'contour'
 
     fg = figure(figsize=(12, 5))
@@ -75,7 +82,7 @@ def plotradec(scale: xarray.Dataset):
     ax.set_title('Declination')
 
 
-def plotimagestack(img, fn, makeplot, clim=None):
+def plotimagestack(img: np.ndarray, fn: Path, makeplot: Sequence[str], clim=None):
     fn = Path(fn).expanduser()
     # %% plotting
     if img.ndim == 3 and img.shape[0] == 3:  # it seems to be an RGB image
