@@ -15,8 +15,8 @@ def main():
     p.add_argument('-c', '--latlon', help='tuple of WGS-84 (lat,lon) [degrees]',
                    nargs=2, type=float)
     p.add_argument('-t', '--time', help='override UTC time yyyy-mm-ddThh:mm:ss')
-    p.add_argument('-s', '--skip', help='skip solve-field step of astrometry.net',
-                   action="store_true")  # implies default False
+    p.add_argument('-s', '--solve', help='run solve-field step of astrometry.net',
+                   action="store_true")
     p.add_argument('--nc', help='write variables to .nc NetCDF data file',
                    action="store_true")
     p.add_argument('--clim', help='clim of preview images (no effect on computation)',
@@ -25,7 +25,7 @@ def main():
     P = p.parse_args()
 
 # %% actually run program
-    scale = ael.fits2azel(P.infile, P.latlon, P.time, P.skip, P.args)
+    scale = ael.fits2azel(P.infile, P.latlon, P.time, P.solve, P.args)
 # %% plot
     aep.plotradec(scale)
     aep.plotazel(scale)

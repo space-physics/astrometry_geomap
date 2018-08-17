@@ -16,7 +16,7 @@ def plotazel(scale: xarray.Dataset):
     fg = figure(figsize=(12, 5))
     ax = fg.subplots(1, 2, sharey=True)
 
-    fg.suptitle(f'{scale.filename.name} {scale.lat} {scale.lon} {scale.time}')
+    fg.suptitle(f'{scale.filename.name} {scale.lat:.2f} {scale.lon:.2f} {scale.time}')
 # %%
     axa = ax[0]
 
@@ -39,7 +39,7 @@ def plotazel(scale: xarray.Dataset):
         hc.set_label('Elevation [deg]')
     elif plottype == 'contour':
         cs = axe.contour(scale['x'], scale['y'], scale['el'])
-        axe.clabel(cs, inline=1, fmt='%0.1f')
+        axe.clabel(cs, inline=True, fmt='%0.1f', fontsize='medium')
 
     axe.set_xlabel('x-pixel')
     axe.set_ylabel('y-pixel')

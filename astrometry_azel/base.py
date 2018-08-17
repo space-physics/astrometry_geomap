@@ -12,7 +12,7 @@ from typing import Tuple
 import pymap3d
 
 
-def fits2radec(fitsfn: Path, skipsolve: bool=False, args: str=None) -> xarray.Dataset:
+def fits2radec(fitsfn: Path, solve: bool=False, args: str=None) -> xarray.Dataset:
 
     fitsfn = Path(fitsfn).expanduser()
 
@@ -23,7 +23,7 @@ def fits2radec(fitsfn: Path, skipsolve: bool=False, args: str=None) -> xarray.Da
     else:
         raise ValueError(f'please convert {fitsfn} to GRAYSCALE .fits e.g. with ImageJ or ImageMagick')
 
-    if not skipsolve:
+    if solve:
         doSolve(fitsfn, args)
 
     with fits.open(fitsfn, mode='readonly') as f:
@@ -112,11 +112,11 @@ def doSolve(fitsfn: Path, args: str=None):
 
 def fits2azel(fitsfn: Path,
               latlon: Tuple[float, float],
-              time: datetime=None, skipsolve: bool=False, args: str=None) -> xarray.Dataset:
+              time: datetime=None, solve: bool=False, args: str=None) -> xarray.Dataset:
 
     fitsfn = Path(fitsfn).expanduser()
 
-    radec = fits2radec(fitsfn, skipsolve, args)
+    radec = fits2radec(fitsfn, solve, args)
     scale = radec2azel(radec, latlon, time)
 
 # %% if az/el can be computed, scale is implicitly merged with radec. Otherwise just return radec
