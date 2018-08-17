@@ -17,7 +17,7 @@ def test_fits2azel():
     time = '2000-01-01T00:00:00'
 
     camLatLon = (40, -80)  # not true, just a guess
-    scale = fits2azel(fitsfn, camLatLon, time, True)
+    scale = fits2azel(fitsfn, camLatLon, time)
 
     assert scale['ra'].values[[32, 51, 98], [28, 92, 156]] == approx([152.313342, 157.988921, 165.012208])
     assert scale['dec'].values[[32, 51, 98], [28, 92, 156]] == approx([59.982123, 59.182819, 59.149952])
