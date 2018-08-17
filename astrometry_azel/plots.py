@@ -5,6 +5,7 @@ from matplotlib.pyplot import figure
 import numpy as np
 from typing import Sequence
 
+
 def plotazel(scale: xarray.Dataset):
 
     if 'az' not in scale:

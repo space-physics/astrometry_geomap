@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """
+http://astrometry.net/doc/readme.html#getting-index-files
+
 Downloads 2MASS whole-sky index files, which worked well for me with a
 variety of non-all-sky auroral imagagers in the 5 to 50 degree FOV range.
 Also, the Tycho index files are said to be good for this FOV range, but I don't
