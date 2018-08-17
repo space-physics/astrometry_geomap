@@ -4,6 +4,9 @@
 [![Travis-CI](https://travis-ci.org/scivision/astrometry_azel.svg?branch=master)](https://travis-ci.org/scivision/astrometry_azel)
 [![Coverage](https://coveralls.io/repos/github/scivision/astrometry_azel/badge.svg?branch=master)](https://coveralls.io/github/scivision/astrometry_azel?branch=master)
 [![AppVeyor](https://ci.appveyor.com/api/projects/status/0hfbtk1om99mfy0o?svg=true)](https://ci.appveyor.com/project/scivision/astrometry-azel)
+[![PyPi version](https://img.shields.io/pypi/pyversions/astrometry-azel.svg)](https://pypi.python.org/pypi/astrometry-azel)
+[![PyPi formats](https://img.shields.io/pypi/format/astrometry-azel.svg)](https://pypi.python.org/pypi/astrometry-azel)
+[![Downloads](http://pepy.tech/badge/astrometry-azel)](http://pepy.tech/project/astrometry-azel)
 
 # Azimuth/Elevation converter for [Astrometry.net](https://github.com/dstndstn/astrometry.net)
 
