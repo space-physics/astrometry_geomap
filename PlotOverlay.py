@@ -3,7 +3,10 @@
 Plot overlay of images that have been registered (RA/DEC is adequte).
 For simplicity, the FITS images with Astrometry.net inserted WCS coordinates are used.
 
-The program could be slightly upgraded to optinally use the original image (in any reasonable format) and the .wcs file from Astrometry.net.
+The program could be slightly upgraded to optionally use the original image and the .wcs file from Astrometry.net.
+
+Note: one can use WCS projection:
+http://docs.astropy.org/en/stable/visualization/wcsaxes/
 """
 from astropy.io import fits
 from astropy.wcs import wcs
@@ -11,6 +14,7 @@ import numpy as np
 from pathlib import Path
 from argparse import ArgumentParser
 from matplotlib.pyplot import figure, show
+from matplotlib.colors import LogNorm
 
 
 def main():
@@ -19,27 +23,29 @@ def main():
                    nargs='+')
     p.add_argument('-s', '--subplots', help='subplots instead of overlay',
                    action='store_true')
+    p.add_argument('--suptitle', help='overall text for suptitle')
     p = p.parse_args()
 
     flist = [Path(f).expanduser() for f in p.flist]
 
     cmaps = ('Blues', 'Reds', 'Greens')
     fg = figure()
+    fg.suptitle(p.suptitle)
 
     if p.subplots:
         axs = fg.subplots(1, len(flist), sharey=True, sharex=True)
-        for fn, cm, ax in zip(flist, cmaps, axs):
-            add_plot(fn, cm, ax)
+        for fn, ax in zip(flist, axs):
+            add_plot(fn, 'gray', ax)
 
     else:
         ax = fg.gca()
         for fn, cm in zip(flist, cmaps):
-            add_plot(fn, cm, ax)
+            add_plot(fn, cm, ax, alpha=0.05)
 
     show()
 
 
-def add_plot(fn: Path, cm, ax):
+def add_plot(fn: Path, cm, ax, alpha=1):
     """Astrometry.net makes file ".new" with the image and the WCS SIP 2-D polynomial fit coefficients in the FITS header
 
     We use DECL as "x" and RA as "y".
@@ -60,7 +66,8 @@ def add_plot(fn: Path, cm, ax):
     ra = radec[:, 0].reshape((yPix, xPix), order='C')
     dec = radec[:, 1].reshape((yPix, xPix), order='C')
 
-    ax.pcolormesh(dec, ra, img, alpha=0.05, cmap=cm)
+    ax.set_title(fn.name)
+    ax.pcolormesh(ra, dec, img, alpha=alpha, cmap=cm, norm=LogNorm())
     ax.set_ylabel('Right Ascension [deg.]')
     ax.set_xlabel('Declination [deg.]')
 
