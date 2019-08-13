@@ -2,6 +2,7 @@ from pathlib import Path
 import subprocess
 import shutil
 import logging
+import warnings
 from dateutil.parser import parse
 from datetime import datetime
 from typing import Tuple
@@ -16,17 +17,20 @@ except ImportError:
     pymap3d = None
 
 
-def fits2radec(fitsfn: Path, solve: bool = False, args: str = None) -> xarray.Dataset:
+def fits2radec(
+    fitsfn: Path, WCSfn: Path = None, solve: bool = False, args: str = None
+) -> xarray.Dataset:
 
     fitsfn = Path(fitsfn).expanduser()
 
-    if fitsfn.suffix in (".fits", ".new"):
-        # using .wcs will also work but gives a spurious warning
-        WCSfn = fitsfn.with_suffix(".wcs")
-    elif fitsfn.suffix == ".wcs":
-        WCSfn = fitsfn
-    else:
-        raise ValueError(f"please convert {fitsfn} to GRAYSCALE .fits")
+    if WCSfn is None:
+        if fitsfn.suffix in (".fits", ".new"):
+            # using .wcs will also work but gives a spurious warning
+            WCSfn = fitsfn.with_suffix(".wcs")
+        elif fitsfn.suffix == ".wcs":
+            WCSfn = fitsfn
+        else:
+            raise ValueError(f"please convert {fitsfn} to GRAYSCALE .fits")
 
     if solve:
         doSolve(fitsfn, args)
@@ -43,8 +47,10 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str = None) -> xarray.Da
     """
     try:
         with fits.open(WCSfn, mode="readonly") as f:
-            # radec = wcs.WCS(hdul[0].header,naxis=[0,1]).all_pix2world(xy, 0)
-            radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
+                # radec = wcs.WCS(hdul[0].header,naxis=[0,1]).all_pix2world(xy, 0)
     except OSError:
         raise OSError(
             f"It appears the WCS solution is not present, was the FITS image solved?  looking for: {WCSfn}"
@@ -93,6 +99,13 @@ def radec2azel(
     # %% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel
     # .values is to avoid silently freezing AstroPy
     az, el = pymap3d.radec2azel(scale["ra"].values, scale["dec"].values, *latlon, time)
+    if (el < 0).any():
+        Nbelow = (el < 0).nonzero()
+        logging.error(
+            f"{Nbelow} points were below the horizon."
+            "Currently this program assumed observer ~ ground level."
+            "Please file a bug report if you need observer off of Earth surface"
+        )
     # %% collect output
     scale["az"] = (("y", "x"), az)
     scale["el"] = (("y", "x"), el)
@@ -131,7 +144,9 @@ def doSolve(fitsfn: Path, args: str = None):
 
 def fits2azel(
     fitsfn: Path,
-    latlon: Tuple[float, float],
+    *,
+    wcsfn: Path = None,
+    latlon: Tuple[float, float] = None,
     time: datetime = None,
     solve: bool = False,
     args: str = None,
@@ -139,7 +154,7 @@ def fits2azel(
 
     fitsfn = Path(fitsfn).expanduser()
 
-    radec = fits2radec(fitsfn, solve, args)
+    radec = fits2radec(fitsfn, wcsfn, solve, args)
     # if az/el can be computed, scale is implicitly merged with radec.
     scale = radec2azel(radec, latlon, time)
     if scale is None:

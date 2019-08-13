@@ -16,7 +16,9 @@ def plotazel(scale: xarray.Dataset):
     fg = figure(figsize=(12, 5))
     ax = fg.subplots(1, 2, sharey=True)
 
-    fg.suptitle(f"{scale.filename.name} {scale.lat:.2f} {scale.lon:.2f} {scale.time}")
+    fg.suptitle(
+        f"{Path(scale.filename).name} {scale.lat:.2f} {scale.lon:.2f} {scale.time}"
+    )
     # %%
     axa = ax[0]
 
@@ -55,6 +57,8 @@ def plotradec(scale: xarray.Dataset):
 
     fg = figure(figsize=(12, 5))
     axs = fg.subplots(1, 2, sharey=True)
+
+    fg.suptitle(Path(scale.filename).name)
 
     ax = axs[0]
 

@@ -35,6 +35,7 @@ import numpy as np
 from typing import Tuple, Optional
 from datetime import datetime
 from astropy.io import fits
+import logging
 
 try:
     import imageio
@@ -133,11 +134,14 @@ def collapsestack(img: np.ndarray, key: slice, method: str) -> np.ndarray:
 
 def writefits(img: np.ndarray, outfn: Path):
     outfn = Path(outfn).expanduser()
-    print("writing", outfn)
 
     f = fits.PrimaryHDU(img)
-    f.writeto(outfn, overwrite=True, checksum=True)
-    # no close
+    try:
+        f.writeto(outfn, overwrite=False, checksum=True)
+        # no close()
+        print("writing", outfn)
+    except OSError:
+        logging.warning(f"did not overwrite existing {outfn}")
 
 
 def readh5coord(fn: Path) -> Tuple[float, float]:

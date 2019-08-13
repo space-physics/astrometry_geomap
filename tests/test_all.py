@@ -10,7 +10,6 @@ import shutil
 import astrometry_azel as ael
 
 rdir = Path(__file__).parent
-ignore = "ignore:The WCS transformation has more axes"
 LATLON = (0, 0)
 TIME = "2000-01-01T00:00"
 fitsfn = rdir / "apod4.fits"
@@ -24,7 +23,6 @@ def test_nosolve(tmp_path):
         ael.doSolve(tmp_path)
 
 
-@pytest.mark.filterwarnings(ignore)
 def test_fits2radec():
     scale = ael.fits2radec(fitsfn)
 
@@ -36,11 +34,10 @@ def test_fits2radec():
     )
 
 
-@pytest.mark.filterwarnings(ignore)
 def test_fits2azel():
     pytest.importorskip("pymap3d")
 
-    scale = ael.fits2azel(fitsfn, LATLON, TIME)
+    scale = ael.fits2azel(fitsfn, latlon=LATLON, time=TIME)
 
     assert scale["az"].values[[32, 51, 98], [28, 92, 156]] == approx(
         [24.58404928, 26.84288277, 28.44059037]

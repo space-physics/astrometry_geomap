@@ -3,10 +3,15 @@
 original frontend to fits2azel (requires fits input)
 Consider using the more general PlateScale.py
 """
-from matplotlib.pyplot import show
+
 from argparse import ArgumentParser
 import astrometry_azel as ael
-import astrometry_azel.plots as aep
+
+try:
+    import astrometry_azel.plots as aep
+    from matplotlib.pyplot import show
+except ImportError:
+    show = None
 
 
 def main():
@@ -40,10 +45,9 @@ def main():
     P = p.parse_args()
 
     # %% actually run program
-    scale = ael.fits2azel(P.infile, P.latlon, P.time, P.solve, P.args)
-    # %% plot
-    aep.plotradec(scale)
-    aep.plotazel(scale)
+    scale = ael.fits2azel(
+        P.infile, latlon=P.latlon, time=P.time, solve=P.solve, args=P.args
+    )
     # %% write to file
     if P.nc:
         outfn = scale.filename.with_suffix(".nc")
@@ -52,7 +56,12 @@ def main():
         scale.attrs["time"] = str(scale.time)
         scale.to_netcdf(outfn)
 
-    show()
+    # %% plot
+    if show is not None:
+        aep.plotradec(scale)
+        aep.plotazel(scale)
+
+        show()
 
 
 if __name__ == "__main__":

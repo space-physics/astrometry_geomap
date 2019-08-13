@@ -15,9 +15,9 @@ import xarray
 
 import astrometry_azel.io as aio
 import astrometry_azel as ael
-import astrometry_azel.plots as aep
 
 try:
+    import astrometry_azel.plots as aep
     from matplotlib.pyplot import show
 except (ImportError, RuntimeError):
     show = None
@@ -41,11 +41,12 @@ def doplatescale(
 
     # %% filenames
     infn = Path(infn).expanduser().resolve(strict=True)
+    wcsfn = infn.with_suffix(".wcs")
 
     if outfn:
         fitsfn = Path(outfn).with_suffix(".fits")
     else:
-        fitsfn = infn.with_suffix(".fits")
+        fitsfn = infn.parent / (infn.stem + "_stack.fits")
     # %% convert to mean
     meanimg, ut1 = aio.meanstack(infn, Navg, ut1)
 
@@ -54,7 +55,9 @@ def doplatescale(
     if latlon is None:
         latlon = aio.readh5coord(infn)
 
-    scale = ael.fits2azel(fitsfn, latlon, ut1, solve, args)
+    scale = ael.fits2azel(
+        fitsfn, wcsfn=wcsfn, latlon=latlon, time=ut1, solve=solve, args=args
+    )
     # %% write to file
     if outfn:
         outfn = Path(outfn).expanduser()
