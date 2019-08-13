@@ -1,16 +1,19 @@
 from pathlib import Path
 import subprocess
-from numpy import meshgrid, column_stack
-from astropy.wcs import wcs
+import shutil
 import logging
-import xarray
-from astropy.io import fits  # instead of obsolete pyfits
 from dateutil.parser import parse
 from datetime import datetime
 from typing import Tuple
+from numpy import meshgrid, column_stack
+import xarray
+from astropy.io import fits  # instead of obsolete pyfits
+from astropy.wcs import wcs
 
-#
-import pymap3d
+try:
+    import pymap3d
+except ImportError:
+    pymap3d = None
 
 
 def fits2radec(fitsfn: Path, solve: bool = False, args: str = None) -> xarray.Dataset:
@@ -66,6 +69,9 @@ def radec2azel(
     scale: xarray.Dataset, latlon: Tuple[float, float], time: datetime = None
 ) -> xarray.Dataset:
 
+    if pymap3d is None:
+        raise ImportError("pip install pymap3d")
+
     if latlon is None or not isinstance(scale, xarray.Dataset):
         return None
 
@@ -74,7 +80,6 @@ def radec2azel(
             try:
                 t = f[0].header["FRAME"]  # TODO this only works from Solis?
             except KeyError:
-                logging.error("no time given in file or manually, cannot compute az/el")
                 return None
         time = parse(t)
         logging.info("using FITS header for time")
@@ -102,10 +107,13 @@ def doSolve(fitsfn: Path, args: str = None):
     """
     Astrometry.net from at least version 0.67 is OK with Python 3.
     """
-    # binpath = Path(find_executable('solve-field')).parent
+    solve = shutil.which("solve-field")
+    if not solve:
+        raise FileNotFoundError("Astrometry.net solve-file exectuable not found")
+
     opts = args.split(" ") if args else []
     # %% build command
-    cmd = ["solve-field", "--overwrite", str(fitsfn)]
+    cmd = [solve, "--overwrite", str(fitsfn)]
     cmd += opts
     print("\n", " ".join(cmd), "\n")
     # %% execute
@@ -130,9 +138,8 @@ def fits2azel(
     fitsfn = Path(fitsfn).expanduser()
 
     radec = fits2radec(fitsfn, solve, args)
+    # if az/el can be computed, scale is implicitly merged with radec.
     scale = radec2azel(radec, latlon, time)
-
-    # %% if az/el can be computed, scale is implicitly merged with radec. Otherwise just return radec
     if scale is None:
         scale = radec
 
