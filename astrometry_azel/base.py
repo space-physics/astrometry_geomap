@@ -12,7 +12,7 @@ from typing import Tuple
 import pymap3d
 
 
-def fits2radec(fitsfn: Path, solve: bool=False, args: str=None) -> xarray.Dataset:
+def fits2radec(fitsfn: Path, solve: bool = False, args: str = None) -> xarray.Dataset:
 
     fitsfn = Path(fitsfn).expanduser()
 
@@ -55,7 +55,7 @@ def fits2radec(fitsfn: Path, solve: bool=False, args: str=None) -> xarray.Datase
 
 
 def radec2azel(scale: xarray.Dataset,
-               latlon: Tuple[float, float], time: datetime=None) -> xarray.Dataset:
+               latlon: Tuple[float, float], time: datetime = None) -> xarray.Dataset:
 
     if latlon is None or not isinstance(scale, xarray.Dataset):
         return None
@@ -89,7 +89,7 @@ def radec2azel(scale: xarray.Dataset,
     return scale
 
 
-def doSolve(fitsfn: Path, args: str=None):
+def doSolve(fitsfn: Path, args: str = None):
     """
     Astrometry.net from at least version 0.67 is OK with Python 3.
     """
@@ -112,7 +112,7 @@ def doSolve(fitsfn: Path, args: str=None):
 
 def fits2azel(fitsfn: Path,
               latlon: Tuple[float, float],
-              time: datetime=None, solve: bool=False, args: str=None) -> xarray.Dataset:
+              time: datetime = None, solve: bool = False, args: str = None) -> xarray.Dataset:
 
     fitsfn = Path(fitsfn).expanduser()
 

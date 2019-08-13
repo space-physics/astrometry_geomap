@@ -22,7 +22,7 @@ from typing import Sequence
 from .base import fits2azel, fits2radec, radec2azel, doSolve  # noqa: F401
 
 
-def urlretrieve(url: str, fn: Path, overwrite: bool=False):
+def urlretrieve(url: str, fn: Path, overwrite: bool = False):
     if not overwrite and fn.is_file() and fn.stat().st_size > 10000:
         print(f'SKIPPED {fn}')
         return
