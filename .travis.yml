@@ -13,7 +13,9 @@ jobs:
     script:
     - flake8
     - mypy .
-  - stage: test
-    name: Dev install
+  - stage: basictest
     install: pip install -e .[tests]
+    script: pytest -r a -v
+  - stage: fulltest
+    install: pip install -e .[tests,all]
     script: pytest -r a -v
