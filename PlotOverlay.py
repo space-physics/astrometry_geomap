@@ -19,23 +19,25 @@ from matplotlib.colors import LogNorm
 
 def main():
     p = ArgumentParser()
-    p.add_argument('flist', help='FITS ".new" WCS registered filenames to plot together',
-                   nargs='+')
-    p.add_argument('-s', '--subplots', help='subplots instead of overlay',
-                   action='store_true')
-    p.add_argument('--suptitle', help='overall text for suptitle')
+    p.add_argument(
+        "flist", help='FITS ".new" WCS registered filenames to plot together', nargs="+"
+    )
+    p.add_argument(
+        "-s", "--subplots", help="subplots instead of overlay", action="store_true"
+    )
+    p.add_argument("--suptitle", help="overall text for suptitle")
     p = p.parse_args()
 
     flist = [Path(f).expanduser() for f in p.flist]
 
-    cmaps = ('Blues', 'Reds', 'Greens')
+    cmaps = ("Blues", "Reds", "Greens")
     fg = figure()
     fg.suptitle(p.suptitle)
 
     if p.subplots:
         axs = fg.subplots(1, len(flist), sharey=True, sharex=True)
         for fn, ax in zip(flist, axs):
-            add_plot(fn, 'gray', ax)
+            add_plot(fn, "gray", ax)
 
     else:
         ax = fg.gca()
@@ -54,23 +56,23 @@ def add_plot(fn: Path, cm, ax, alpha=1):
     This is handled in https://github.com/scivision/pcolormesh_nan.py.
     """
 
-    with fits.open(fn, mode='readonly', memmap=False) as f:
+    with fits.open(fn, mode="readonly", memmap=False) as f:
         img = f[0].data
 
         yPix, xPix = f[0].shape[-2:]
         x, y = np.meshgrid(range(xPix), range(yPix))  # pixel indices to find RA/dec of
-        xy = np.column_stack((x.ravel(order='C'), y.ravel(order='C')))
+        xy = np.column_stack((x.ravel(order="C"), y.ravel(order="C")))
 
         radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
 
-    ra = radec[:, 0].reshape((yPix, xPix), order='C')
-    dec = radec[:, 1].reshape((yPix, xPix), order='C')
+    ra = radec[:, 0].reshape((yPix, xPix), order="C")
+    dec = radec[:, 1].reshape((yPix, xPix), order="C")
 
     ax.set_title(fn.name)
     ax.pcolormesh(ra, dec, img, alpha=alpha, cmap=cm, norm=LogNorm())
-    ax.set_ylabel('Right Ascension [deg.]')
-    ax.set_xlabel('Declination [deg.]')
+    ax.set_ylabel("Right Ascension [deg.]")
+    ax.set_xlabel("Declination [deg.]")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

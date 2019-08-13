@@ -34,6 +34,7 @@ from pathlib import Path
 import numpy as np
 from typing import Tuple, Optional
 from datetime import datetime
+
 try:
     import imageio
 except ImportError:
@@ -52,13 +53,12 @@ except ImportError:
     loadmat = None
 
 
-def meanstack(infn: Path,
-              Navg: int,
-              ut1: Optional[datetime] = None,
-              method: str = 'mean') -> Tuple[np.ndarray, Optional[datetime]]:
+def meanstack(
+    infn: Path, Navg: int, ut1: Optional[datetime] = None, method: str = "mean"
+) -> Tuple[np.ndarray, Optional[datetime]]:
 
     infn = Path(infn).expanduser().resolve(strict=True)
-# %% parse indicies to load
+    # %% parse indicies to load
     if isinstance(Navg, slice):
         key = Navg
     elif isinstance(Navg, int):
@@ -68,28 +68,30 @@ def meanstack(infn: Path,
     elif len(Navg) == 2:
         key = slice(Navg[0], Navg[1])
     else:
-        raise ValueError(f'not sure what you mean by Navg={Navg}')
-# %% load images
+        raise ValueError(f"not sure what you mean by Navg={Navg}")
+    # %% load images
     """
     some methods handled individually to improve efficiency with huge files
     """
-    if infn.suffix == '.h5':
+    if infn.suffix == ".h5":
         if h5py is None:
-            raise ImportError('pip install h5py')
+            raise ImportError("pip install h5py")
         img, ut1 = _h5mean(infn, ut1, key, method)
-    elif infn.suffix == '.fits':
+    elif infn.suffix == ".fits":
         if fits is None:
-            raise ImportError('pip install astropy')
-        with fits.open(infn, mode='readonly', memmap=False) as f:  # mmap doesn't work with BZERO/BSCALE/BLANK
+            raise ImportError("pip install astropy")
+        with fits.open(
+            infn, mode="readonly", memmap=False
+        ) as f:  # mmap doesn't work with BZERO/BSCALE/BLANK
             img = collapsestack(f[0].data, key, method)
-    elif infn.suffix == '.mat':
+    elif infn.suffix == ".mat":
         if loadmat is None:
-            raise ImportError('pip install scipy')
+            raise ImportError("pip install scipy")
         img = loadmat(infn)
-        img = collapsestack(img['data'].T, key, method)  # matlab is fortran order
+        img = collapsestack(img["data"].T, key, method)  # matlab is fortran order
     else:  # .tif etc.
         if imageio is None:
-            raise ImportError('pip install imageio')
+            raise ImportError("pip install imageio")
         img = imageio.imread(infn, as_gray=True)
         if img.ndim in (3, 4) and img.shape[-1] == 3:  # assume RGB
             img = collapsestack(img, key, method)
@@ -97,19 +99,20 @@ def meanstack(infn: Path,
     return img, ut1
 
 
-def _h5mean(fn: Path, ut1: Optional[datetime],
-            key: slice, method: str) -> Tuple[np.ndarray, Optional[datetime]]:
-    with h5py.File(fn, 'r') as f:
-        img = collapsestack(f['/rawimg'], key, method)
-# %% time
+def _h5mean(
+    fn: Path, ut1: Optional[datetime], key: slice, method: str
+) -> Tuple[np.ndarray, Optional[datetime]]:
+    with h5py.File(fn, "r") as f:
+        img = collapsestack(f["/rawimg"], key, method)
+        # %% time
         if ut1 is None:
             try:
-                ut1 = f['/ut1_unix'][key][0]
+                ut1 = f["/ut1_unix"][key][0]
             except KeyError:
                 pass
-# %% orientation
+        # %% orientation
         try:
-            img = np.rot90(img, k=f['/params']['rotccw'])
+            img = np.rot90(img, k=f["/params"]["rotccw"])
         except KeyError:
             pass
 
@@ -118,25 +121,25 @@ def _h5mean(fn: Path, ut1: Optional[datetime],
 
 def collapsestack(img: np.ndarray, key: slice, method: str):
     if img.ndim not in (2, 3):
-        raise ValueError('only 2D or 3D image stacks are handled')
+        raise ValueError("only 2D or 3D image stacks are handled")
 
-# %% 2-D
+    # %% 2-D
     if img.ndim == 2:
         return img
-# %% 3-D
-    if method == 'mean':
+    # %% 3-D
+    if method == "mean":
         func = np.mean
-    elif method == 'median':
+    elif method == "median":
         func = np.median
     else:
-        raise TypeError(f'unknown method {method}')
+        raise TypeError(f"unknown method {method}")
 
     return func(img[key, ...], axis=0).astype(img.dtype)
 
 
 def writefits(img: np.ndarray, outfn: Path):
     outfn = Path(outfn).expanduser()
-    print('writing', outfn)
+    print("writing", outfn)
 
     f = fits.PrimaryHDU(img)
     f.writeto(outfn, overwrite=True, checksum=True)
@@ -144,15 +147,15 @@ def writefits(img: np.ndarray, outfn: Path):
 
 
 def readh5coord(fn: Path) -> Tuple[float, float]:
-    if not fn.suffix == '.h5':
+    if not fn.suffix == ".h5":
         return None
 
-    with h5py.File(fn, 'r') as f:
+    with h5py.File(fn, "r") as f:
         try:
-            latlon = (f['/sensorloc']['glat'], f['/sensorloc']['glon'])
+            latlon = (f["/sensorloc"]["glat"], f["/sensorloc"]["glon"])
         except KeyError:
             try:
-                latlon = f['/lla'][:2]
+                latlon = f["/lla"][:2]
             except KeyError:
                 return None
 

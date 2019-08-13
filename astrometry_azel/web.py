@@ -9,30 +9,26 @@ def download(odir: Path, source_url: str, irng: typing.Sequence[int]):
     """Download star index files.
     The default range was useful for my cameras.
     """
-    assert len(irng) == 2, 'specify start, stop indices'
+    assert len(irng) == 2, "specify start, stop indices"
 
     odir = Path(odir).expanduser()
     odir.mkdir(parents=True, exist_ok=True)
 
-    ri = int(source_url.split('/')[-2][:2])
+    ri = int(source_url.split("/")[-2][:2])
 
     for i in range(*irng):
-        fn = f'index-{ri:2d}{i:02d}.fits'
-        url = f'{source_url}{fn}'
+        fn = f"index-{ri:2d}{i:02d}.fits"
+        url = f"{source_url}{fn}"
         ofn = odir / fn
         if ofn.is_file():  # no clobber
-            print('skipping', ofn)
+            print("skipping", ofn)
             continue
-        print(f'{url} => {ofn}', end='\r')
+        print(f"{url} => {ofn}", end="\r")
 
         url_retrieve(url, ofn)
 
 
-def url_retrieve(
-    url: str,
-    outfile: Path,
-    overwrite: bool = False,
-):
+def url_retrieve(url: str, outfile: Path, overwrite: bool = False):
     """
     Parameters
     ----------
@@ -52,6 +48,4 @@ def url_retrieve(
         try:
             urllib.request.urlretrieve(url, str(outfile))
         except (socket.gaierror, urllib.error.URLError) as err:
-            raise ConnectionError(
-                "could not download {} due to {}".format(url, err)
-            )
+            raise ConnectionError("could not download {} due to {}".format(url, err))

@@ -8,79 +8,79 @@ from typing import Sequence
 
 def plotazel(scale: xarray.Dataset):
 
-    if 'az' not in scale:
+    if "az" not in scale:
         return
 
-    plottype = 'contour'
+    plottype = "contour"
 
     fg = figure(figsize=(12, 5))
     ax = fg.subplots(1, 2, sharey=True)
 
-    fg.suptitle(f'{scale.filename.name} {scale.lat:.2f} {scale.lon:.2f} {scale.time}')
-# %%
+    fg.suptitle(f"{scale.filename.name} {scale.lat:.2f} {scale.lon:.2f} {scale.time}")
+    # %%
     axa = ax[0]
 
-    if plottype == 'image':
-        hia = axa.imshow(scale['az'], origin='lower')
+    if plottype == "image":
+        hia = axa.imshow(scale["az"], origin="lower")
         hc = fg.colorbar(hia)
-        hc.set_label('Azimuth [deg]')
-    elif plottype == 'contour':
-        cs = axa.contour(scale['x'], scale['y'], scale['az'])
-        axa.clabel(cs, inline=1, fmt='%0.1f')
+        hc.set_label("Azimuth [deg]")
+    elif plottype == "contour":
+        cs = axa.contour(scale["x"], scale["y"], scale["az"])
+        axa.clabel(cs, inline=1, fmt="%0.1f")
 
-    axa.set_xlabel('x-pixel')
-    axa.set_ylabel('y-pixel')
-    axa.set_title('azimuth')
-# %%
+    axa.set_xlabel("x-pixel")
+    axa.set_ylabel("y-pixel")
+    axa.set_title("azimuth")
+    # %%
     axe = ax[1]
-    if plottype == 'image':
-        hie = axe.imshow(scale['el'], origin='lower')
+    if plottype == "image":
+        hie = axe.imshow(scale["el"], origin="lower")
         hc = fg.colorbar(hie)
-        hc.set_label('Elevation [deg]')
-    elif plottype == 'contour':
-        cs = axe.contour(scale['x'], scale['y'], scale['el'])
-        axe.clabel(cs, inline=True, fmt='%0.1f', fontsize='medium')
+        hc.set_label("Elevation [deg]")
+    elif plottype == "contour":
+        cs = axe.contour(scale["x"], scale["y"], scale["el"])
+        axe.clabel(cs, inline=True, fmt="%0.1f", fontsize="medium")
 
-    axe.set_xlabel('x-pixel')
-    axe.set_ylabel('y-pixel')
-    axe.set_title('elevation')
+    axe.set_xlabel("x-pixel")
+    axe.set_ylabel("y-pixel")
+    axe.set_title("elevation")
 
 
 def plotradec(scale: xarray.Dataset):
 
-    if 'ra' not in scale:
+    if "ra" not in scale:
         return
 
-    plottype = 'contour'
+    plottype = "contour"
 
     fg = figure(figsize=(12, 5))
     axs = fg.subplots(1, 2, sharey=True)
 
     ax = axs[0]
 
-    if plottype == 'image':
-        hri = ax.imshow(scale['ra'], origin='lower')
+    if plottype == "image":
+        hri = ax.imshow(scale["ra"], origin="lower")
         hc = fg.colorbar(hri)
-        hc.set_label('RA [deg]')
-    elif plottype == 'contour':
-        cs = ax.contour(scale['x'], scale['y'], scale['ra'])
-        ax.clabel(cs, inline=1, fmt='%0.1f')
+        hc.set_label("RA [deg]")
+    elif plottype == "contour":
+        cs = ax.contour(scale["x"], scale["y"], scale["ra"])
+        ax.clabel(cs, inline=1, fmt="%0.1f")
 
-    ax.set_xlabel('x-pixel')
-    ax.set_ylabel('y-pixel')
-    ax.set_title('Right Ascension ')
-# %%
+    ax.set_xlabel("x-pixel")
+    ax.set_ylabel("y-pixel")
+    ax.set_title("Right Ascension ")
+    # %%
     ax = axs[1]
-    if plottype == 'image':
-        hdi = ax.imshow(scale['dec'], origin='lower')
+    if plottype == "image":
+        hdi = ax.imshow(scale["dec"], origin="lower")
         hc = fg.colorbar(hdi)
-        hc.set_label('Dec [deg]')
-    elif plottype == 'contour':
-        cs = ax.contour(scale['x'], scale['y'], scale['dec'])
-        ax.clabel(cs, inline=1, fmt='%0.1f')
-    ax.set_xlabel('x-pixel')
-    ax.set_ylabel('y-pixel')
-    ax.set_title('Declination')
+        hc.set_label("Dec [deg]")
+    elif plottype == "contour":
+        cs = ax.contour(scale["x"], scale["y"], scale["dec"])
+        ax.clabel(cs, inline=1, fmt="%0.1f")
+    ax.set_xlabel("x-pixel")
+    ax.set_ylabel("y-pixel")
+    ax.set_title("Declination")
 
 
 def plotimagestack(img: np.ndarray, fn: Path, makeplot: Sequence[str], clim=None):
@@ -91,27 +91,37 @@ def plotimagestack(img: np.ndarray, fn: Path, makeplot: Sequence[str], clim=None
         imnorm = None
         img = img.transpose([1, 2, 0])  # imshow() needs colors to be last axis
     else:
-        cmap = 'gray'
+        cmap = "gray"
         imnorm = None
         # imnorm = LogNorm()
 
     fg = figure()
     ax = fg.gca()
     if clim is None:
-        hi = ax.imshow(img, origin='lower', interpolation='none', cmap=cmap, norm=imnorm)
+        hi = ax.imshow(
+            img, origin="lower", interpolation="none", cmap=cmap, norm=imnorm
+        )
     else:
-        hi = ax.imshow(img, origin='lower', interpolation='none', cmap=cmap, vmin=clim[0], vmax=clim[1], norm=imnorm)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
+        hi = ax.imshow(
+            img,
+            origin="lower",
+            interpolation="none",
+            cmap=cmap,
+            vmin=clim[0],
+            vmax=clim[1],
+            norm=imnorm,
+        )
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
     ax.set_title(str(fn))
     if cmap is not None:
         try:
             hc = fg.colorbar(hi)
-            hc.set_label(f'Data numbers {img.dtype}')
+            hc.set_label(f"Data numbers {img.dtype}")
         except Exception as e:
-            logging.warning(f'trouble making picture colorbar  {e}')
-# %%
-    if 'png' in makeplot:
-        plotFN = fn.parent / (fn.stem + '_picture.png')
-        print('writing', plotFN)
-        fg.savefig(plotFN, bbox_inches='tight', dpi=150)
+            logging.warning(f"trouble making picture colorbar  {e}")
+    # %%
+    if "png" in makeplot:
+        plotFN = fn.parent / (fn.stem + "_picture.png")
+        print("writing", plotFN)
+        fg.savefig(plotFN, bbox_inches="tight", dpi=150)
