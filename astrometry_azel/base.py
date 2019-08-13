@@ -20,7 +20,7 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str = None) -> xarray.Da
 
     fitsfn = Path(fitsfn).expanduser()
 
-    if fitsfn.suffix == ".fits":
+    if fitsfn.suffix in (".fits", ".new"):
         # using .wcs will also work but gives a spurious warning
         WCSfn = fitsfn.with_suffix(".wcs")
     elif fitsfn.suffix == ".wcs":
@@ -56,7 +56,7 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str = None) -> xarray.Da
     radec = xarray.Dataset(
         {"ra": (("y", "x"), ra), "dec": (("y", "x"), dec)},
         {"x": range(xPix), "y": range(yPix)},
-        attrs={"filename": fitsfn},
+        attrs={"filename": str(fitsfn)},
     )
 
     return radec

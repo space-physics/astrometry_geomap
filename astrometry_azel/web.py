@@ -21,9 +21,9 @@ def download(odir: Path, source_url: str, irng: typing.Sequence[int]):
         url = f"{source_url}{fn}"
         ofn = odir / fn
         if ofn.is_file():  # no clobber
-            print("skipping", ofn)
+            print("Exists:", ofn)
             continue
-        print(f"{url} => {ofn}", end="\r")
+        print(f"{url} => {ofn}")
 
         url_retrieve(url, ofn)
 

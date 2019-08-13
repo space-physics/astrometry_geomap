@@ -19,7 +19,8 @@ def main():
     p.add_argument("outdir", help="directory to save index files")
     p.add_argument("-source", default=url_2mass)
     p.add_argument(
-        "-indexrange",
+        "-i",
+        "--indexrange",
         help="start,stop (inclusive) index range",
         nargs=2,
         type=int,

@@ -34,15 +34,12 @@ from pathlib import Path
 import numpy as np
 from typing import Tuple, Optional
 from datetime import datetime
+from astropy.io import fits
 
 try:
     import imageio
 except ImportError:
     imageio = None
-try:
-    from astropy.io import fits
-except ImportError:
-    fits = None
 try:
     import h5py
 except ImportError:
@@ -77,12 +74,9 @@ def meanstack(
         if h5py is None:
             raise ImportError("pip install h5py")
         img, ut1 = _h5mean(infn, ut1, key, method)
-    elif infn.suffix == ".fits":
-        if fits is None:
-            raise ImportError("pip install astropy")
-        with fits.open(
-            infn, mode="readonly", memmap=False
-        ) as f:  # mmap doesn't work with BZERO/BSCALE/BLANK
+    elif infn.suffix in (".fits", ".new"):
+        # mmap doesn't work with BZERO/BSCALE/BLANK
+        with fits.open(infn, mode="readonly", memmap=False) as f:
             img = collapsestack(f[0].data, key, method)
     elif infn.suffix == ".mat":
         if loadmat is None:
@@ -119,7 +113,7 @@ def _h5mean(
     return img, ut1
 
 
-def collapsestack(img: np.ndarray, key: slice, method: str):
+def collapsestack(img: np.ndarray, key: slice, method: str) -> np.ndarray:
     if img.ndim not in (2, 3):
         raise ValueError("only 2D or 3D image stacks are handled")
 
