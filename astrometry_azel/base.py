@@ -21,15 +21,12 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str = None) -> xarray.Da
     fitsfn = Path(fitsfn).expanduser()
 
     if fitsfn.suffix == ".fits":
-        WCSfn = fitsfn.with_suffix(
-            ".wcs"
-        )  # using .wcs will also work but gives a spurious warning
+        # using .wcs will also work but gives a spurious warning
+        WCSfn = fitsfn.with_suffix(".wcs")
     elif fitsfn.suffix == ".wcs":
         WCSfn = fitsfn
     else:
-        raise ValueError(
-            f"please convert {fitsfn} to GRAYSCALE .fits e.g. with ImageJ or ImageMagick"
-        )
+        raise ValueError(f"please convert {fitsfn} to GRAYSCALE .fits")
 
     if solve:
         doSolve(fitsfn, args)
@@ -66,13 +63,15 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str = None) -> xarray.Da
 
 
 def radec2azel(
-    scale: xarray.Dataset, latlon: Tuple[float, float], time: datetime = None
+    scale: xarray.Dataset, latlon: Tuple[float, float], time: datetime
 ) -> xarray.Dataset:
 
     if pymap3d is None:
-        raise ImportError("pip install pymap3d")
-
-    if latlon is None or not isinstance(scale, xarray.Dataset):
+        logging.error("azimuth, elevation computations require: pip install pymap3d")
+        return None
+    if latlon is None:
+        return None
+    if not isinstance(scale, xarray.Dataset):
         return None
 
     if time is None:
@@ -92,14 +91,14 @@ def radec2azel(
 
     print("image time:", time)
     # %% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel
-    az, el = pymap3d.radec2azel(scale["ra"], scale["dec"], latlon[0], latlon[1], time)
+    # .values is to avoid silently freezing AstroPy
+    az, el = pymap3d.radec2azel(scale["ra"].values, scale["dec"].values, *latlon, time)
     # %% collect output
     scale["az"] = (("y", "x"), az)
     scale["el"] = (("y", "x"), el)
     scale.attrs["lat"] = latlon[0]
     scale.attrs["lon"] = latlon[1]
     scale.attrs["time"] = time
-
     return scale
 
 
@@ -111,7 +110,10 @@ def doSolve(fitsfn: Path, args: str = None):
     if not solve:
         raise FileNotFoundError("Astrometry.net solve-file exectuable not found")
 
-    opts = args.split(" ") if args else []
+    if isinstance(args, str):
+        opts = args.split(" ")
+    elif args is None:
+        args = []
     # %% build command
     cmd = [solve, "--overwrite", str(fitsfn)]
     cmd += opts
@@ -124,7 +126,7 @@ def doSolve(fitsfn: Path, args: str = None):
     if "Did not solve" in ret:
         raise RuntimeError(f"could not solve {fitsfn}")
 
-    print("\n\n *** done with astrometry.net ***\n ")
+    print("\n\n*** done with astrometry.net ***\n")
 
 
 def fits2azel(

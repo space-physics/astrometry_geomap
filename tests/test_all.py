@@ -5,22 +5,28 @@ http://nova.astrometry.net/user_images/1572720
 import pytest
 from pathlib import Path
 from pytest import approx
+import shutil
 
-#
-from astrometry_azel import fits2azel
+import astrometry_azel as ael
 
 rdir = Path(__file__).parent
+ignore = "ignore:The WCS transformation has more axes"
+LATLON = (0, 0)
+TIME = "2000-01-01T00:00"
+fitsfn = rdir / "apod4.fits"
 
 
-@pytest.mark.filterwarnings(
-    "ignore:The WCS transformation has more axes (2) than the image it is associated with (0)"
+@pytest.mark.skipif(
+    shutil.which("solve-file"), reason="solve-field is actually present"
 )
-def test_fits2azel():
-    fitsfn = rdir / "apod4.fits"
-    time = "2000-01-01T00:00:00"
+def test_nosolve(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        ael.doSolve(tmp_path)
 
-    camLatLon = (40, -80)  # not true, just a guess
-    scale = fits2azel(fitsfn, camLatLon, time)
+
+@pytest.mark.filterwarnings(ignore)
+def test_fits2radec():
+    scale = ael.fits2radec(fitsfn)
 
     assert scale["ra"].values[[32, 51, 98], [28, 92, 156]] == approx(
         [152.313342, 157.988921, 165.012208]
@@ -28,11 +34,19 @@ def test_fits2azel():
     assert scale["dec"].values[[32, 51, 98], [28, 92, 156]] == approx(
         [59.982123, 59.182819, 59.149952]
     )
+
+
+@pytest.mark.filterwarnings(ignore)
+def test_fits2azel():
+    pytest.importorskip("pymap3d")
+
+    scale = ael.fits2azel(fitsfn, LATLON, TIME)
+
     assert scale["az"].values[[32, 51, 98], [28, 92, 156]] == approx(
-        [22.794418, 20.788267, 17.572719]
+        [24.58404928, 26.84288277, 28.44059037]
     )
     assert scale["el"].values[[32, 51, 98], [28, 92, 156]] == approx(
-        [17.359846, 15.084063, 13.287209]
+        [17.79638021, 15.74400771, 12.49648814]
     )
 
 
