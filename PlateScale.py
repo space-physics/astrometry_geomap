@@ -12,6 +12,7 @@ from typing import Tuple, Optional
 from datetime import datetime
 from argparse import ArgumentParser
 import xarray
+import numpy as np
 
 import astrometry_azel.io as aio
 import astrometry_azel as ael
@@ -37,7 +38,7 @@ def doplatescale(
     Navg: int,
     solve: bool,
     args: str,
-) -> xarray.Dataset:
+) -> Tuple[xarray.Dataset, np.ndarray]:
 
     # %% filenames
     infn = Path(infn).expanduser().resolve(strict=True)
@@ -70,7 +71,7 @@ def doplatescale(
         pass
     scale.to_netcdf(outfn)
 
-    return scale
+    return scale, meanimg
 
 
 def main():
@@ -102,11 +103,15 @@ def main():
     p.add_argument("-a", "--args", help="arguments to pass through to solve-field")
     P = p.parse_args()
 
-    scale = doplatescale(P.infn, P.outfn, P.latlon, P.ut1, P.navg, P.solve, P.args)
+    scale, img = doplatescale(P.infn, P.outfn, P.latlon, P.ut1, P.navg, P.solve, P.args)
+
+    outfn = Path(scale.filename)
+    outdir = outfn.parent
+    outstem = outfn.stem
 
     if show is not None:
-        aep.plotradec(scale)
-        aep.plotazel(scale)
+        aep.plotradec(scale, img=img).savefig(outdir / (outstem + '_radec.png'))
+        aep.plotazel(scale, img=img).savefig(outdir / (outstem + '_azel.png'))
 
         show()
 

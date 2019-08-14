@@ -6,18 +6,16 @@ import numpy as np
 from typing import Sequence
 
 
-def plotazel(scale: xarray.Dataset):
+def plotazel(scale: xarray.Dataset, plottype: str = "contour", img: np.ndarray = None):
 
     if "az" not in scale:
         return
-
-    plottype = "contour"
 
     fg = figure(figsize=(12, 5))
     ax = fg.subplots(1, 2, sharey=True)
 
     fg.suptitle(
-        f"{Path(scale.filename).name} {scale.lat:.2f} {scale.lon:.2f} {scale.time}"
+        f"{Path(scale.filename).name}\n({scale.lat:.2f}, {scale.lon:.2f})  {scale.time}"
     )
     # %%
     axa = ax[0]
@@ -27,6 +25,8 @@ def plotazel(scale: xarray.Dataset):
         hc = fg.colorbar(hia)
         hc.set_label("Azimuth [deg]")
     elif plottype == "contour":
+        if img is not None:
+            axa.imshow(img, origin="lower", cmap="gray")
         cs = axa.contour(scale["x"], scale["y"], scale["az"])
         axa.clabel(cs, inline=1, fmt="%0.1f")
 
@@ -40,20 +40,22 @@ def plotazel(scale: xarray.Dataset):
         hc = fg.colorbar(hie)
         hc.set_label("Elevation [deg]")
     elif plottype == "contour":
+        if img is not None:
+            axe.imshow(img, origin="lower", cmap="gray")
         cs = axe.contour(scale["x"], scale["y"], scale["el"])
         axe.clabel(cs, inline=True, fmt="%0.1f", fontsize="medium")
 
     axe.set_xlabel("x-pixel")
-    axe.set_ylabel("y-pixel")
     axe.set_title("elevation")
+    fg.set_tight_layout(True)
+
+    return fg
 
 
-def plotradec(scale: xarray.Dataset):
+def plotradec(scale: xarray.Dataset, plottype: str = "contour", img: np.ndarray = None):
 
     if "ra" not in scale:
         return
-
-    plottype = "contour"
 
     fg = figure(figsize=(12, 5))
     axs = fg.subplots(1, 2, sharey=True)
@@ -67,6 +69,8 @@ def plotradec(scale: xarray.Dataset):
         hc = fg.colorbar(hri)
         hc.set_label("RA [deg]")
     elif plottype == "contour":
+        if img is not None:
+            ax.imshow(img, origin="lower", cmap="gray")
         cs = ax.contour(scale["x"], scale["y"], scale["ra"])
         ax.clabel(cs, inline=1, fmt="%0.1f")
 
@@ -80,11 +84,16 @@ def plotradec(scale: xarray.Dataset):
         hc = fg.colorbar(hdi)
         hc.set_label("Dec [deg]")
     elif plottype == "contour":
+        if img is not None:
+            ax.imshow(img, origin="lower", cmap="gray")
         cs = ax.contour(scale["x"], scale["y"], scale["dec"])
         ax.clabel(cs, inline=1, fmt="%0.1f")
+
     ax.set_xlabel("x-pixel")
-    ax.set_ylabel("y-pixel")
     ax.set_title("Declination")
+    fg.set_tight_layout(True)
+
+    return fg
 
 
 def plotimagestack(img: np.ndarray, fn: Path, makeplot: Sequence[str], clim=None):
