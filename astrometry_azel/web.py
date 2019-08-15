@@ -16,7 +16,7 @@ def download(odir: Path, source_url: str, irng: typing.Sequence[int]):
 
     ri = int(source_url.split("/")[-2][:2])
 
-    for i in range(*irng):
+    for i in range(irng[0], irng[1] + 1):
         fn = f"index-{ri:2d}{i:02d}.fits"
         url = f"{source_url}{fn}"
         ofn = odir / fn

@@ -110,8 +110,8 @@ def main():
     outstem = outfn.stem
 
     if show is not None:
-        aep.plotradec(scale, img=img).savefig(outdir / (outstem + '_radec.png'))
-        aep.plotazel(scale, img=img).savefig(outdir / (outstem + '_azel.png'))
+        aep.plotradec(scale, img=img).savefig(outdir / (outstem + "_radec.png"))
+        aep.plotazel(scale, img=img).savefig(outdir / (outstem + "_azel.png"))
 
         show()
 
