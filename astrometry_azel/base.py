@@ -33,7 +33,15 @@ def fits2radec(
             raise ValueError(f"please convert {fitsfn} to GRAYSCALE .fits")
 
     if solve:
-        doSolve(fitsfn, args)
+        if not doSolve(fitsfn, args):
+            logging.error(f"{fitsfn} was not solved")
+            return None
+
+    if not WCSfn.is_file():
+        WCSfn = WCSfn.parent / (WCSfn.stem + "_stack.wcs")
+    if not WCSfn.is_file():
+        logging.error(f"it appears {fitsfn} was not solved as {WCSfn} is not found")
+        return None
 
     with fits.open(fitsfn, mode="readonly") as f:
         yPix, xPix = f[0].shape[-2:]
@@ -45,16 +53,11 @@ def fits2radec(
     http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS
     naxis=[0,1] is to take x,y axes in case a color photo was input e.g. to astrometry.net cloud solver
     """
-    try:
-        with fits.open(WCSfn, mode="readonly") as f:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
-                # radec = wcs.WCS(hdul[0].header,naxis=[0,1]).all_pix2world(xy, 0)
-    except OSError:
-        raise OSError(
-            f"It appears the WCS solution is not present, was the FITS image solved?  looking for: {WCSfn}"
-        )
+    with fits.open(WCSfn, mode="readonly") as f:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
+            # radec = wcs.WCS(hdul[0].header,naxis=[0,1]).all_pix2world(xy, 0)
 
     ra = radec[:, 0].reshape((yPix, xPix), order="C")
     dec = radec[:, 1].reshape((yPix, xPix), order="C")
@@ -115,7 +118,7 @@ def radec2azel(
     return scale
 
 
-def doSolve(fitsfn: Path, args: str = None):
+def doSolve(fitsfn: Path, args: str = None) -> bool:
     """
     Astrometry.net from at least version 0.67 is OK with Python 3.
     """
@@ -136,10 +139,12 @@ def doSolve(fitsfn: Path, args: str = None):
 
     # solve-field returns 0 even if it didn't solve!
     print(ret)
+    fitsfn.with_suffix(".log").write_text(" ".join(cmd) + "\n\n" + ret)
     if "Did not solve" in ret:
-        raise RuntimeError(f"could not solve {fitsfn}")
-
-    print("\n\n*** done with astrometry.net ***\n")
+        logging.error(f"could not solve {fitsfn}")
+        return False
+    else:
+        return True
 
 
 def fits2azel(
@@ -155,6 +160,8 @@ def fits2azel(
     fitsfn = Path(fitsfn).expanduser()
 
     radec = fits2radec(fitsfn, wcsfn, solve, args)
+    if radec is None:
+        return None
     # if az/el can be computed, scale is implicitly merged with radec.
     scale = radec2azel(radec, latlon, time)
     if scale is None:

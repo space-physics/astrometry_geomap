@@ -7,21 +7,24 @@ is the input to this program.
 
 Michael Hirsch
 """
+import sys
 from pathlib import Path
 from typing import Tuple, Optional
 from datetime import datetime
+from dateutil.parser import parse
 from argparse import ArgumentParser
 import xarray
 import numpy as np
 
 import astrometry_azel.io as aio
 import astrometry_azel as ael
+from astrometry_azel.utils import datetime_range
 
 try:
     import astrometry_azel.plots as aep
-    from matplotlib.pyplot import show
-except (ImportError, RuntimeError):
-    show = None
+except (ImportError, RuntimeError) as err:
+    print(f"plotting skipped: {err}", file=sys.stderr)
+    aep = None
 try:
     import seaborn as sns
 
@@ -56,9 +59,9 @@ def doplatescale(
     if latlon is None:
         latlon = aio.readh5coord(infn)
 
-    scale = ael.fits2azel(
-        fitsfn, wcsfn=wcsfn, latlon=latlon, time=ut1, solve=solve, args=args
-    )
+    scale = ael.fits2azel(fitsfn, wcsfn=wcsfn, latlon=latlon, time=ut1, solve=solve, args=args)
+    if scale is None:
+        return (None, None)
     # %% write to file
     if outfn:
         outfn = Path(outfn).expanduser()
@@ -74,18 +77,40 @@ def doplatescale(
     return scale, meanimg
 
 
+def convert(infn: Path, ut1: datetime, P) -> Path:
+    scale, img = doplatescale(infn, P.outfn, P.latlon, ut1, P.navg, P.solve, P.args)
+    if scale is None:
+        return None
+
+    outfn = Path(scale.filename)
+    outdir = outfn.parent
+    outstem = outfn.stem
+
+    if aep is not None:
+        fnr = outdir / (outstem + "_radec.png")
+        fna = outdir / (outstem + "_azel.png")
+        print("writing", fnr, fna)
+        aep.plotradec(scale, img=img).savefig(fnr)
+        aep.plotazel(scale, img=img).savefig(fna)
+
+    return outfn
+
+
 def main():
     p = ArgumentParser(description="do plate scaling for image data")
     p.add_argument("infn", help="image data file name (HDF5 or FITS)")
+    p.add_argument("-g", "--glob", help="filename globbing")
     p.add_argument("-o", "--outfn", help="platescale data path to write")
     p.add_argument(
-        "-c",
-        "--latlon",
-        help="wgs84 coordinates of cameras (deg.)",
-        nargs=2,
-        type=float,
+        "-c", "--latlon", help="wgs84 coordinates of cameras (deg.)", nargs=2, type=float
     )
-    p.add_argument("-t", "--ut1", help="override file UT1 time yyyy-mm-ddTHH:MM:SSZ")
+    p.add_argument(
+        "-t",
+        "--ut1",
+        help="override file UT1 time yyyy-mm-ddTHH:MM:SSZ or (start, stop)",
+        nargs="+",
+        default=[None],
+    )
     p.add_argument(
         "-N",
         "--navg",
@@ -95,25 +120,30 @@ def main():
         default=10,
     )
     p.add_argument(
-        "-s",
-        "--solve",
-        help="run solve-field step of astrometry.net",
-        action="store_true",
+        "-s", "--solve", help="run solve-field step of astrometry.net", action="store_true"
     )
     p.add_argument("-a", "--args", help="arguments to pass through to solve-field")
     P = p.parse_args()
 
-    scale, img = doplatescale(P.infn, P.outfn, P.latlon, P.ut1, P.navg, P.solve, P.args)
+    path = Path(P.infn).expanduser()
 
-    outfn = Path(scale.filename)
-    outdir = outfn.parent
-    outstem = outfn.stem
-
-    if show is not None:
-        aep.plotradec(scale, img=img).savefig(outdir / (outstem + "_radec.png"))
-        aep.plotazel(scale, img=img).savefig(outdir / (outstem + "_azel.png"))
-
-        show()
+    if P.glob:
+        start = parse(P.ut1[0])
+        end = parse(P.ut1[1])
+        files = list(path.glob(P.glob))
+        total = len(files)
+        ok = []
+        if total == 0:
+            raise FileNotFoundError(f"No files found in {path} with {P.glob}")
+        step = (end - start) / len(files)
+        times = datetime_range(start, end, step)
+        for file, time in zip(files, times):
+            converted = convert(file, time, P)
+            if converted:
+                ok.append(converted)
+        print("converted", len(ok), "/", total, "files in", path)
+    else:
+        convert(path, P.ut1[0], P)
 
 
 if __name__ == "__main__":

@@ -1,20 +1,17 @@
 from pathlib import Path
 import logging
 import xarray
-from matplotlib.pyplot import figure
+from matplotlib.figure import Figure
 import numpy as np
-from typing import Sequence
 
 
-def plotazel(
-    scale: xarray.Dataset, plottype: str = "singlecontour", img: np.ndarray = None
-):
+def plotazel(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.ndarray = None):
 
     if "az" not in scale:
         return
 
     if plottype == "singlecontour":
-        fg = figure()
+        fg = Figure()
         ax = fg.gca()
         if img is not None:
             ax.imshow(img, origin="lower", cmap="gray")
@@ -30,13 +27,13 @@ def plotazel(
         fg.set_tight_layout(True)
         return fg
     elif plottype == "image":
-        fg = figure(figsize=(12, 5))
+        fg = Figure(figsize=(12, 5))
         ax = fg.subplots(1, 2, sharey=True)
         hia = ax[0].imshow(scale["az"], origin="lower")
         hc = fg.colorbar(hia)
         hc.set_label("Azimuth [deg]")
     elif plottype == "contour":
-        fg = figure(figsize=(12, 5))
+        fg = Figure(figsize=(12, 5))
         ax = fg.subplots(1, 2, sharey=True)
         if img is not None:
             ax[0].imshow(img, origin="lower", cmap="gray")
@@ -60,23 +57,19 @@ def plotazel(
 
     axe.set_xlabel("x-pixel")
     axe.set_title("elevation")
-    fg.suptitle(
-        f"{Path(scale.filename).name}\n({scale.lat:.2f}, {scale.lon:.2f})  {scale.time}"
-    )
+    fg.suptitle(f"{Path(scale.filename).name}\n({scale.lat:.2f}, {scale.lon:.2f})  {scale.time}")
     fg.set_tight_layout(True)
 
     return fg
 
 
-def plotradec(
-    scale: xarray.Dataset, plottype: str = "singlecontour", img: np.ndarray = None
-):
+def plotradec(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.ndarray = None):
 
     if "ra" not in scale:
         return
 
     if plottype == "singlecontour":
-        fg = figure()
+        fg = Figure()
         ax = fg.gca()
         if img is not None:
             ax.imshow(img, origin="lower", cmap="gray")
@@ -90,13 +83,13 @@ def plotradec(
         fg.set_tight_layout(True)
         return fg
     elif plottype == "image":
-        fg = figure(figsize=(12, 5))
+        fg = Figure(figsize=(12, 5))
         ax = fg.subplots(1, 2, sharey=True)
         hri = ax[0].imshow(scale["ra"], origin="lower")
         hc = fg.colorbar(hri)
         hc.set_label("RA [deg]")
     elif plottype == "contour":
-        fg = figure(figsize=(12, 5))
+        fg = Figure(figsize=(12, 5))
         ax = fg.subplots(1, 2, sharey=True)
         if img is not None:
             ax[0].imshow(img, origin="lower", cmap="gray")
@@ -126,7 +119,7 @@ def plotradec(
     return fg
 
 
-def plotimagestack(img: np.ndarray, fn: Path, makeplot: Sequence[str], clim=None):
+def plotimagestack(img: np.ndarray, fn: Path, clim=None):
     fn = Path(fn).expanduser()
     # %% plotting
     if img.ndim == 3 and img.shape[0] == 3:  # it seems to be an RGB image
@@ -138,12 +131,10 @@ def plotimagestack(img: np.ndarray, fn: Path, makeplot: Sequence[str], clim=None
         imnorm = None
         # imnorm = LogNorm()
 
-    fg = figure()
+    fg = Figure()
     ax = fg.gca()
     if clim is None:
-        hi = ax.imshow(
-            img, origin="lower", interpolation="none", cmap=cmap, norm=imnorm
-        )
+        hi = ax.imshow(img, origin="lower", interpolation="none", cmap=cmap, norm=imnorm)
     else:
         hi = ax.imshow(
             img,
@@ -163,8 +154,7 @@ def plotimagestack(img: np.ndarray, fn: Path, makeplot: Sequence[str], clim=None
             hc.set_label(f"Data numbers {img.dtype}")
         except Exception as e:
             logging.warning(f"trouble making picture colorbar  {e}")
-    # %%
-    if "png" in makeplot:
-        plotFN = fn.parent / (fn.stem + "_picture.png")
-        print("writing", plotFN)
-        fg.savefig(plotFN, bbox_inches="tight", dpi=150)
+
+    plotFN = fn.parent / (fn.stem + "_picture.png")
+    print("writing", plotFN)
+    fg.savefig(plotFN)

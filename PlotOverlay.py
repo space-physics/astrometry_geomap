@@ -22,9 +22,7 @@ def main():
     p.add_argument(
         "flist", help='FITS ".new" WCS registered filenames to plot together', nargs="+"
     )
-    p.add_argument(
-        "-s", "--subplots", help="subplots instead of overlay", action="store_true"
-    )
+    p.add_argument("-s", "--subplots", help="subplots instead of overlay", action="store_true")
     p.add_argument("--suptitle", help="overall text for suptitle")
     p = p.parse_args()
 

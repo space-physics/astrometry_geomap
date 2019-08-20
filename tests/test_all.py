@@ -15,9 +15,7 @@ TIME = "2000-01-01T00:00"
 fitsfn = rdir / "apod4.fits"
 
 
-@pytest.mark.skipif(
-    shutil.which("solve-file"), reason="solve-field is actually present"
-)
+@pytest.mark.skipif(shutil.which("solve-file"), reason="solve-field is actually present")
 def test_nosolve(tmp_path):
     with pytest.raises(FileNotFoundError):
         ael.doSolve(tmp_path)
