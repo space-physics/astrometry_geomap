@@ -115,8 +115,8 @@ def _h5mean(
 
 
 def collapsestack(img: np.ndarray, key: slice, method: str) -> np.ndarray:
-    if img.ndim not in (2, 3):
-        raise ValueError("only 2D or 3D image stacks are handled")
+    if img.ndim not in (2, 3, 4):
+        raise ValueError("only 2D, 3D, or 4D image stacks are handled")
 
     # %% 2-D
     if img.ndim == 2:
