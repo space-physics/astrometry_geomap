@@ -21,9 +21,7 @@ def plotazel(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.nda
         ax.clabel(cs, inline=True, fmt="%0.1f")
         ax.set_xlabel("x-pixel")
         ax.set_ylabel("y-pixel")
-        ax.set_title(
-            f"{Path(scale.filename).name}  ({scale.lat:.2f}, {scale.lon:.2f})  {scale.time}\nAzimuth / Elevation"
-        )
+        ax.set_title(f"{Path(scale.filename).name}  ({scale.lat:.2f}, {scale.lon:.2f})  {scale.time}\nAzimuth / Elevation")
         fg.set_tight_layout(True)
         return fg
     elif plottype == "image":
@@ -136,15 +134,7 @@ def plotimagestack(img: np.ndarray, fn: Path, clim=None):
     if clim is None:
         hi = ax.imshow(img, origin="lower", interpolation="none", cmap=cmap, norm=imnorm)
     else:
-        hi = ax.imshow(
-            img,
-            origin="lower",
-            interpolation="none",
-            cmap=cmap,
-            vmin=clim[0],
-            vmax=clim[1],
-            norm=imnorm,
-        )
+        hi = ax.imshow(img, origin="lower", interpolation="none", cmap=cmap, vmin=clim[0], vmax=clim[1], norm=imnorm,)
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_title(str(fn))

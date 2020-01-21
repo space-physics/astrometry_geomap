@@ -15,17 +15,10 @@ url_tycho = "http://broiler.astrometry.net/~dstn/4100/"
 
 def main():
     p = ArgumentParser()
-    p.add_argument(
-        "-o", "--outdir", help="directory to save index files", default="~/astrometry-data"
-    )
+    p.add_argument("-o", "--outdir", help="directory to save index files", default="~/astrometry-data")
     p.add_argument("-source", default=url_2mass)
     p.add_argument(
-        "-i",
-        "--indexrange",
-        help="start,stop (inclusive) index range",
-        nargs=2,
-        type=int,
-        default=(8, 19),
+        "-i", "--indexrange", help="start,stop (inclusive) index range", nargs=2, type=int, default=(8, 19),
     )
     P = p.parse_args()
 

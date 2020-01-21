@@ -51,9 +51,7 @@ except ImportError:
     loadmat = None
 
 
-def meanstack(
-    infn: Path, Navg: int, ut1: Optional[datetime] = None, method: str = "mean"
-) -> Tuple[np.ndarray, Optional[datetime]]:
+def meanstack(infn: Path, Navg: int, ut1: Optional[datetime] = None, method: str = "mean") -> Tuple[np.ndarray, Optional[datetime]]:
 
     infn = Path(infn).expanduser().resolve(strict=True)
     # %% parse indicies to load
@@ -94,9 +92,7 @@ def meanstack(
     return img, ut1
 
 
-def _h5mean(
-    fn: Path, ut1: Optional[datetime], key: slice, method: str
-) -> Tuple[np.ndarray, Optional[datetime]]:
+def _h5mean(fn: Path, ut1: Optional[datetime], key: slice, method: str) -> Tuple[np.ndarray, Optional[datetime]]:
     with h5py.File(fn, "r") as f:
         img = collapsestack(f["/rawimg"], key, method)
         # %% time
