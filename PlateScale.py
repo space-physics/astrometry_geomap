@@ -22,7 +22,7 @@ from astrometry_azel.utils import datetime_range
 
 try:
     import astrometry_azel.plots as aep
-except (ImportError, RuntimeError) as err:
+except ImportError as err:
     print(f"plotting skipped: {err}", file=sys.stderr)
     aep = None
 try:
@@ -84,8 +84,13 @@ def convert(infn: Path, ut1: datetime, P) -> Path:
         fnr = outdir / (outstem + "_radec.png")
         fna = outdir / (outstem + "_azel.png")
         print("writing", fnr, fna)
-        aep.plotradec(scale, img=img).savefig(fnr)
-        aep.plotazel(scale, img=img).savefig(fna)
+        fg = aep.plotradec(scale, img=img)
+        fg.savefig(fnr)
+        fg = aep.plotazel(scale, img=img)
+        if fg is not None:
+            fg.savefig(fna)
+        else:
+            print("input time and coordinates to make azimuth, elevation plots", file=sys.stderr)
 
     return outfn
 

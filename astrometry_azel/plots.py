@@ -8,7 +8,7 @@ import numpy as np
 def plotazel(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.ndarray = None):
 
     if "az" not in scale:
-        return
+        return None
 
     if plottype == "singlecontour":
         fg = Figure()
@@ -64,7 +64,7 @@ def plotazel(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.nda
 def plotradec(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.ndarray = None):
 
     if "ra" not in scale:
-        return
+        return None
 
     if plottype == "singlecontour":
         fg = Figure()
