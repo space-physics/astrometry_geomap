@@ -2,8 +2,7 @@
 # Azimuth/Elevation converter for [Astrometry.net](https://github.com/dstndstn/astrometry.net)
 
 [![Zenodo DOI](https://zenodo.org/badge/19366614.svg)](https://zenodo.org/badge/latestdoi/19366614)
-[![Actions Status](https://github.com/scivision/astrometry_azel/workflows/ci/badge.svg)](https://github.com/scivision/astrometry_azel/actions)
-
+![Actions Status](https://github.com/scivision/astrometry_azel/workflows/ci/badge.svg)
 [![PyPi version](https://img.shields.io/pypi/pyversions/astrometry-azel.svg)](https://pypi.python.org/pypi/astrometry-azel)
 [![Downloads](http://pepy.tech/badge/astrometry-azel)](http://pepy.tech/project/astrometry-azel)
 
@@ -12,7 +11,7 @@ Note: If you want to work with the intermediate steps (source extraction) or pho
 
 ## Prerequisites
 
-[Astrometry.net &ge; 0.67](https://scivision.dev/setting-up-astrometry-net-program/)
+[Astrometry.net &ge; 0.67](https://scivision.dev/astrometry-install-usage)
 or, use the
 [astrometry.net cloud service](http://nova.astrometry.net/upload).
 
