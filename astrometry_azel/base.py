@@ -17,7 +17,9 @@ except ImportError:
     pymap3d = None
 
 
-def fits2radec(fitsfn: Path, WCSfn: Path = None, solve: bool = False, args: str = None) -> xarray.Dataset:
+def fits2radec(
+    fitsfn: Path, WCSfn: Path = None, solve: bool = False, args: str = None
+) -> xarray.Dataset:
 
     fitsfn = Path(fitsfn).expanduser()
 
@@ -61,13 +63,17 @@ def fits2radec(fitsfn: Path, WCSfn: Path = None, solve: bool = False, args: str 
     dec = radec[:, 1].reshape((yPix, xPix), order="C")
     # %% collect output
     radec = xarray.Dataset(
-        {"ra": (("y", "x"), ra), "dec": (("y", "x"), dec)}, {"x": range(xPix), "y": range(yPix)}, attrs={"filename": str(fitsfn)},
+        {"ra": (("y", "x"), ra), "dec": (("y", "x"), dec)},
+        {"x": range(xPix), "y": range(yPix)},
+        attrs={"filename": str(fitsfn)},
     )
 
     return radec
 
 
-def radec2azel(scale: xarray.Dataset, latlon: Tuple[float, float], time: datetime) -> xarray.Dataset:
+def radec2azel(
+    scale: xarray.Dataset, latlon: Tuple[float, float], time: datetime
+) -> xarray.Dataset:
 
     if pymap3d is None:
         logging.error("azimuth, elevation computations require: pip install pymap3d")

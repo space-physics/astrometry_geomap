@@ -24,16 +24,24 @@ def test_nosolve(tmp_path):
 def test_fits2radec():
     scale = ael.fits2radec(fitsfn)
 
-    assert scale["ra"].values[[32, 51, 98], [28, 92, 156]] == approx([152.313342, 157.988921, 165.012208])
-    assert scale["dec"].values[[32, 51, 98], [28, 92, 156]] == approx([59.982123, 59.182819, 59.149952])
+    assert scale["ra"].values[[32, 51, 98], [28, 92, 156]] == approx(
+        [152.313342, 157.988921, 165.012208]
+    )
+    assert scale["dec"].values[[32, 51, 98], [28, 92, 156]] == approx(
+        [59.982123, 59.182819, 59.149952]
+    )
 
 
 def test_fits2azel():
     pytest.importorskip("pymap3d")
 
     scale = ael.fits2azel(fitsfn, latlon=LATLON, time=TIME)
-    assert scale["az"].values[[32, 51, 98], [28, 92, 156]] == approx([24.58105122, 26.83990064, 28.43758228])
-    assert scale["el"].values[[32, 51, 98], [28, 92, 156]] == approx([17.79424959, 15.74175926, 12.49407394])
+    assert scale["az"].values[[32, 51, 98], [28, 92, 156]] == approx(
+        [24.58105122, 26.83990064, 28.43758228]
+    )
+    assert scale["el"].values[[32, 51, 98], [28, 92, 156]] == approx(
+        [17.79424959, 15.74175926, 12.49407394]
+    )
 
 
 if __name__ == "__main__":
