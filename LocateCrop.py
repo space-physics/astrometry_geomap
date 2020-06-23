@@ -52,7 +52,7 @@ def plot_overlay(im1: np.ndarray, im2: np.ndarray, Ul: T.Sequence[int], fn1: Pat
     fg = figure()
     axs = fg.subplots(1, 2)
     h1 = axs[0].imshow(overlay, alpha=0.6)
-    axs[0].set_title(f"overlay: original {fn1}:red\ncrop {fn2}:blue")
+    axs[0].set_title(f"overlay: original {fn1.name}:red\ncrop {fn2.name}:blue")
     fg.colorbar(h1, ax=axs[0])
 
     h2 = axs[1].imshow(diff)
