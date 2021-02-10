@@ -1,3 +1,4 @@
+from __future__ import annotations
 from pathlib import Path
 import subprocess
 import shutil
@@ -5,7 +6,6 @@ import logging
 import warnings
 from dateutil.parser import parse
 from datetime import datetime
-from typing import Tuple
 from numpy import meshgrid, column_stack
 import xarray
 from astropy.io import fits  # instead of obsolete pyfits
@@ -72,7 +72,7 @@ def fits2radec(
 
 
 def radec2azel(
-    scale: xarray.Dataset, latlon: Tuple[float, float], time: datetime
+    scale: xarray.Dataset, latlon: tuple[float, float], time: datetime
 ) -> xarray.Dataset:
 
     if pymap3d is None:
@@ -151,7 +151,7 @@ def fits2azel(
     fitsfn: Path,
     *,
     wcsfn: Path = None,
-    latlon: Tuple[float, float] = None,
+    latlon: tuple[float, float] = None,
     time: datetime = None,
     solve: bool = False,
     args: str = None,

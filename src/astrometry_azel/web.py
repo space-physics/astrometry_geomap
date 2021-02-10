@@ -1,11 +1,11 @@
+from __future__ import annotations
 from pathlib import Path
-import typing
 import urllib.request
 import urllib.error
 import socket
 
 
-def download(odir: Path, source_url: str, irng: typing.Sequence[int]):
+def download(odir: Path, source_url: str, irng: list[int]):
     """Download star index files.
     The default range was useful for my cameras.
     """

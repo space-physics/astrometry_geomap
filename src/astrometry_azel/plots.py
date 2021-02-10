@@ -152,7 +152,7 @@ def plotimagestack(img: np.ndarray, fn: Path, clim=None):
         try:
             hc = fg.colorbar(hi)
             hc.set_label(f"Data numbers {img.dtype}")
-        except Exception as e:
+        except ValueError as e:
             logging.warning(f"trouble making picture colorbar  {e}")
 
     plotFN = fn.parent / (fn.stem + "_picture.png")

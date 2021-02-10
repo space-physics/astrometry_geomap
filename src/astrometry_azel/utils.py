@@ -1,8 +1,8 @@
+from __future__ import annotations
 from datetime import datetime, timedelta
-import typing
 
 
-def datetime_range(start: datetime, stop: datetime, step: timedelta) -> typing.List[datetime]:
+def datetime_range(start: datetime, stop: datetime, step: timedelta) -> list[datetime]:
 
     """
     Generate range of datetime

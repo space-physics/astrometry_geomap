@@ -1,22 +1,4 @@
-#!/usr/bin/env python
 """
-Astrometry-azel
-Copyright (C) 2013-2018 Michael Hirsch, Ph.D.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
-
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
---------------------------------------
 Image stack -> average -> write FITS
 
 
@@ -30,9 +12,10 @@ The error you might get from an ImageJ saved FITS when reading in:
 PyFits, AstroPy, or ImageMagick is:
 IOError: Header missing END card.
 """
+
+from __future__ import annotations
 from pathlib import Path
 import numpy as np
-from typing import Tuple, Optional
 from datetime import datetime
 from astropy.io import fits
 import logging
@@ -52,8 +35,8 @@ except ImportError:
 
 
 def meanstack(
-    infn: Path, Navg: int, ut1: Optional[datetime] = None, method: str = "mean"
-) -> Tuple[np.ndarray, Optional[datetime]]:
+    infn: Path, Navg: int, ut1: datetime = None, method: str = "mean"
+) -> tuple[np.ndarray, datetime]:
 
     infn = Path(infn).expanduser().resolve(strict=True)
     # %% parse indicies to load
@@ -94,9 +77,7 @@ def meanstack(
     return img, ut1
 
 
-def _h5mean(
-    fn: Path, ut1: Optional[datetime], key: slice, method: str
-) -> Tuple[np.ndarray, Optional[datetime]]:
+def _h5mean(fn: Path, ut1: datetime, key: slice, method: str) -> tuple[np.ndarray, datetime]:
     with h5py.File(fn, "r") as f:
         img = collapsestack(f["/rawimg"], key, method)
         # %% time
@@ -129,7 +110,11 @@ def collapsestack(img: np.ndarray, key: slice, method: str) -> np.ndarray:
     else:
         raise TypeError(f"unknown method {method}")
 
-    return func(img[key, ...], axis=0).astype(img.dtype)
+    colaps = func(img[key, ...], axis=0).astype(img.dtype)
+    assert colaps.ndim > 0
+    assert isinstance(colaps, np.ndarray)
+
+    return colaps
 
 
 def writefits(img: np.ndarray, outfn: Path):
@@ -144,7 +129,7 @@ def writefits(img: np.ndarray, outfn: Path):
         logging.warning(f"did not overwrite existing {outfn}")
 
 
-def readh5coord(fn: Path) -> Tuple[float, float]:
+def readh5coord(fn: Path) -> tuple[float, float]:
     if not fn.suffix == ".h5":
         return None
 
