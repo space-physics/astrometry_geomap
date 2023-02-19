@@ -2,7 +2,7 @@
 # Azimuth/Elevation converter for [Astrometry.net](https://github.com/dstndstn/astrometry.net)
 
 [![Zenodo DOI](https://zenodo.org/badge/19366614.svg)](https://zenodo.org/badge/latestdoi/19366614)
-![Actions Status](https://github.com/space-physics/astrometry_azel/workflows/ci/badge.svg)
+[![ci](https://github.com/space-physics/astrometry_azel/actions/workflows/ci.yml/badge.svg)](https://github.com/space-physics/astrometry_azel/actions/workflows/ci.yml)
 [![PyPi version](https://img.shields.io/pypi/pyversions/astrometry-azel.svg)](https://pypi.python.org/pypi/astrometry-azel)
 [![Downloads](http://pepy.tech/badge/astrometry-azel)](http://pepy.tech/project/astrometry-azel)
 
