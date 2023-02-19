@@ -120,6 +120,11 @@ def doSolve(fitsfn: Path, args: str | None = None) -> bool:
     """
     Astrometry.net from at least version 0.67 is OK with Python 3.
     """
+
+    fitsfn = Path(fitsfn).expanduser()
+    if not fitsfn.is_file():
+        raise FileNotFoundError(f"{fitsfn} not found")
+
     solve = shutil.which("solve-field")
     if not solve:
         raise FileNotFoundError("Astrometry.net solve-file exectuable not found")
