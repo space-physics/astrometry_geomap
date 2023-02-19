@@ -1,10 +1,8 @@
-.coverage
+
 .mypy_cache/
 .pytest_cache/
-htmlcov/
 
-.cache/
-*.nc
+
 build/
 dist/
 *.png

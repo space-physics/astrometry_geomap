@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 http://nova.astrometry.net/user_images/1572720
 """
@@ -42,7 +41,3 @@ def test_fits2azel():
     assert scale["el"].values[[32, 51, 98], [28, 92, 156]] == approx(
         [17.79424959, 15.74175926, 12.49407394]
     )
-
-
-if __name__ == "__main__":
-    pytest.main(["-x", __file__])

@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 aveage multi frame image stacks to improve SNR
 """
+
 import imageio
 from pathlib import Path
 import typing
