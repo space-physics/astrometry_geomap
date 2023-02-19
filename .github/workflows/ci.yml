@@ -4,14 +4,18 @@ on:
   push:
     paths:
       - "**.py"
+      - ".github/workflows/ci.yml"
 
 jobs:
 
-  strategy:
-    matrix:
-      os: [ubuntu-latest, windows-latest, macos-latest]
+
 
   core:
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
 
     runs-on: ${{ matrix.os }}
 
