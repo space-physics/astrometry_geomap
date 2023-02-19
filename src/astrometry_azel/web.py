@@ -48,4 +48,4 @@ def url_retrieve(url: str, outfile: Path, overwrite: bool = False):
         try:
             urllib.request.urlretrieve(url, str(outfile))
         except (socket.gaierror, urllib.error.URLError) as err:
-            raise ConnectionError("could not download {} due to {}".format(url, err))
+            raise ConnectionError(f"could not download {url} due to {err}")
