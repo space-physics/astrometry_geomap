@@ -18,8 +18,8 @@ except ImportError:
 
 
 def fits2radec(
-    fitsfn: Path, WCSfn: Path = None, solve: bool = False, args: str = None
-) -> xarray.Dataset:
+    fitsfn: Path, WCSfn: Path | None = None, solve: bool = False, args: str | None = None
+):
 
     fitsfn = Path(fitsfn).expanduser()
 
@@ -71,9 +71,7 @@ def fits2radec(
     return radec
 
 
-def radec2azel(
-    scale: xarray.Dataset, latlon: tuple[float, float], time: datetime
-) -> xarray.Dataset:
+def radec2azel(scale, latlon: tuple[float, float] | None, time: datetime | None):
 
     if pymap3d is None:
         logging.error("azimuth, elevation computations require: pip install pymap3d")
@@ -118,7 +116,7 @@ def radec2azel(
     return scale
 
 
-def doSolve(fitsfn: Path, args: str = None) -> bool:
+def doSolve(fitsfn: Path, args: str | None = None) -> bool:
     """
     Astrometry.net from at least version 0.67 is OK with Python 3.
     """
@@ -127,9 +125,9 @@ def doSolve(fitsfn: Path, args: str = None) -> bool:
         raise FileNotFoundError("Astrometry.net solve-file exectuable not found")
 
     if isinstance(args, str):
-        opts = args.split(" ")
+        opts: list[str] = args.split(" ")
     elif args is None:
-        args = []
+        opts = []
     # %% build command
     cmd = [solve, "--overwrite", str(fitsfn)]
     cmd += opts
@@ -150,12 +148,12 @@ def doSolve(fitsfn: Path, args: str = None) -> bool:
 def fits2azel(
     fitsfn: Path,
     *,
-    wcsfn: Path = None,
-    latlon: tuple[float, float] = None,
-    time: datetime = None,
+    wcsfn: Path | None = None,
+    latlon: tuple[float, float] | None = None,
+    time: datetime | None = None,
     solve: bool = False,
-    args: str = None,
-) -> xarray.Dataset:
+    args: str | None = None,
+):
 
     fitsfn = Path(fitsfn).expanduser()
 

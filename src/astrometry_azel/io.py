@@ -35,8 +35,8 @@ except ImportError:
 
 
 def meanstack(
-    infn: Path, Navg: int, ut1: datetime = None, method: str = "mean"
-) -> tuple[np.ndarray, datetime]:
+    infn: Path, Navg: slice | int, ut1: datetime | None = None, method: str = "mean"
+) -> tuple:
 
     infn = Path(infn).expanduser().resolve(strict=True)
     # %% parse indicies to load
@@ -77,7 +77,7 @@ def meanstack(
     return img, ut1
 
 
-def _h5mean(fn: Path, ut1: datetime, key: slice, method: str) -> tuple[np.ndarray, datetime]:
+def _h5mean(fn: Path, ut1: datetime | None, key: slice, method: str) -> tuple:
     with h5py.File(fn, "r") as f:
         img = collapsestack(f["/rawimg"], key, method)
         # %% time
@@ -95,7 +95,7 @@ def _h5mean(fn: Path, ut1: datetime, key: slice, method: str) -> tuple[np.ndarra
     return img, ut1
 
 
-def collapsestack(img: np.ndarray, key: slice, method: str) -> np.ndarray:
+def collapsestack(img, key: slice, method: str):
     if img.ndim not in (2, 3, 4):
         raise ValueError("only 2D, 3D, or 4D image stacks are handled")
 
@@ -106,7 +106,7 @@ def collapsestack(img: np.ndarray, key: slice, method: str) -> np.ndarray:
     if method == "mean":
         func = np.mean
     elif method == "median":
-        func = np.median
+        func = np.median  # type: ignore
     else:
         raise TypeError(f"unknown method {method}")
 
@@ -117,7 +117,7 @@ def collapsestack(img: np.ndarray, key: slice, method: str) -> np.ndarray:
     return colaps
 
 
-def writefits(img: np.ndarray, outfn: Path):
+def writefits(img, outfn: Path) -> None:
     outfn = Path(outfn).expanduser()
 
     f = fits.PrimaryHDU(img)
@@ -129,9 +129,7 @@ def writefits(img: np.ndarray, outfn: Path):
         logging.warning(f"did not overwrite existing {outfn}")
 
 
-def readh5coord(fn: Path) -> tuple[float, float]:
-    if not fn.suffix == ".h5":
-        return None
+def readh5coord(fn: Path) -> tuple[float, float] | None:
 
     with h5py.File(fn, "r") as f:
         try:

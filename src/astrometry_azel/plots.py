@@ -1,11 +1,9 @@
 from pathlib import Path
 import logging
-import xarray
 from matplotlib.figure import Figure
-import numpy as np
 
 
-def plotazel(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.ndarray = None):
+def plotazel(scale, plottype: str = "singlecontour", img=None):
 
     if "az" not in scale:
         return None
@@ -63,7 +61,7 @@ def plotazel(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.nda
     return fg
 
 
-def plotradec(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.ndarray = None):
+def plotradec(scale, plottype: str = "singlecontour", img=None):
 
     if "ra" not in scale:
         return None
@@ -119,7 +117,7 @@ def plotradec(scale: xarray.Dataset, plottype: str = "singlecontour", img: np.nd
     return fg
 
 
-def plotimagestack(img: np.ndarray, fn: Path, clim=None):
+def plotimagestack(img, fn: Path, clim=None):
     fn = Path(fn).expanduser()
     # %% plotting
     if img.ndim == 3 and img.shape[0] == 3:  # it seems to be an RGB image
