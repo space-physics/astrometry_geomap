@@ -9,6 +9,8 @@
 Note: If you want to work with the intermediate steps (source extraction) or photometry, see my AstroPy-based
 [examples](https://github.com/scivision/starscale).
 
+[Tips and techniques article](https://www.scivision.dev/astrometry-tips-techniques), especially for DSLR citizen science data.
+
 ## Prerequisites
 
 [Astrometry.net &ge; 0.67](https://scivision.dev/astrometry-install-usage)
