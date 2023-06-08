@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         use_pymap: [true, false]
 
 
@@ -26,6 +26,7 @@ jobs:
       run: sudo apt install --no-install-recommends astrometry.net astrometry-data-tycho2-10-19
 
     - name: "astrometry.net (macOS)"
+    # FIXME: would also need data installed
       if: runner.os == 'macOS'
       run: brew install astrometry-net
       env:
