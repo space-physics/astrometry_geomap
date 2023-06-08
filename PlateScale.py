@@ -24,12 +24,6 @@ try:
 except ImportError as err:
     print(f"plotting skipped: {err}", file=sys.stderr)
     aep = None  # type: ignore
-try:
-    import seaborn as sns
-
-    sns.set_context("paper")
-except ImportError:
-    pass
 
 
 def doplatescale(
