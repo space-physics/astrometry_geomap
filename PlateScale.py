@@ -7,9 +7,10 @@ is the input to this program.
 
 Michael Hirsch
 """
+
+from __future__ import annotations
 import sys
 from pathlib import Path
-from typing import Tuple, Optional
 from datetime import datetime
 from dateutil.parser import parse
 from argparse import ArgumentParser
@@ -24,7 +25,7 @@ try:
     import astrometry_azel.plots as aep
 except ImportError as err:
     print(f"plotting skipped: {err}", file=sys.stderr)
-    aep = None
+    aep = None  # type: ignore
 try:
     import seaborn as sns
 
@@ -36,12 +37,12 @@ except ImportError:
 def doplatescale(
     infn: Path,
     outfn: Path,
-    latlon: Tuple[float, float],
-    ut1: Optional[datetime],
+    latlon: tuple[float, float],
+    ut1: datetime | None,
     Navg: int,
     solve: bool,
     args: str,
-) -> Tuple[xarray.Dataset, np.ndarray]:
+) -> tuple:
     # %% filenames
     infn = Path(infn).expanduser().resolve(strict=True)
     wcsfn = infn.with_suffix(".wcs")
@@ -76,7 +77,7 @@ def doplatescale(
     return scale, meanimg
 
 
-def convert(infn: Path, ut1: datetime, P) -> Path:
+def convert(infn: Path, ut1: datetime, P) -> Path | None:
     scale, img = doplatescale(infn, P.outfn, P.latlon, ut1, P.navg, P.solve, P.args)
     if scale is None:
         return None
