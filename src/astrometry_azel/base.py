@@ -23,7 +23,7 @@ def fits2radec(
     fitsfn = Path(fitsfn).expanduser()
 
     if WCSfn is None:
-        if fitsfn.suffix in (".fits", ".new"):
+        if fitsfn.suffix in {".fits", ".new"}:
             # using .wcs will also work but gives a spurious warning
             WCSfn = fitsfn.with_suffix(".wcs")
         elif fitsfn.suffix == ".wcs":
@@ -136,7 +136,7 @@ def doSolve(fitsfn: Path, args: str | None = None) -> bool:
     cmd += opts
     print("\n", " ".join(cmd), "\n")
     # %% execute
-    ret = subprocess.check_output(cmd, universal_newlines=True)
+    ret = subprocess.check_output(cmd, text=True)
 
     # solve-field returns 0 even if it didn't solve!
     print(ret)

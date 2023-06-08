@@ -9,7 +9,6 @@ on:
 jobs:
 
 
-
   core:
 
     strategy:
@@ -28,6 +27,8 @@ jobs:
     - name: "astrometry.net (macOS)"
       if: runner.os == 'macOS'
       run: brew install astrometry-net
+      env:
+        HOMEBREW_NO_INSTALL_CLEANUP: 1
 
     - uses: actions/checkout@v3
 

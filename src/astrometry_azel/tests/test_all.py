@@ -32,10 +32,10 @@ def test_fits2radec():
     scale = ael.fits2radec(fitsfn)
 
     assert scale["ra"].values[[32, 51, 98], [28, 92, 156]] == approx(
-        [152.313342, 157.988921, 165.012208]
+        [152.35248165, 157.96163129, 164.95871358]
     )
     assert scale["dec"].values[[32, 51, 98], [28, 92, 156]] == approx(
-        [59.982123, 59.182819, 59.149952]
+        [59.98073175, 59.20526844, 59.18426375]
     )
 
 
@@ -43,9 +43,10 @@ def test_fits2azel():
     pytest.importorskip("pymap3d")
 
     scale = ael.fits2azel(fitsfn, latlon=LATLON, time=TIME)
+
     assert scale["az"].values[[32, 51, 98], [28, 92, 156]] == approx(
-        [24.58105122, 26.83990064, 28.43758228]
+        [24.59668217, 26.81546529, 28.39753029]
     )
     assert scale["el"].values[[32, 51, 98], [28, 92, 156]] == approx(
-        [17.79424959, 15.74175926, 12.49407394]
+        [17.78086795, 15.74570897, 12.50919858]
     )

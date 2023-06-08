@@ -57,7 +57,7 @@ def meanstack(
         if h5py is None:
             raise ImportError("pip install h5py")
         img, ut1 = _h5mean(infn, ut1, key, method)
-    elif infn.suffix in (".fits", ".new"):
+    elif infn.suffix in {".fits", ".new"}:
         # mmap doesn't work with BZERO/BSCALE/BLANK
         with fits.open(infn, mode="readonly", memmap=False) as f:
             img = collapsestack(f[0].data, key, method)
@@ -70,7 +70,7 @@ def meanstack(
         if imageio is None:
             raise ImportError("pip install imageio")
         img = imageio.imread(infn, as_gray=True)
-        if img.ndim in (3, 4) and img.shape[-1] == 3:  # assume RGB
+        if img.ndim in {3, 4} and img.shape[-1] == 3:  # assume RGB
             img = collapsestack(img, key, method)
 
     return img, ut1
@@ -95,7 +95,7 @@ def _h5mean(fn: Path, ut1: datetime | None, key: slice, method: str) -> tuple:
 
 
 def collapsestack(img, key: slice, method: str):
-    if img.ndim not in (2, 3, 4):
+    if img.ndim not in {2, 3, 4}:
         raise ValueError("only 2D, 3D, or 4D image stacks are handled")
 
     # %% 2-D

@@ -5,14 +5,7 @@
 
 build/
 dist/
-*.png
-*.xyls
-*.axy
-*.corr
-*.match
-*.rdls
-*.solved
 *.pyc
 __pycache__
-obsolete
+
 *.egg-info
