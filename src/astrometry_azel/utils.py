@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 
 def datetime_range(start: datetime, stop: datetime, step: timedelta) -> list[datetime]:
-
     """
     Generate range of datetime
 

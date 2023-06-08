@@ -42,7 +42,6 @@ def doplatescale(
     solve: bool,
     args: str,
 ) -> Tuple[xarray.Dataset, np.ndarray]:
-
     # %% filenames
     infn = Path(infn).expanduser().resolve(strict=True)
     wcsfn = infn.with_suffix(".wcs")

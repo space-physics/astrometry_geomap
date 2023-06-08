@@ -20,7 +20,6 @@ except ImportError:
 def fits2radec(
     fitsfn: Path, WCSfn: Path | None = None, solve: bool = False, args: str | None = None
 ):
-
     fitsfn = Path(fitsfn).expanduser()
 
     if WCSfn is None:
@@ -72,7 +71,6 @@ def fits2radec(
 
 
 def radec2azel(scale, latlon: tuple[float, float] | None, time: datetime | None):
-
     if pymap3d is None:
         logging.error("azimuth, elevation computations require: pip install pymap3d")
         return None
@@ -159,7 +157,6 @@ def fits2azel(
     solve: bool = False,
     args: str | None = None,
 ):
-
     fitsfn = Path(fitsfn).expanduser()
 
     radec = fits2radec(fitsfn, wcsfn, solve, args)

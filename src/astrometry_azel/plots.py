@@ -4,7 +4,6 @@ from matplotlib.figure import Figure
 
 
 def plotazel(scale, plottype: str = "singlecontour", img=None):
-
     if "az" not in scale:
         return None
 
@@ -62,7 +61,6 @@ def plotazel(scale, plottype: str = "singlecontour", img=None):
 
 
 def plotradec(scale, plottype: str = "singlecontour", img=None):
-
     if "ra" not in scale:
         return None
 

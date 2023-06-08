@@ -29,7 +29,6 @@ def load_gray(fn1: Path, fn2: Path) -> T.Tuple[np.ndarray, np.ndarray]:
 
 
 def find_crop(im1: np.ndarray, im2: np.ndarray) -> T.Tuple[int, int]:
-
     res = skf.match_template(im1, im2)
     # values (-1, 1) and peak is at upper left corner of match.
     Ul = np.unravel_index(res.argmax(), res.shape)
@@ -38,7 +37,6 @@ def find_crop(im1: np.ndarray, im2: np.ndarray) -> T.Tuple[int, int]:
 
 
 def plot_overlay(im1: np.ndarray, im2: np.ndarray, Ul: T.Sequence[int], fn1: Path, fn2: Path):
-
     overlay = np.zeros((*im1.shape, 3), dtype=im1.dtype)
     rows = slice(Ul[0], Ul[0] + im2.shape[0])
     cols = slice(Ul[1], Ul[1] + im2.shape[1])

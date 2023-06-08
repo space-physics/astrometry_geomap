@@ -37,7 +37,6 @@ except ImportError:
 def meanstack(
     infn: Path, Navg: slice | int, ut1: datetime | None = None, method: str = "mean"
 ) -> tuple:
-
     infn = Path(infn).expanduser().resolve(strict=True)
     # %% parse indicies to load
     if isinstance(Navg, slice):
@@ -130,7 +129,6 @@ def writefits(img, outfn: Path) -> None:
 
 
 def readh5coord(fn: Path) -> tuple[float, float] | None:
-
     with h5py.File(fn, "r") as f:
         try:
             latlon = (f["/sensorloc"]["glat"], f["/sensorloc"]["glon"])
