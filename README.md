@@ -11,30 +11,18 @@ Note: If you want to work with the intermediate steps (source extraction) or pho
 
 [Tips and techniques article](https://www.scivision.dev/astrometry-tips-techniques), especially for DSLR citizen science data.
 
-## Prerequisites
+## Prerequisites / install
 
+Get
 [Astrometry.net &ge; 0.67](https://scivision.dev/astrometry-install-usage)
-or, use the
+or use the
 [astrometry.net cloud service](http://nova.astrometry.net/upload).
-
-## Installation
 
 ```sh
 python3 -m pip install -e .
 ```
 
-### Astrometry.net index files
-
-If you use astrometry.net on your PC, you may need to install the index
-files and setup your config file to point at them:
-
-```sh
-downloadIndex ~/data
-```
-
 ## Command line options
-
-### Pass-through arguments
 
 The `-a` `--args` command line option allows passing through a variety of parameters to `solve-field`, which underlies this program.
 Type `solve-field -h` or `man solve-field` for a brief description of the nearly 100 options available.
@@ -65,14 +53,10 @@ The parameters I find most useful for citizen science images include:
 For extraneous regions of the image, try making a copy of the original image that has the offending regions cropped out.
 If the original image is in a lossy format such as JPEG, consider saving in a lossless format such as PNG after cropping.
 
-### FITS image input
-
-FITS is a legacy file format commonly used in astronomy.
-
-#### Astrometry.net installed on your PC
+### Astrometry.net installed on local computer:
 
 ```sh
-PlateScaleFITS myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --nc --png
+python3 PlateScale.py myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --nc --png
 ```
 
 gives NetCDF .nc with az/el ra/dec and PNG plots of the data.
@@ -80,18 +64,13 @@ Both files contain the same data, just for your convenience.
 
 61.2 -149.9 is your WGS84 coordinates, 2013-04-02T12:03:23Z is UTC time of the picture.
 
-#### wcs.fits from the Astrometry.net WEBSITE
-
-first rename wcs.fits to myimg.wcs:
+### wcs.fits from the Astrometry.net website:
 
 ```sh
-PlateScaleFITS myimg.wcs -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --nc --png
+mv wcs.fits myimg.wcs
+
+python3 PlateScale.py -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --nc --png
 ```
-
-### JPG image input
-
-JPG is commonly used by prosumer cameras.
-It's preferable to use lossless formats for scientific imaging such as JPEG2000 or newer file formats.
 
 ## Notes
 
@@ -123,15 +102,18 @@ export PATH=$PATH:$HOME/.local/astrometry/bin
 ```
 open a new terminal to use.
 
-### Download index files
-You will get various weird errors without the necessary star index files.
+### Download star index files
 
 ```sh
 python downloadIndex.py -source http://broiler.astrometry.net/~dstn/4100/ -i 8 20
 ```
 
-Then, edit ~/.local/astrometry/etc/astrometry.cfg, making the following changes:
+Edit file /etc/astrometry.cfg or similar:
 
-1. uncomment `inparallel`
-2. be sure `add_path` points to /home/username/astrometry-data, where username is your Linux username. Don't use ~ or $HOME.
-3. optionally, set `minwidth` smaller than the smallest FOV (in degrees) you'd ever see. For example, if NOT using a telescope, perhaps minwidth 1 or something.
+Be sure `add_path` points to /home/username/astrometry-data, where username is your Linux username.
+Don't use ~ or $HOME.
+
+Uncomment `inparallel` to process much faster.
+
+Optionally, set `minwidth` smaller than the smallest FOV (in degrees) expected.
+For example, if NOT using a telescope, perhaps minwidth 1 or something.
