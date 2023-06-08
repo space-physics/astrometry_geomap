@@ -14,8 +14,6 @@ from pathlib import Path
 from datetime import datetime
 from dateutil.parser import parse
 from argparse import ArgumentParser
-import xarray
-import numpy as np
 
 import astrometry_azel.io as aio
 import astrometry_azel as ael

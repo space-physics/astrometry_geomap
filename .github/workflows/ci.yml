@@ -13,7 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
+        use_pymap: [true, false]
 
 
     runs-on: ${{ matrix.os }}
@@ -37,6 +38,9 @@ jobs:
         python-version: '3.8'
 
     - run: pip install .[tests,lint]
+
+    - run: pip install pymap3d
+      if: ${{ matrix.use_pymap }} == 'true'
 
     - run: flake8
     - run: mypy
