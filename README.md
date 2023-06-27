@@ -105,7 +105,7 @@ open a new terminal to use.
 ### Download star index files
 
 ```sh
-python downloadIndex.py -source http://broiler.astrometry.net/~dstn/4100/ -i 8 20
+python downloadIndex.py
 ```
 
 Edit file /etc/astrometry.cfg or similar:

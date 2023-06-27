@@ -68,7 +68,7 @@ def url_retrieve(url: str, outfile: Path, overwrite: bool = False):
 
 p = ArgumentParser()
 p.add_argument("-o", "--outdir", help="directory to save index files", default="~/astrometry-data")
-p.add_argument("-source", default=url_2mass)
+p.add_argument("-source", nargs="+", default=[url_2mass, url_tycho])
 p.add_argument(
     "-i",
     "--indexrange",
@@ -79,4 +79,5 @@ p.add_argument(
 )
 P = p.parse_args()
 
-download(P.outdir, P.source, P.indexrange)
+for s in P.source:
+    download(P.outdir, s, P.indexrange)
