@@ -16,7 +16,7 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Atmospheric Science"
 ]
 dynamic = ["readme"]
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 dependencies = ["python-dateutil", "numpy", "astropy", "xarray"]
 
 [project.optional-dependencies]

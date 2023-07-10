@@ -1,4 +1,5 @@
 """
+solves test image from
 http://nova.astrometry.net/user_images/1572720
 """
 
@@ -17,7 +18,6 @@ fitsfn = rdir / "apod4.fits"
 exe = shutil.which("solve-field")
 
 
-@pytest.mark.skipif(exe is None, reason="solve-field missing")
 def test_nosolve(tmp_path):
     with pytest.raises(FileNotFoundError):
         ael.doSolve(tmp_path)

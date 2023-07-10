@@ -2,15 +2,8 @@
 Image stack -> average -> write FITS
 
 
-Because ImageJ has been a little buggy about writing FITS files, in particular the header
-that astrometry.net then crashes on, we wrote this quick script to ingest a variety
-of files and average the specified frames then write a FITS.
-The reason we average a selected stack of images is to reduce the noise for use in
-astrometry.net
-
-The error you might get from an ImageJ saved FITS when reading in:
-PyFits, AstroPy, or ImageMagick is:
-IOError: Header missing END card.
+average the specified frames then write a FITS file.
+Averaging a selected stack of images improves SNR for astrometry.net
 """
 
 from __future__ import annotations
@@ -23,7 +16,7 @@ import logging
 try:
     import imageio
 except ImportError:
-    imageio = None
+    imageio = None  # type: ignore
 try:
     import h5py
 except ImportError:
@@ -48,7 +41,7 @@ def meanstack(
     elif len(Navg) == 2:
         key = slice(Navg[0], Navg[1])
     else:
-        raise ValueError(f"not sure what you mean by Navg={Navg}")
+        raise ValueError(f"not sure how to handle Navg={Navg}")
     # %% load images
     """
     some methods handled individually to improve efficiency with huge files
@@ -136,6 +129,6 @@ def readh5coord(fn: Path) -> tuple[float, float] | None:
             try:
                 latlon = f["/lla"][:2]
             except KeyError:
-                return None
+                raise KeyError(f"could not find lat/lon in {fn}")
 
     return latlon

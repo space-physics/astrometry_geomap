@@ -8,7 +8,7 @@ from dateutil.parser import parse
 from datetime import datetime
 from numpy import meshgrid, column_stack
 import xarray
-from astropy.io import fits  # instead of obsolete pyfits
+from astropy.io import fits
 from astropy.wcs import wcs
 
 try:
@@ -16,10 +16,15 @@ try:
 except ImportError:
     pymap3d = None
 
+__all__ = ["fits2radec", "fits2azel", "doSolve"]
+
 
 def fits2radec(
     fitsfn: Path, WCSfn: Path | None = None, solve: bool = False, args: str | None = None
 ):
+    """
+    get RA, Decl from FITS file
+    """
     fitsfn = Path(fitsfn).expanduser()
 
     if WCSfn is None:
@@ -31,21 +36,19 @@ def fits2radec(
         else:
             raise ValueError(f"please convert {fitsfn} to GRAYSCALE .fits")
 
-    if solve:
-        if not doSolve(fitsfn, args):
-            logging.error(f"{fitsfn} was not solved")
-            return None
+    if solve and not doSolve(fitsfn, args):
+        raise RuntimeError(f"{fitsfn} was not solved")
 
     if not WCSfn.is_file():
         WCSfn = WCSfn.parent / (WCSfn.stem + "_stack.wcs")
     if not WCSfn.is_file():
-        logging.error(f"it appears {fitsfn} was not solved as {WCSfn} is not found")
-        return None
+        raise FileNotFoundError(f"it appears {fitsfn} was not solved as {WCSfn} is not found")
 
     with fits.open(fitsfn, mode="readonly") as f:
         yPix, xPix = f[0].shape[-2:]
 
-    x, y = meshgrid(range(xPix), range(yPix))  # pixel indices to find RA/dec of
+    x, y = meshgrid(range(xPix), range(yPix))
+    # pixel indices to find RA/dec of
     xy = column_stack((x.ravel(order="C"), y.ravel(order="C")))
     # %% use astropy.wcs to register pixels to RA/DEC
     """
@@ -70,21 +73,19 @@ def fits2radec(
     return radec
 
 
-def radec2azel(scale, latlon: tuple[float, float] | None, time: datetime | None):
+def radec2azel(scale, latlon: tuple[float, float], time: datetime | None):
     if pymap3d is None:
-        logging.error("azimuth, elevation computations require: pip install pymap3d")
-        return None
-    if latlon is None:
-        return None
-    if not isinstance(scale, xarray.Dataset):
-        return None
+        raise ImportError("azimuth, elevation computations require: pip install pymap3d")
+
+    assert isinstance(scale, xarray.Dataset)
 
     if time is None:
         with fits.open(scale.filename, mode="readonly") as f:
             try:
-                t = f[0].header["FRAME"]  # TODO this only works from Solis?
+                t = f[0].header["FRAME"]
+                # NOTE: this only works from Solis FITS files
             except KeyError:
-                return None
+                raise ValueError("Could not determine time of image")
         time = parse(t)
         logging.info("using FITS header for time")
     elif isinstance(time, datetime):
@@ -103,7 +104,6 @@ def radec2azel(scale, latlon: tuple[float, float] | None, time: datetime | None)
         logging.error(
             f"{Nbelow} points were below the horizon."
             "Currently this program assumed observer ~ ground level."
-            "Please file a bug report if you need observer off of Earth surface"
         )
     # %% collect output
     scale["az"] = (("y", "x"), az)
@@ -111,26 +111,26 @@ def radec2azel(scale, latlon: tuple[float, float] | None, time: datetime | None)
     scale.attrs["lat"] = latlon[0]
     scale.attrs["lon"] = latlon[1]
     scale.attrs["time"] = time
+
     return scale
 
 
 def doSolve(fitsfn: Path, args: str | None = None) -> bool:
     """
-    Astrometry.net from at least version 0.67 is OK with Python 3.
+    run Astrometry.net solve-field from Python
     """
 
     fitsfn = Path(fitsfn).expanduser()
     if not fitsfn.is_file():
         raise FileNotFoundError(f"{fitsfn} not found")
 
-    solve = shutil.which("solve-field")
-    if not solve:
+    if not (solve := shutil.which("solve-field")):
         raise FileNotFoundError("Astrometry.net solve-file exectuable not found")
 
     if isinstance(args, str):
         opts: list[str] = args.split(" ")
     elif args is None:
-        opts = []
+        opts = ["-v"]
     # %% build command
     cmd = [solve, "--overwrite", str(fitsfn)]
     cmd += opts
@@ -152,19 +152,13 @@ def fits2azel(
     fitsfn: Path,
     *,
     wcsfn: Path | None = None,
-    latlon: tuple[float, float] | None = None,
-    time: datetime | None = None,
+    latlon: tuple[float, float],
+    time: datetime,
     solve: bool = False,
     args: str | None = None,
 ):
     fitsfn = Path(fitsfn).expanduser()
 
     radec = fits2radec(fitsfn, wcsfn, solve, args)
-    if radec is None:
-        return None
-    # if az/el can be computed, scale is implicitly merged with radec.
-    scale = radec2azel(radec, latlon, time)
-    if scale is None:
-        scale = radec
 
-    return scale
+    return radec2azel(radec, latlon, time)

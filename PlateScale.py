@@ -1,11 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 script to plate scale data in FITS or HDF5 format.
 
-If you already solved the image using astrometry.net web service, the .new FITS file
-is the input to this program.
-
-Michael Hirsch
+If the image starfile was solved using astrometry.net web service,
+the ".new" FITS file is the input to this program.
 """
 
 from __future__ import annotations
@@ -43,7 +41,7 @@ def doplatescale(
         fitsfn = Path(outfn).with_suffix(".fits")
     else:
         fitsfn = infn.parent / (infn.stem + "_stack.fits")
-    # %% convert to mean
+    # %% get mean of image stack to improve image SNR
     meanimg, ut1 = aio.meanstack(infn, Navg, ut1)
 
     aio.writefits(meanimg, fitsfn)
@@ -55,10 +53,7 @@ def doplatescale(
     if scale is None:
         return (None, None)
     # %% write to file
-    if outfn:
-        outfn = Path(outfn).expanduser()
-    else:
-        outfn = Path(scale.filename).with_suffix(".nc")
+    outfn = Path(outfn).expanduser() if outfn else Path(scale.filename).with_suffix(".nc")
     print("saving", outfn)
     try:
         scale.attrs["time"] = str(scale.time)
