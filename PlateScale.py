@@ -50,8 +50,7 @@ def doplatescale(
         latlon = aio.readh5coord(infn)
 
     scale = ael.fits2azel(fitsfn, wcsfn=wcsfn, latlon=latlon, time=ut1, solve=solve, args=args)
-    if scale is None:
-        return (None, None)
+
     # %% write to file
     outfn = Path(outfn).expanduser() if outfn else Path(scale.filename).with_suffix(".nc")
     print("saving", outfn)
@@ -64,10 +63,21 @@ def doplatescale(
     return scale, meanimg
 
 
-def convert(infn: Path, ut1: datetime, P) -> Path | None:
+def convert(infn: Path, ut1: datetime, P) -> Path:
+    """
+    Obtain plate scale data from image file and write to netCDF file.
+
+    Parameters
+    ----------
+
+    infn: pathlib.Path
+        input file name
+    ut1: datetime.datetime
+        UT1 time of image
+    P: argparse.Namespace
+        command line arguments
+    """
     scale, img = doplatescale(infn, P.outfn, P.latlon, ut1, P.navg, P.solve, P.args)
-    if scale is None:
-        return None
 
     outfn = Path(scale.filename)
     outdir = outfn.parent
@@ -91,17 +101,12 @@ def convert(infn: Path, ut1: datetime, P) -> Path | None:
 def main():
     p = ArgumentParser(description="do plate scaling for image data")
     p.add_argument("infn", help="image data file name (HDF5 or FITS)")
-    p.add_argument("-g", "--glob", help="filename globbing")
     p.add_argument("-o", "--outfn", help="platescale data path to write")
     p.add_argument(
         "-c", "--latlon", help="wgs84 coordinates of cameras (deg.)", nargs=2, type=float
     )
     p.add_argument(
-        "-t",
-        "--ut1",
-        help="override file UT1 time yyyy-mm-ddTHH:MM:SSZ or (start, stop)",
-        nargs="+",
-        default=[None],
+        "-t", "--ut1", help="override file UT1 time yyyy-mm-ddTHH:MM:SSZ or (start, stop)"
     )
     p.add_argument(
         "-N",
@@ -119,23 +124,7 @@ def main():
 
     path = Path(P.infn).expanduser()
 
-    if P.glob:
-        start = parse(P.ut1[0])
-        end = parse(P.ut1[1])
-        files = list(path.glob(P.glob))
-        total = len(files)
-        ok = []
-        if total == 0:
-            raise FileNotFoundError(f"No files found in {path} with {P.glob}")
-        step = (end - start) / len(files)
-        times = datetime_range(start, end, step)
-        for file, time in zip(files, times):
-            converted = convert(file, time, P)
-            if converted:
-                ok.append(converted)
-        print("converted", len(ok), "/", total, "files in", path)
-    else:
-        convert(path, P.ut1[0], P)
+    convert(path, P.ut1, P)
 
 
 if __name__ == "__main__":

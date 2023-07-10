@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 Utility program to print source Coordinates in RA,DEC that astrometry.net found
-use this with .rdls files after solving an image
+use this with .rdls (rdls.fits) FITS files after solving an image
 """
 from pathlib import Path
 from astropy.io import fits
