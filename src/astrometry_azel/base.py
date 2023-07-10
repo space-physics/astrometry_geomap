@@ -19,43 +19,26 @@ except ImportError:
 __all__ = ["fits2radec", "fits2azel", "doSolve"]
 
 
-def fits2radec(
-    fitsfn: Path, WCSfn: Path | None = None, solve: bool = False, args: str | None = None
-):
+def fits2radec(fitsfn: Path, solve: bool = False, args: str | None = None):
     """
     get RA, Decl from FITS file
     """
     fitsfn = Path(fitsfn).expanduser()
 
-    if WCSfn is None:
-        if fitsfn.suffix in {".fits", ".new"}:
-            # using .wcs will also work but gives a spurious warning
-            WCSfn = fitsfn.with_suffix(".wcs")
-        elif fitsfn.suffix == ".wcs":
-            WCSfn = fitsfn
-        else:
-            raise ValueError(f"please convert {fitsfn} to GRAYSCALE .fits")
-
     if solve and not doSolve(fitsfn, args):
         raise RuntimeError(f"{fitsfn} was not solved")
-
-    if not WCSfn.is_file():
-        WCSfn = WCSfn.parent / (WCSfn.stem + "_stack.wcs")
-    if not WCSfn.is_file():
-        raise FileNotFoundError(f"it appears {fitsfn} was not solved as {WCSfn} is not found")
 
     with fits.open(fitsfn, mode="readonly") as f:
         yPix, xPix = f[0].shape[-2:]
 
-    x, y = meshgrid(range(xPix), range(yPix))
-    # pixel indices to find RA/dec of
-    xy = column_stack((x.ravel(order="C"), y.ravel(order="C")))
-    # %% use astropy.wcs to register pixels to RA/DEC
-    """
-    http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS
-    naxis=[0,1] is to take x,y axes in case a color photo was input e.g. to astrometry.net cloud solver
-    """
-    with fits.open(WCSfn, mode="readonly") as f:
+        x, y = meshgrid(range(xPix), range(yPix))
+        # pixel indices to find RA/dec of
+        xy = column_stack((x.ravel(order="C"), y.ravel(order="C")))
+        # %% use astropy.wcs to register pixels to RA/DEC
+        """
+        http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS
+        naxis=[0,1] is to take x,y axes in case a color photo was input e.g. to astrometry.net cloud solver
+        """
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
@@ -151,7 +134,6 @@ def doSolve(fitsfn: Path, args: str | None = None) -> bool:
 def fits2azel(
     fitsfn: Path,
     *,
-    wcsfn: Path | None = None,
     latlon: tuple[float, float],
     time: datetime,
     solve: bool = False,
@@ -159,6 +141,6 @@ def fits2azel(
 ):
     fitsfn = Path(fitsfn).expanduser()
 
-    radec = fits2radec(fitsfn, wcsfn, solve, args)
+    radec = fits2radec(fitsfn, solve, args)
 
     return radec2azel(radec, latlon, time)

@@ -30,7 +30,10 @@ except ImportError:
 def meanstack(
     infn: Path, Navg: slice | int, ut1: datetime | None = None, method: str = "mean"
 ) -> tuple:
-    infn = Path(infn).expanduser().resolve(strict=True)
+    infn = Path(infn).expanduser().resolve()
+    if not infn.is_file():
+        raise FileNotFoundError(infn)
+
     # %% parse indicies to load
     if isinstance(Navg, slice):
         key = Navg

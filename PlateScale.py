@@ -34,8 +34,7 @@ def doplatescale(
     args: str,
 ) -> tuple:
     # %% filenames
-    infn = Path(infn).expanduser().resolve(strict=True)
-    wcsfn = infn.with_suffix(".wcs")
+    infn = Path(infn).expanduser().resolve()
 
     if outfn:
         fitsfn = Path(outfn).with_suffix(".fits")
@@ -47,9 +46,12 @@ def doplatescale(
     aio.writefits(meanimg, fitsfn)
     # %% try to get site coordinates from file
     if latlon is None:
-        latlon = aio.readh5coord(infn)
+        if infn.suffix == ".h5":
+            latlon = aio.readh5coord(infn)
+        else:
+            raise ValueError("please specify camera lat,lon on command line")
 
-    scale = ael.fits2azel(fitsfn, wcsfn=wcsfn, latlon=latlon, time=ut1, solve=solve, args=args)
+    scale = ael.fits2azel(fitsfn, latlon=latlon, time=ut1, solve=solve, args=args)
 
     # %% write to file
     outfn = Path(outfn).expanduser() if outfn else Path(scale.filename).with_suffix(".nc")
@@ -63,7 +65,15 @@ def doplatescale(
     return scale, meanimg
 
 
-def convert(infn: Path, ut1: datetime, P) -> Path:
+def convert(
+    infn: Path,
+    ut1: datetime,
+    Navg: int,
+    solve: bool = False,
+    outfn: Path | None = None,
+    latlon: tuple[float, float] | None = None,
+    args: str = "",
+) -> Path:
     """
     Obtain plate scale data from image file and write to netCDF file.
 
@@ -77,7 +87,7 @@ def convert(infn: Path, ut1: datetime, P) -> Path:
     P: argparse.Namespace
         command line arguments
     """
-    scale, img = doplatescale(infn, P.outfn, P.latlon, ut1, P.navg, P.solve, P.args)
+    scale, img = doplatescale(infn, outfn, latlon, ut1, Navg, solve, args)
 
     outfn = Path(scale.filename)
     outdir = outfn.parent
@@ -119,12 +129,14 @@ def main():
     p.add_argument(
         "-s", "--solve", help="run solve-field step of astrometry.net", action="store_true"
     )
-    p.add_argument("-a", "--args", help="arguments to pass through to solve-field")
+    p.add_argument("-a", "--args", help="arguments to pass through to solve-field", default="")
     P = p.parse_args()
 
     path = Path(P.infn).expanduser()
 
-    convert(path, P.ut1, P)
+    print(P.latlon)
+
+    convert(path, P.ut1, P.navg, P.solve, P.outfn, P.latlon, P.args)
 
 
 if __name__ == "__main__":
