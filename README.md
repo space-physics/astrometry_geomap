@@ -56,7 +56,7 @@ If the original image is in a lossy format such as JPEG, consider saving in a lo
 ### Astrometry.net installed on local computer:
 
 ```sh
-python3 PlateScale.py myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --nc --png
+python3 PlateScale.py myimg.fits -c 61.2 -149.9 -t 2013-04-02T12:03:23Z
 ```
 
 gives NetCDF .nc with az/el ra/dec and PNG plots of the data.
@@ -66,10 +66,10 @@ Both files contain the same data, just for your convenience.
 
 ### wcs.fits from the Astrometry.net website:
 
-```sh
-mv wcs.fits myimg.wcs
+Download from nova.astrometry.net solved image the "new-image.fits" and "wcs.fits" files, then:
 
-python3 PlateScale.py -c 61.2 -149.9 -t 2013-04-02T12:03:23Z --nc --png
+```sh
+python3 PlateScale.py -c 61.2 -149.9 -t 2013-04-02T12:03:23Z new-image.fits
 ```
 
 ## Notes
