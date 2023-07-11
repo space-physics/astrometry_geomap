@@ -11,7 +11,6 @@ from pathlib import Path
 import numpy as np
 from datetime import datetime
 from astropy.io import fits
-import logging
 
 try:
     import imageio

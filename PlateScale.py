@@ -10,12 +10,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from datetime import datetime
-from dateutil.parser import parse
 from argparse import ArgumentParser
 
 import astrometry_azel.io as aio
 import astrometry_azel as ael
-from astrometry_azel.utils import datetime_range
 
 try:
     import astrometry_azel.plots as aep

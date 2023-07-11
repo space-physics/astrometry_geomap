@@ -3,7 +3,6 @@ from pathlib import Path
 import subprocess
 import shutil
 import logging
-import warnings
 from dateutil.parser import parse
 from datetime import datetime
 from numpy import meshgrid, column_stack
