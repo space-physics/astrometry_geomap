@@ -116,12 +116,10 @@ def writefits(img, outfn: Path) -> None:
     outfn = Path(outfn).expanduser()
 
     f = fits.PrimaryHDU(img)
-    try:
-        f.writeto(outfn, overwrite=False, checksum=True)
-        # no close()
-        print("writing", outfn)
-    except OSError:
-        logging.warning(f"did not overwrite existing {outfn}")
+
+    f.writeto(outfn, overwrite=True, checksum=True)
+    # no close()
+    print("writing", outfn)
 
 
 def readh5coord(fn: Path) -> tuple[float, float] | None:

@@ -25,8 +25,7 @@ except ImportError as err:
 
 
 def doplatescale(
-    infn: Path,
-    outfn: Path,
+    file: Path,
     latlon: tuple[float, float],
     ut1: datetime | None,
     Navg: int,
@@ -34,16 +33,13 @@ def doplatescale(
     args: str,
 ) -> tuple:
     # %% filenames
-    infn = Path(infn).expanduser().resolve()
+    infn = Path(file).expanduser().resolve()
 
-    if outfn:
-        fitsfn = Path(outfn).with_suffix(".fits")
-    else:
-        fitsfn = infn.parent / (infn.stem + "_stack.fits")
     # %% get mean of image stack to improve image SNR
     meanimg, ut1 = aio.meanstack(infn, Navg, ut1)
 
-    aio.writefits(meanimg, fitsfn)
+    if solve:
+        aio.writefits(meanimg, file.with_stem(file.stem + "_stack"))
     # %% try to get site coordinates from file
     if latlon is None:
         if infn.suffix == ".h5":
@@ -51,10 +47,10 @@ def doplatescale(
         else:
             raise ValueError("please specify camera lat,lon on command line")
 
-    scale = ael.fits2azel(fitsfn, latlon=latlon, time=ut1, solve=solve, args=args)
+    scale = ael.fits2azel(file, latlon=latlon, time=ut1, solve=solve, args=args)
 
     # %% write to file
-    outfn = Path(outfn).expanduser() if outfn else Path(scale.filename).with_suffix(".nc")
+    outfn = Path(scale.filename).with_suffix(".nc")
     print("saving", outfn)
     try:
         scale.attrs["time"] = str(scale.time)
@@ -69,9 +65,8 @@ def convert(
     infn: Path,
     ut1: datetime,
     Navg: int,
-    solve: bool = False,
-    outfn: Path | None = None,
-    latlon: tuple[float, float] | None = None,
+    solve: bool,
+    latlon: tuple[float, float],
     args: str = "",
 ) -> Path:
     """
@@ -87,7 +82,7 @@ def convert(
     P: argparse.Namespace
         command line arguments
     """
-    scale, img = doplatescale(infn, outfn, latlon, ut1, Navg, solve, args)
+    scale, img = doplatescale(infn, latlon, ut1, Navg, solve, args)
 
     outfn = Path(scale.filename)
     outdir = outfn.parent
@@ -111,7 +106,6 @@ def convert(
 def main():
     p = ArgumentParser(description="do plate scaling for image data")
     p.add_argument("infn", help="image data file name (HDF5 or FITS)")
-    p.add_argument("-o", "--outfn", help="platescale data path to write")
     p.add_argument(
         "-c", "--latlon", help="wgs84 coordinates of cameras (deg.)", nargs=2, type=float
     )
@@ -136,7 +130,7 @@ def main():
 
     print(P.latlon)
 
-    convert(path, P.ut1, P.navg, P.solve, P.outfn, P.latlon, P.args)
+    convert(path, P.ut1, P.navg, P.solve, P.latlon, P.args)
 
 
 if __name__ == "__main__":

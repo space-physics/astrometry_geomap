@@ -31,18 +31,26 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str | None = None):
     with fits.open(fitsfn, mode="readonly") as f:
         yPix, xPix = f[0].shape[-2:]
 
-        x, y = meshgrid(range(xPix), range(yPix))
-        # pixel indices to find RA/dec of
-        xy = column_stack((x.ravel(order="C"), y.ravel(order="C")))
+    x, y = meshgrid(range(xPix), range(yPix))
+    # pixel indices to find RA/dec of
+    xy = column_stack((x.ravel(order="C"), y.ravel(order="C")))
+
+    if not (wcsfn := fitsfn.with_suffix(".wcs")).is_file():
+        if not (wcsfn := fitsfn.with_name("wcs.fits")).is_file():
+            raise FileNotFoundError(f"could not find WCS file for {fitsfn}")
+    with fits.open(wcsfn, mode="readonly") as f:
         # %% use astropy.wcs to register pixels to RA/DEC
-        """
-        http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS
-        naxis=[0,1] is to take x,y axes in case a color photo was input e.g. to astrometry.net cloud solver
-        """
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+        # http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS
+        # NOTE: it's normal to get this warning:
+        # WARNING: FITSFixedWarning: The WCS transformation has more axes (2) than the image it is associated with (0) [astropy.wcs.wcs]
+        if f[0].header["WCSAXES"] == 2:
+            # greyscale image
             radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
-            # radec = wcs.WCS(hdul[0].header,naxis=[0,1]).all_pix2world(xy, 0)
+        elif f[0].header["WCSAXES"] == 3:
+            # color image
+            radec = wcs.WCS(f[0].header, naxis=[0, 1]).all_pix2world(xy, 0)
+        else:
+            raise ValueError(f"{fitsfn} has {f[0].header['NAXIS']} axes -- expected 2 or 3")
 
     ra = radec[:, 0].reshape((yPix, xPix), order="C")
     dec = radec[:, 1].reshape((yPix, xPix), order="C")
@@ -81,6 +89,7 @@ def radec2azel(scale, latlon: tuple[float, float], time: datetime | None):
     print("image time:", time)
     # %% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel
     # .values is to avoid silently freezing AstroPy
+
     az, el = pymap3d.radec2azel(scale["ra"].values, scale["dec"].values, *latlon, time)
     if (el < 0).any():
         Nbelow = (el < 0).nonzero()
@@ -88,6 +97,7 @@ def radec2azel(scale, latlon: tuple[float, float], time: datetime | None):
             f"{Nbelow} points were below the horizon."
             "Currently this program assumed observer ~ ground level."
         )
+
     # %% collect output
     scale["az"] = (("y", "x"), az)
     scale["el"] = (("y", "x"), el)
