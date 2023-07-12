@@ -52,7 +52,7 @@ def test_fits2azel(fits_file):
     scale = ael.fits2azel(fits_file, latlon=(0, 0), time="2000-01-01T00:00")
 
     az_expected = [24.59668217, 26.81546529, 28.39753029]
-    assert scale["az"].values[[32, 51, 98], [28, 92, 156]] == approx(az_expected, rel=0.01)
+    assert scale["azimuth"].values[[32, 51, 98], [28, 92, 156]] == approx(az_expected, rel=0.01)
 
     el_expected = [17.78086795, 15.74570897, 12.50919858]
-    assert scale["el"].values[[32, 51, 98], [28, 92, 156]] == approx(el_expected, rel=0.01)
+    assert scale["elevation"].values[[32, 51, 98], [28, 92, 156]] == approx(el_expected, rel=0.01)

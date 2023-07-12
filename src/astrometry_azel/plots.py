@@ -4,29 +4,27 @@ from matplotlib.figure import Figure
 
 
 def plotazel(scale, plottype: str = "singlecontour", img=None):
-    if "az" not in scale:
-        return None
-
     if plottype == "singlecontour":
         fg = Figure()
         ax = fg.gca()
         if img is not None:
             ax.imshow(img, origin="lower", cmap="gray")
-        cs = ax.contour(scale["x"], scale["y"], scale["az"])
+        cs = ax.contour(scale["x"], scale["y"], scale["azimuth"])
         ax.clabel(cs, inline=1, fmt="%0.1f")
-        cs = ax.contour(scale["x"], scale["y"], scale["el"])
+        cs = ax.contour(scale["x"], scale["y"], scale["elevation"])
         ax.clabel(cs, inline=True, fmt="%0.1f")
         ax.set_xlabel("x-pixel")
         ax.set_ylabel("y-pixel")
         ax.set_title(
-            f"{Path(scale.filename).name}  ({scale.lat:.2f}, {scale.lon:.2f})  {scale.time}\nAzimuth / Elevation"
+            f"{Path(scale.filename).name}  ({scale.observer_latitude:.2f}, {scale.observer_longitude:.2f})"
+            f"  {scale.time}\nAzimuth / Elevation"
         )
         fg.set_tight_layout(True)
         return fg
     elif plottype == "image":
         fg = Figure(figsize=(12, 5))
         ax = fg.subplots(1, 2, sharey=True)
-        hia = ax[0].imshow(scale["az"], origin="lower")
+        hia = ax[0].imshow(scale["azimuth"], origin="lower")
         hc = fg.colorbar(hia)
         hc.set_label("Azimuth [deg]")
     elif plottype == "contour":
@@ -34,7 +32,7 @@ def plotazel(scale, plottype: str = "singlecontour", img=None):
         ax = fg.subplots(1, 2, sharey=True)
         if img is not None:
             ax[0].imshow(img, origin="lower", cmap="gray")
-        cs = ax[0].contour(scale["x"], scale["y"], scale["az"])
+        cs = ax[0].contour(scale["x"], scale["y"], scale["azimuth"])
         ax[0].clabel(cs, inline=1, fmt="%0.1f")
 
     ax[0].set_xlabel("x-pixel")
@@ -43,18 +41,21 @@ def plotazel(scale, plottype: str = "singlecontour", img=None):
     # %%
     axe = ax[1]
     if plottype == "image":
-        hie = axe.imshow(scale["el"], origin="lower")
+        hie = axe.imshow(scale["elevation"], origin="lower")
         hc = fg.colorbar(hie)
         hc.set_label("Elevation [deg]")
     elif plottype == "contour":
         if img is not None:
             axe.imshow(img, origin="lower", cmap="gray")
-        cs = axe.contour(scale["x"], scale["y"], scale["el"])
+        cs = axe.contour(scale["x"], scale["y"], scale["elevation"])
         axe.clabel(cs, inline=True, fmt="%0.1f")
 
     axe.set_xlabel("x-pixel")
     axe.set_title("elevation")
-    fg.suptitle(f"{Path(scale.filename).name}\n({scale.lat:.2f}, {scale.lon:.2f})  {scale.time}")
+    fg.suptitle(
+        f"{Path(scale.filename).name}\n({scale.observer_latitude:.2f}, {scale.observer_longitude:.2f})"
+        f"  {scale.time}"
+    )
     fg.set_tight_layout(True)
 
     return fg

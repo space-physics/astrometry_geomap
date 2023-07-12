@@ -98,10 +98,10 @@ def radec2azel(scale, latlon: tuple[float, float], time: datetime | None):
         )
 
     # %% collect output
-    scale["az"] = (("y", "x"), az)
-    scale["el"] = (("y", "x"), el)
-    scale.attrs["lat"] = latlon[0]
-    scale.attrs["lon"] = latlon[1]
+    scale["azimuth"] = (("y", "x"), az)
+    scale["elevation"] = (("y", "x"), el)
+    scale.attrs["observer_latitude"] = latlon[0]
+    scale.attrs["observer_longitude"] = latlon[1]
     scale.attrs["time"] = time
 
     return scale
