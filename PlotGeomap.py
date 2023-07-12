@@ -110,7 +110,7 @@ def plot_geomap(img: xarray.Dataset):
     # hgl.xlocator = mt.FixedLocator(np.arange(*lon_bounds, 10))
     # hgl.ylocator = mt.FixedLocator(np.arange(*lat_bounds, 5))
 
-    ax.pcolormesh(img.longitude, img.latitude, img.image, cmap="Greys")
+    ax.pcolormesh(img.longitude, img.latitude, img.image.data, cmap="Greys")
 
     ax.set_title(f"{str(img.time.values)[:-10]} at {img.mapping_alt_km} km altitude")
     ax.set_xlabel("geographic longitude")
