@@ -17,6 +17,9 @@ or use the
 python3 -m pip install -e .
 ```
 
+The main program used is [PlateScale.py](./PlateScale.py).
+Auxiliary scripts are under [scripts/](./scripts/)
+
 ## PlateScale.py
 
 The main script most users would use to register a star field image to Azimuth and Elevation is "PlateScale.py".
