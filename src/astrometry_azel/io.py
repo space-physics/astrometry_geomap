@@ -11,9 +11,10 @@ from pathlib import Path
 import numpy as np
 from datetime import datetime
 from astropy.io import fits
+import logging
 
 try:
-    import imageio
+    import imageio.v3 as iio
 except ImportError:
     imageio = None  # type: ignore
 try:
@@ -24,6 +25,48 @@ try:
     from scipy.io import loadmat
 except ImportError:
     loadmat = None
+
+
+def rgb2grey(rgb_img):
+    """
+    rgb_img: ndarray
+        RGB image
+    from PySumix rgb2gray.py
+    """
+
+    ndim = rgb_img.ndim
+    if ndim == 2:
+        logging.info("assuming its already gray since ndim=2")
+        grey_img = rgb_img
+    elif ndim == 3 and rgb_img.shape[-1] == 3:  # this is the normal case
+        grey_img = np.around(rgb_img[..., :] @ [0.299, 0.587, 0.114]).astype(rgb_img.dtype)
+    elif ndim == 3 and rgb_img.shape[-1] == 4:
+        logging.info("assuming this is an RGBA image, discarding alpha channel")
+        grey_img = rgb2grey(rgb_img[..., :-1])
+
+    return grey_img
+
+
+def load_image(file: Path):
+    """
+    load netCDF from PlateScale.py and original image
+
+    Parameters
+    ----------
+
+    file: pathlib.Path
+        netCDF file from PlateScale.py
+    """
+
+    file = Path(file).expanduser().resolve(strict=True)
+
+    if file.suffix == ".fits":
+        with fits.open(file, mode="readonly", memmap=False) as f:
+            image = f[0].data
+    else:
+        image = rgb2grey(iio.imread(file))
+
+    return image
 
 
 def meanstack(
@@ -112,8 +155,6 @@ def collapsestack(img, key: slice, method: str):
 
 
 def writefits(img, outfn: Path) -> None:
-    outfn = Path(outfn).expanduser()
-
     f = fits.PrimaryHDU(img)
 
     f.writeto(outfn, overwrite=True, checksum=True)

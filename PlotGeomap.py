@@ -10,10 +10,8 @@ from pathlib import Path
 
 import xarray
 import numpy as np
-import imageio.v3 as iio
-from astropy.io import fits
 
-from matplotlib.pyplot import Figure, show
+from matplotlib.pyplot import figure, show
 import matplotlib.ticker as mt
 
 import cartopy
@@ -21,36 +19,7 @@ from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
 import pymap3d as pm
 
-
-def load(file: Path):
-    """
-    load netCDF from PlateScale.py and original image
-
-    Parameters
-    ----------
-
-    file: pathlib.Path
-        netCDF file from PlateScale.py
-    """
-
-    file = Path(file).expanduser()
-
-    img = xarray.open_dataset(file)
-
-    image_fn = Path(img.filename)
-    if not image_fn.is_file():
-        raise FileNotFoundError(f"image file {image_fn} not found")
-    print(f"loading image file {image_fn}")
-
-    if image_fn.suffix == ".fits":
-        with fits.open(image_fn, mode="readonly", memmap=False) as f:
-            image = f[0].data
-    else:
-        image = iio.imread(img.filename)
-
-    img["image"] = (("y", "x"), image)
-
-    return img
+from astrometry_azel.io import load_image
 
 
 def project_image(img: xarray.Dataset, altitude_km: float, observer_altitude_m: float):
@@ -83,7 +52,12 @@ def project_image(img: xarray.Dataset, altitude_km: float, observer_altitude_m: 
 def plot_geomap(img: xarray.Dataset):
     proj = cartopy.crs.PlateCarree()
 
-    fg = Figure()
+    fg2 = figure()
+    axi = fg2.add_subplot()
+    axi.imshow(img.image)
+    show()
+
+    fg = figure()
 
     ax = fg.add_subplot(projection=proj)
 
@@ -151,7 +125,8 @@ P = p.parse_args()
 
 netcdf_file = Path(P.netcdf_file).expanduser()
 
-img = load(netcdf_file)
+img = xarray.open_dataset(netcdf_file)
+img["image"] = (("y", "x"), load_image(img.filename))
 
 img = project_image(img, P.altitude_km, P.observer_altitude_m)
 

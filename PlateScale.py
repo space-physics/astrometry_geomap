@@ -20,27 +20,17 @@ import astrometry_azel.plots as aep
 def doplatescale(
     in_file: Path,
     latlon: tuple[float, float],
-    ut1: datetime | None,
-    Navg: int,
+    ut1: datetime,
     solve: bool,
     args: str,
 ) -> tuple:
     # %% filenames
     in_file = Path(in_file).expanduser().resolve()
 
-    # %% get mean of image stack to improve image SNR
-    meanimg, ut1 = aio.meanstack(in_file, Navg, ut1)
-
+    # %% convert input image to FITS
     new_file = in_file.parent / (in_file.stem + "_new.fits")
-
-    if solve:
-        aio.writefits(meanimg, new_file)
-    # %% try to get site coordinates from file
-    if latlon is None:
-        if in_file.suffix == ".h5":
-            latlon = aio.readh5coord(in_file)
-        else:
-            raise ValueError("please specify camera lat,lon on command line")
+    img = aio.load_image(in_file)
+    aio.writefits(img, new_file)
 
     scale = ael.fits2azel(new_file, latlon=latlon, time=ut1, solve=solve, args=args)
 
@@ -50,13 +40,12 @@ def doplatescale(
 
     scale.to_netcdf(netcdf_file)
 
-    return scale, meanimg
+    return scale, img
 
 
 def convert(
     infn: Path,
     ut1: datetime,
-    Navg: int,
     solve: bool,
     latlon: tuple[float, float],
     args: str = "",
@@ -75,7 +64,7 @@ def convert(
         command line arguments
     """
 
-    scale, img = doplatescale(infn, latlon, ut1, Navg, solve, args)
+    scale, img = doplatescale(infn, latlon, ut1, solve, args)
 
     outfn = Path(scale.filename)
     outdir = outfn.parent
@@ -99,14 +88,6 @@ p = ArgumentParser(description="do plate scaling for image data")
 p.add_argument("infn", help="image data file name (HDF5 or FITS)")
 p.add_argument("-c", "--latlon", help="wgs84 coordinates of cameras (deg.)", nargs=2, type=float)
 p.add_argument("-t", "--ut1", help="override file UT1 time yyyy-mm-ddTHH:MM:SSZ or (start, stop)")
-p.add_argument(
-    "-N",
-    "--navg",
-    help="number of frames or start,stop frames to avg",
-    nargs="+",
-    type=int,
-    default=10,
-)
 p.add_argument("-s", "--solve", help="run solve-field step of astrometry.net", action="store_true")
 p.add_argument("-a", "--args", help="arguments to pass through to solve-field", default="")
 P = p.parse_args()
@@ -115,4 +96,4 @@ path = Path(P.infn).expanduser()
 
 print(P.latlon)
 
-convert(path, P.ut1, P.navg, P.solve, P.latlon, P.args)
+convert(path, P.ut1, P.solve, P.latlon, P.args)
