@@ -121,7 +121,9 @@ def doSolve(fitsfn: Path, args: str = "") -> bool:
 
     # %% build command
     cmd = [solve, "--overwrite", str(fitsfn)]
-    cmd += args.split(" ")
+    if args:
+        # if args is a string, split it. Don't append an empty space or solve-field CLI fail
+        cmd += args.split(" ")
     print("\n", " ".join(cmd), "\n")
     # %% execute
     ret = subprocess.check_output(cmd, text=True)
