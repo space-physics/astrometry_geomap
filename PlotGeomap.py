@@ -93,16 +93,29 @@ def plot_geomap(img: xarray.Dataset):
     hgl = ax.gridlines(crs=proj, color="gray", linestyle="--", linewidth=0.5)
 
     # features to give human sense of maps
-    ax.add_feature(cartopy.feature.COASTLINE, linewidth=0.5, linestyle=":")
+    features = {
+        "Thunder Mountain": (52.6, -124.27),
+        "Calgary": (51.05, -114.08),
+        "Banff": (51.18, -115.57),
+        "Edmonton": (53.55, -113.49),
+        "Dawson Creek": (55.76, -120.24),
+    }
+    ax.add_feature(cartopy.feature.COASTLINE)
+    ax.add_feature(cartopy.feature.BORDERS)
+    ax.add_feature(cartopy.feature.LAND)
 
     states_provinces = cartopy.feature.NaturalEarthFeature(
         category="cultural", name="admin_1_states_provinces_lines", scale="50m", facecolor="none"
     )
     ax.add_feature(states_provinces, edgecolor="gray", linewidth=0.5)
 
+    for k, v in features.items():
+        ax.scatter(v[1], v[0], transform=proj, color="grey", marker="o", alpha=0.8)
+        ax.text(v[1], v[0], k, transform=proj, alpha=0.8)
+
     # prettify figure
-    # lat_bounds = (img.latitude.min() - 0.5, img.latitude.max() + 0.5)
-    # lon_bounds = (img.longitude.min() - 0.5, img.longitude.max() + 0.5)
+    lat_bounds = (img.latitude.min() - 0.5, img.latitude.max() + 0.5)
+    lon_bounds = (img.longitude.min() - 0.5, img.longitude.max() + 0.5)
     hgl.bottom_labels = True
     hgl.left_labels = True
     # hgl.xformatter = LONGITUDE_FORMATTER
@@ -116,8 +129,8 @@ def plot_geomap(img: xarray.Dataset):
     ax.set_xlabel("geographic longitude")
     ax.set_ylabel("geographic latitude")
 
-    # lims = (-175, -120, 55, 75)
-    # ax.set_extent(lims)
+    lims = (*lon_bounds, *lat_bounds)
+    ax.set_extent(lims)
 
     return fg
 
