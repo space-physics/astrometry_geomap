@@ -12,10 +12,8 @@ import xarray
 import numpy as np
 
 from matplotlib.pyplot import figure, show
-import matplotlib.ticker as mt
-
+from matplotlib.colors import LogNorm
 import cartopy
-from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
 import pymap3d as pm
 
@@ -52,10 +50,10 @@ def project_image(img: xarray.Dataset, altitude_km: float, observer_altitude_m: 
 def plot_geomap(img: xarray.Dataset):
     proj = cartopy.crs.PlateCarree()
 
-    fg2 = figure()
-    axi = fg2.add_subplot()
-    axi.imshow(img.image)
-    show()
+    # fg2 = figure()
+    # axi = fg2.add_subplot()
+    # axi.pcolormesh(img.image, norm=LogNorm())
+    # show()
 
     fg = figure()
 
@@ -92,12 +90,8 @@ def plot_geomap(img: xarray.Dataset):
     lon_bounds = (img.longitude.min() - 0.5, img.longitude.max() + 0.5)
     hgl.bottom_labels = True
     hgl.left_labels = True
-    # hgl.xformatter = LONGITUDE_FORMATTER
-    # hgl.yformatter = LATITUDE_FORMATTER
-    # hgl.xlocator = mt.FixedLocator(np.arange(*lon_bounds, 10))
-    # hgl.ylocator = mt.FixedLocator(np.arange(*lat_bounds, 5))
 
-    ax.pcolormesh(img.longitude, img.latitude, img.image.data, cmap="Greys")
+    ax.pcolormesh(img.longitude, img.latitude, img.image.data, norm=LogNorm(), cmap="Greys_r")
 
     ax.set_title(f"{str(img.time.values)[:-10]} at {img.mapping_alt_km} km altitude")
     ax.set_xlabel("geographic longitude")
