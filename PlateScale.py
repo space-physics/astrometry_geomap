@@ -47,10 +47,7 @@ def doplatescale(
     # %% write to file
     netcdf_file = Path(scale.filename).with_suffix(".nc")
     print("saving", netcdf_file)
-    try:
-        scale.attrs["time"] = str(scale.time)
-    except AttributeError:
-        pass
+
     scale.to_netcdf(netcdf_file)
 
     return scale, meanimg

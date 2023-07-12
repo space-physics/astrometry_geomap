@@ -5,13 +5,10 @@ Consider using the more general PlateScale.py
 """
 
 from argparse import ArgumentParser
+from numpy import datetime64
 import astrometry_azel as ael
-
-try:
-    import astrometry_azel.plots as aep
-    from matplotlib.pyplot import show
-except ImportError:
-    show = None
+import astrometry_azel.plots as aep
+from matplotlib.pyplot import show
 
 
 def main():
@@ -24,7 +21,6 @@ def main():
     p.add_argument(
         "-s", "--solve", help="run solve-field step of astrometry.net", action="store_true"
     )
-    p.add_argument("--nc", help="write variables to .nc NetCDF data file", action="store_true")
     p.add_argument(
         "--clim",
         help="clim of preview images (no effect on computation)",
@@ -38,12 +34,11 @@ def main():
     # %% actually run program
     scale = ael.fits2azel(P.infile, latlon=P.latlon, time=P.time, solve=P.solve, args=P.args)
     # %% write to file
-    if P.nc:
-        outfn = scale.filename.with_suffix(".nc")
-        print("saving", outfn)
-        scale.attrs["filename"] = str(scale.filename)
-        scale.attrs["time"] = str(scale.time)
-        scale.to_netcdf(outfn)
+    outfn = scale.filename.with_suffix(".nc")
+    print("saving", outfn)
+    scale["filename"] = str(scale.filename)
+    scale["time"] = datetime64(scale.time)
+    scale.to_netcdf(outfn)
 
     # %% plot
     if show is not None:

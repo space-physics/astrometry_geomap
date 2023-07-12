@@ -5,7 +5,7 @@ import shutil
 import logging
 from dateutil.parser import parse
 from datetime import datetime
-from numpy import meshgrid, column_stack
+from numpy import meshgrid, column_stack, datetime64
 import xarray
 from astropy.io import fits
 from astropy.wcs import wcs
@@ -100,9 +100,10 @@ def radec2azel(scale, latlon: tuple[float, float], time: datetime | None):
     # %% collect output
     scale["azimuth"] = (("y", "x"), az)
     scale["elevation"] = (("y", "x"), el)
-    scale.attrs["observer_latitude"] = latlon[0]
-    scale.attrs["observer_longitude"] = latlon[1]
-    scale.attrs["time"] = time
+    scale["observer_latitude"] = latlon[0]
+    scale["observer_longitude"] = latlon[1]
+    # datetime64 can be saved to netCDF4
+    scale["time"] = datetime64(time)
 
     return scale
 
