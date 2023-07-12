@@ -97,7 +97,7 @@ def plot_geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
 
     ax.pcolormesh(img.longitude, img.latitude, masked, norm=LogNorm(), cmap="Greys_r")
 
-    ax.set_title(f"{str(img.time.values)[:-10]} at {img.mapping_alt_km} km altitude")
+    ax.set_title(f"{str(img.time.values)[:-10]} at {img.mapping_alt_km} km altitude. Min Elv. {minimum_elevation} deg.")
     ax.set_xlabel("geographic longitude")
     ax.set_ylabel("geographic latitude")
 
