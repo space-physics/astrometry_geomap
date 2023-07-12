@@ -47,12 +47,15 @@ def project_image(img: xarray.Dataset, altitude_km: float, observer_altitude_m: 
     return img
 
 
-def plot_geomap(img: xarray.Dataset):
+def plot_geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
     proj = cartopy.crs.PlateCarree()
+
+    elevation_mask = img.elevation.data < minimum_elevation
+    masked = np.ma.masked_array(img.image, mask=elevation_mask)  # type: ignore
 
     # fg2 = figure()
     # axi = fg2.add_subplot()
-    # axi.pcolormesh(img.image, norm=LogNorm())
+    # axi.pcolormesh(masked, norm=LogNorm())
     # show()
 
     fg = figure()
@@ -70,7 +73,6 @@ def plot_geomap(img: xarray.Dataset):
         "Calgary": (51.05, -114.08),
         "Banff": (51.18, -115.57),
         "Edmonton": (53.55, -113.49),
-        "Dawson Creek": (55.76, -120.24),
     }
     ax.add_feature(cartopy.feature.COASTLINE)
     ax.add_feature(cartopy.feature.BORDERS)
@@ -86,12 +88,14 @@ def plot_geomap(img: xarray.Dataset):
         ax.text(v[1], v[0], k, transform=proj, alpha=0.8)
 
     # prettify figure
-    lat_bounds = (img.latitude.min() - 0.5, img.latitude.max() + 0.5)
-    lon_bounds = (img.longitude.min() - 0.5, img.longitude.max() + 0.5)
+    latitude = np.ma.masked_array(img.latitude, mask=elevation_mask)  # type: ignore
+    longitude = np.ma.masked_array(img.longitude, mask=elevation_mask)  # type: ignore
+    lat_bounds = (latitude.min() - 0.5, latitude.max() + 0.5)
+    lon_bounds = (longitude.min() - 0.5, longitude.max() + 0.5)
     hgl.bottom_labels = True
     hgl.left_labels = True
 
-    ax.pcolormesh(img.longitude, img.latitude, img.image.data, norm=LogNorm(), cmap="Greys_r")
+    ax.pcolormesh(img.longitude, img.latitude, masked, norm=LogNorm(), cmap="Greys_r")
 
     ax.set_title(f"{str(img.time.values)[:-10]} at {img.mapping_alt_km} km altitude")
     ax.set_xlabel("geographic longitude")
@@ -109,6 +113,9 @@ p = argparse.ArgumentParser(
 p.add_argument("netcdf_file", help="netCDF file from PlateScale.py")
 p.add_argument("altitude_km", type=float, help="altitude of emission (kilometers)")
 p.add_argument(
+    "-minel", "--minimum_elevation", type=float, default=0.0, help="minimum elevation (degrees)"
+)
+p.add_argument(
     "-obsalt",
     "--observer_altitude_m",
     type=float,
@@ -124,7 +131,7 @@ img["image"] = (("y", "x"), load_image(img.filename))
 
 img = project_image(img, P.altitude_km, P.observer_altitude_m)
 
-fig = plot_geomap(img)
+fig = plot_geomap(img, P.minimum_elevation)
 
 figure_fn = netcdf_file.parent / (netcdf_file.stem + "_geomap.png")
 print("Geomap saved to", figure_fn)
