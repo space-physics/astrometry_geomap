@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Plot overlay of images that have been registered (RA/DEC is adequte).
 For simplicity, the FITS images with Astrometry.net inserted WCS coordinates are used.
@@ -8,11 +8,14 @@ The program could be slightly upgraded to optionally use the original image and 
 Note: one can use WCS projection:
 http://docs.astropy.org/en/stable/visualization/wcsaxes/
 """
+
+from pathlib import Path
+from argparse import ArgumentParser
+
 from astropy.io import fits
 from astropy.wcs import wcs
 import numpy as np
-from pathlib import Path
-from argparse import ArgumentParser
+
 from matplotlib.pyplot import figure, show
 from matplotlib.colors import LogNorm
 
