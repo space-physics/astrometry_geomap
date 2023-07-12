@@ -18,7 +18,7 @@ except ImportError:
 __all__ = ["fits2radec", "fits2azel", "doSolve"]
 
 
-def fits2radec(fitsfn: Path, solve: bool = False, args: str | None = None):
+def fits2radec(fitsfn: Path, solve: bool = False, args: str = ""):
     """
     get RA, Decl from FITS file
     """
@@ -107,7 +107,7 @@ def radec2azel(scale, latlon: tuple[float, float], time: datetime | None):
     return scale
 
 
-def doSolve(fitsfn: Path, args: str | None = None) -> bool:
+def doSolve(fitsfn: Path, args: str = "") -> bool:
     """
     run Astrometry.net solve-field from Python
     """
@@ -119,18 +119,12 @@ def doSolve(fitsfn: Path, args: str | None = None) -> bool:
     if not (solve := shutil.which("solve-field")):
         raise FileNotFoundError("Astrometry.net solve-file exectuable not found")
 
-    if isinstance(args, str):
-        opts: list[str] = args.split(" ")
-    elif args is None:
-        opts = ["-v"]
     # %% build command
     cmd = [solve, "--overwrite", str(fitsfn)]
-    cmd += opts
+    cmd += args.split(" ")
     print("\n", " ".join(cmd), "\n")
     # %% execute
     ret = subprocess.check_output(cmd, text=True)
-
-    # solve-field returns 0 even if it didn't solve!
     print(ret)
     fitsfn.with_suffix(".log").write_text(" ".join(cmd) + "\n\n" + ret)
     if "Did not solve" in ret:
@@ -146,7 +140,7 @@ def fits2azel(
     latlon: tuple[float, float],
     time: datetime,
     solve: bool = False,
-    args: str | None = None,
+    args: str = "",
 ):
     fitsfn = Path(fitsfn).expanduser()
 
