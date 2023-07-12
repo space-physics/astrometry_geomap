@@ -18,7 +18,7 @@ import astrometry_azel.plots as aep
 
 
 def doplatescale(
-    file: Path,
+    in_file: Path,
     latlon: tuple[float, float],
     ut1: datetime | None,
     Navg: int,
@@ -26,30 +26,32 @@ def doplatescale(
     args: str,
 ) -> tuple:
     # %% filenames
-    infn = Path(file).expanduser().resolve()
+    in_file = Path(in_file).expanduser().resolve()
 
     # %% get mean of image stack to improve image SNR
-    meanimg, ut1 = aio.meanstack(infn, Navg, ut1)
+    meanimg, ut1 = aio.meanstack(in_file, Navg, ut1)
+
+    new_file = in_file.parent / (in_file.stem + "_new.fits")
 
     if solve:
-        aio.writefits(meanimg, file.with_stem(file.stem + "_stack"))
+        aio.writefits(meanimg, new_file)
     # %% try to get site coordinates from file
     if latlon is None:
-        if infn.suffix == ".h5":
-            latlon = aio.readh5coord(infn)
+        if in_file.suffix == ".h5":
+            latlon = aio.readh5coord(in_file)
         else:
             raise ValueError("please specify camera lat,lon on command line")
 
-    scale = ael.fits2azel(file, latlon=latlon, time=ut1, solve=solve, args=args)
+    scale = ael.fits2azel(new_file, latlon=latlon, time=ut1, solve=solve, args=args)
 
     # %% write to file
-    outfn = Path(scale.filename).with_suffix(".nc")
-    print("saving", outfn)
+    netcdf_file = Path(scale.filename).with_suffix(".nc")
+    print("saving", netcdf_file)
     try:
         scale.attrs["time"] = str(scale.time)
     except AttributeError:
         pass
-    scale.to_netcdf(outfn)
+    scale.to_netcdf(netcdf_file)
 
     return scale, meanimg
 
