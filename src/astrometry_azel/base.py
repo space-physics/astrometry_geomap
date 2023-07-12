@@ -24,8 +24,8 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str = ""):
     """
     fitsfn = Path(fitsfn).expanduser()
 
-    if solve and not doSolve(fitsfn, args):
-        raise RuntimeError(f"{fitsfn} was not solved")
+    if solve:
+        doSolve(fitsfn, args)
 
     with fits.open(fitsfn, mode="readonly") as f:
         yPix, xPix = f[0].shape[-2:]
@@ -107,7 +107,7 @@ def radec2azel(scale, latlon: tuple[float, float], time: datetime | None):
     return scale
 
 
-def doSolve(fitsfn: Path, args: str = "") -> bool:
+def doSolve(fitsfn: Path, args: str = "") -> None:
     """
     run Astrometry.net solve-field from Python
     """
@@ -129,11 +129,6 @@ def doSolve(fitsfn: Path, args: str = "") -> bool:
     ret = subprocess.check_output(cmd, text=True)
     print(ret)
     fitsfn.with_suffix(".log").write_text(" ".join(cmd) + "\n\n" + ret)
-    if "Did not solve" in ret:
-        logging.error(f"could not solve {fitsfn}")
-        return False
-    else:
-        return True
 
 
 def fits2azel(
