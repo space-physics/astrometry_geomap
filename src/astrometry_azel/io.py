@@ -160,17 +160,15 @@ def write_netcdf(ds: xarray.Dataset, out_file: Path) -> None:
     enc = {}
 
     for k in ds.data_vars:
-        if ds[k].ndim != 2:
+        if ds[k].ndim < 2:
             continue
 
         enc[k] = {
             "zlib": True,
             "complevel": 3,
             "fletcher32": True,
-            "chunksizes": (
-                ds[k].shape[0] // 2,
-                ds[k].shape[1] // 2,
-            ),  # little impact on compression
+            "chunksizes": tuple(map(lambda x: x // 2, ds[k].shape))
+            # arbitrary, little impact on compression
         }
 
     ds.to_netcdf(out_file, format="NETCDF4", engine="netcdf4", encoding=enc)
