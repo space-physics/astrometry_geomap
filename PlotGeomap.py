@@ -17,7 +17,7 @@ import cartopy
 
 import pymap3d as pm
 
-from astrometry_azel.io import load_image
+from astrometry_azel.io import load_image, write_netcdf
 
 
 def project_image(img: xarray.Dataset, projection_altitude_km: float, observer_altitude_m: float):
@@ -127,6 +127,13 @@ def plot_geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
     return fg
 
 
+def read_data(in_file: Path):
+    img = xarray.open_dataset(in_file)
+    img["image"] = (("y", "x"), load_image(img.filename))
+
+    return img
+
+
 p = argparse.ArgumentParser(
     description="plot geomap of image as if photons emitted at a single altitude"
 )
@@ -146,14 +153,13 @@ P = p.parse_args()
 
 in_file = Path(P.in_file).expanduser()
 
-img = xarray.open_dataset(in_file)
-img["image"] = (("y", "x"), load_image(img.filename))
+img = read_data(in_file)
 
 img = project_image(img, P.projection_altitude_km, P.observer_altitude_m)
 
 out_file = in_file.parent / (in_file.stem + "_proj.nc")
 print("Save projected data to", out_file)
-img.to_netcdf(out_file, format="NETCDF4", engine="netcdf4")
+write_netcdf(img, out_file)
 
 fig = plot_geomap(img, P.minimum_elevation)
 

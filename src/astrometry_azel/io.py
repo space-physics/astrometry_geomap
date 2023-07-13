@@ -10,8 +10,10 @@ from __future__ import annotations
 from pathlib import Path
 import numpy as np
 from datetime import datetime
-from astropy.io import fits
 import logging
+
+from astropy.io import fits
+import xarray
 
 try:
     import imageio.v3 as iio
@@ -154,7 +156,27 @@ def collapsestack(img, key: slice, method: str):
     return colaps
 
 
-def writefits(img, outfn: Path) -> None:
+def write_netcdf(ds: xarray.Dataset, out_file: Path) -> None:
+    enc = {}
+
+    for k in ds.data_vars:
+        if ds[k].ndim != 2:
+            continue
+
+        enc[k] = {
+            "zlib": True,
+            "complevel": 3,
+            "fletcher32": True,
+            "chunksizes": (
+                ds[k].shape[0] // 2,
+                ds[k].shape[1] // 2,
+            ),  # little impact on compression
+        }
+
+    ds.to_netcdf(out_file, format="NETCDF4", engine="netcdf4", encoding=enc)
+
+
+def write_fits(img, outfn: Path) -> None:
     f = fits.PrimaryHDU(img)
 
     f.writeto(outfn, overwrite=True, checksum=True)
