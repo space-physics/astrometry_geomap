@@ -20,34 +20,50 @@ import pymap3d as pm
 from astrometry_azel.io import load_image
 
 
-def project_image(img: xarray.Dataset, altitude_km: float, observer_altitude_m: float):
+def project_image(img: xarray.Dataset, projection_altitude_km: float, observer_altitude_m: float):
     """
-    project image to specified altitude_km
+    project image to projection_altitude_km
 
     adapted from https://github.com/space-physics/dascasi
     """
 
-    slant_range = altitude_km * 1e3 / np.sin(np.radians(img["elevation"]))
+    slant_range_m = projection_altitude_km * 1e3 / np.sin(np.radians(img["elevation"]))
     # secant approximation
 
     lat, lon, _ = pm.aer2geodetic(
         az=img["azimuth"],
         el=img["elevation"],
-        srange=slant_range,
+        srange=slant_range_m,  # meters
         lat0=img["observer_latitude"].item(),  # degrees north
         lon0=img["observer_longitude"].item(),  # degrees east
         h0=observer_altitude_m,  # meters
     )
 
-    # lat, lon cannot be dimensions here because they're each dynamic in 2-D
-    img.coords["latitude"] = (("y", "x"), lat)
-    img.coords["longitude"] = (("y", "x"), lon)
-    img.attrs["mapping_alt_km"] = altitude_km
+    img.coords["latitude_proj"] = (("y", "x"), lat)
+    img["latitude_proj"].attrs["projection_altitude_km"] = projection_altitude_km
+    img["latitude_proj"].attrs["units"] = "degrees north WGS84"
+
+    img.coords["longitude_proj"] = (("y", "x"), lon)
+    img["longitude_proj"].attrs["projection_altitude_km"] = projection_altitude_km
+    img["longitude_proj"].attrs["units"] = "degrees east WGS84"
 
     return img
 
 
 def plot_geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
+    """
+
+    Parameters
+    ----------
+
+    img: xarray.Dataset
+        image data and coordinates
+    minimum_elevation: float
+        minimum elevation angle to mask (degrees)
+    """
+
+    projection_altitude_km = img["latitude_proj"].attrs["projection_altitude_km"]
+
     proj = cartopy.crs.PlateCarree()
 
     elevation_mask = img.elevation.data < minimum_elevation
@@ -88,16 +104,20 @@ def plot_geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
         ax.text(v[1], v[0], k, transform=proj, alpha=0.8)
 
     # prettify figure
-    latitude = np.ma.masked_array(img.latitude, mask=elevation_mask)  # type: ignore
-    longitude = np.ma.masked_array(img.longitude, mask=elevation_mask)  # type: ignore
+    latitude = np.ma.masked_array(img.latitude_proj, mask=elevation_mask)  # type: ignore
+    longitude = np.ma.masked_array(img.longitude_proj, mask=elevation_mask)  # type: ignore
     lat_bounds = (latitude.min() - 0.5, latitude.max() + 0.5)
     lon_bounds = (longitude.min() - 0.5, longitude.max() + 0.5)
     hgl.bottom_labels = True
     hgl.left_labels = True
 
-    ax.pcolormesh(img.longitude, img.latitude, masked, norm=LogNorm(), cmap="Greys_r")
+    ax.pcolormesh(img.longitude_proj, img.latitude_proj, masked, norm=LogNorm(), cmap="Greys_r")
 
-    ax.set_title(f"{str(img.time.values)[:-10]} at {img.mapping_alt_km} km altitude. Min Elv. {minimum_elevation} deg.")
+    ax.set_title(
+        f"{str(img.time.values)[:-10]}\n"
+        f"Projection alt. (km): {projection_altitude_km}  "
+        f"Min. Elv. (deg): {minimum_elevation}"
+    )
     ax.set_xlabel("geographic longitude")
     ax.set_ylabel("geographic latitude")
 
@@ -110,8 +130,8 @@ def plot_geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
 p = argparse.ArgumentParser(
     description="plot geomap of image as if photons emitted at a single altitude"
 )
-p.add_argument("netcdf_file", help="netCDF file from PlateScale.py")
-p.add_argument("altitude_km", type=float, help="altitude of emission (kilometers)")
+p.add_argument("in_file", help="netCDF file from PlateScale.py")
+p.add_argument("projection_altitude_km", type=float, help="altitude of emission (kilometers)")
 p.add_argument(
     "-minel", "--minimum_elevation", type=float, default=0.0, help="minimum elevation (degrees)"
 )
@@ -124,17 +144,21 @@ p.add_argument(
 )
 P = p.parse_args()
 
-netcdf_file = Path(P.netcdf_file).expanduser()
+in_file = Path(P.in_file).expanduser()
 
-img = xarray.open_dataset(netcdf_file)
+img = xarray.open_dataset(in_file)
 img["image"] = (("y", "x"), load_image(img.filename))
 
-img = project_image(img, P.altitude_km, P.observer_altitude_m)
+img = project_image(img, P.projection_altitude_km, P.observer_altitude_m)
+
+out_file = in_file.parent / (in_file.stem + "_proj.nc")
+print("Save projected data to", out_file)
+img.to_netcdf(out_file, format="NETCDF4", engine="netcdf4")
 
 fig = plot_geomap(img, P.minimum_elevation)
 
-figure_fn = netcdf_file.parent / (netcdf_file.stem + "_geomap.png")
-print("Geomap saved to", figure_fn)
+figure_fn = in_file.parent / (in_file.stem + "_proj.png")
+print("Save projected image to", figure_fn)
 fig.savefig(figure_fn)
 
 show()

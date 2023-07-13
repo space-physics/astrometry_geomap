@@ -38,7 +38,7 @@ def main():
     print("saving", outfn)
     scale["filename"] = str(scale.filename)
     scale["time"] = datetime64(scale.time)
-    scale.to_netcdf(outfn)
+    scale.to_netcdf(outfn, format="NETCDF4", engine="netcdf4")
 
     # %% plot
     if show is not None:

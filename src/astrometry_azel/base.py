@@ -60,6 +60,11 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str = ""):
         attrs={"filename": str(fitsfn)},
     )
 
+    radec["ra"].attrs["units"] = "Right Ascension degrees east"
+    radec["dec"].attrs["units"] = "Declination degrees north"
+    radec["x"].attrs["units"] = "pixel index"
+    radec["y"].attrs["units"] = "pixel index"
+
     return radec
 
 
@@ -99,10 +104,18 @@ def radec2azel(scale, latlon: tuple[float, float], time: datetime | None):
 
     # %% collect output
     scale["azimuth"] = (("y", "x"), az)
+    scale["azimuth"].attrs["units"] = "degrees clockwise from north"
+
     scale["elevation"] = (("y", "x"), el)
+    scale["elevation"].attrs["units"] = "degrees above horizon"
+
     scale["observer_latitude"] = latlon[0]
+    scale["observer_latitude"].attrs["units"] = "degrees north WGS84"
+
     scale["observer_longitude"] = latlon[1]
-    # datetime64 can be saved to netCDF4
+    scale["observer_longitude"].attrs["units"] = "degrees east WGS84"
+
+    # datetime64 can be saved to netCDF4, but Python datetime.datetime cannot
     scale["time"] = datetime64(time)
 
     return scale

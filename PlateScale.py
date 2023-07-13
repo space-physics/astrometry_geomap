@@ -38,7 +38,7 @@ def doplatescale(
     netcdf_file = Path(scale.filename).with_suffix(".nc")
     print("saving", netcdf_file)
 
-    scale.to_netcdf(netcdf_file)
+    scale.to_netcdf(netcdf_file, format="NETCDF4", engine="netcdf4")
 
     return scale, img
 

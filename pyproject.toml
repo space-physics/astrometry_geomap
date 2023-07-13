@@ -17,7 +17,7 @@ classifiers = [
 ]
 dynamic = ["readme"]
 requires-python = ">=3.8"
-dependencies = ["python-dateutil", "numpy", "astropy", "xarray"]
+dependencies = ["python-dateutil", "numpy", "astropy", "xarray", "netcdf4"]
 
 [project.optional-dependencies]
 tests = ["pytest"]
