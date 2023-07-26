@@ -3,7 +3,10 @@ import logging
 from matplotlib.figure import Figure
 
 
-def plotazel(scale, plottype: str = "singlecontour", img=None):
+def az_el(scale, plottype: str = "singlecontour", img=None):
+    """
+    plot azimuth and elevation mapped to sky
+    """
     if plottype == "singlecontour":
         fg = Figure()
         ax = fg.gca()
@@ -61,7 +64,10 @@ def plotazel(scale, plottype: str = "singlecontour", img=None):
     return fg
 
 
-def plotradec(scale, plottype: str = "singlecontour", img=None):
+def ra_dec(scale, plottype: str = "singlecontour", img=None):
+    """
+    plot right ascension and declination mapped to sky
+    """
     if "ra" not in scale:
         return None
 
@@ -116,7 +122,10 @@ def plotradec(scale, plottype: str = "singlecontour", img=None):
     return fg
 
 
-def plotimagestack(img, fn: Path, clim=None):
+def image_stack(img, fn: Path, clim=None):
+    """
+    plot image
+    """
     fn = Path(fn).expanduser()
     # %% plotting
     if img.ndim == 3 and img.shape[0] == 3:  # it seems to be an RGB image

@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 import astrometry_azel.io as aio
 import astrometry_azel as ael
 
-import astrometry_azel.plots as aep
+import astrometry_azel.plot as plot
 
 
 def doplatescale(
@@ -74,10 +74,10 @@ def convert(
 
     print("writing", fnr, fna)
 
-    fg = aep.plotradec(scale, img=img)
+    fg = plot.ra_dec(scale, img=img)
     fg.savefig(fnr)
 
-    fg = aep.plotazel(scale, img=img)
+    fg = plot.az_el(scale, img=img)
     fg.savefig(fna)
 
     return outfn

@@ -7,7 +7,7 @@ Consider using the more general PlateScale.py
 from argparse import ArgumentParser
 from numpy import datetime64
 import astrometry_azel as ael
-import astrometry_azel.plots as aep
+import astrometry_azel.plot as plot
 from matplotlib.pyplot import show
 
 
@@ -42,8 +42,8 @@ def main():
 
     # %% plot
     if show is not None:
-        aep.plotradec(scale)
-        aep.plotazel(scale)
+        plot.ra_dec(scale)
+        plot.az_el(scale)
 
         show()
 
