@@ -6,81 +6,11 @@ If the image starfile was solved using astrometry.net web service,
 the ".new" FITS file is the input to this program.
 """
 
-from __future__ import annotations
 from pathlib import Path
-from datetime import datetime
 from argparse import ArgumentParser
 
-import astrometry_azel.io as aio
-import astrometry_azel as ael
-
+from astrometry_azel.project import plate_scale
 import astrometry_azel.plot as plot
-
-
-def doplatescale(
-    in_file: Path,
-    latlon: tuple[float, float],
-    ut1: datetime,
-    solve: bool,
-    args: str,
-) -> tuple:
-    # %% filenames
-    in_file = Path(in_file).expanduser().resolve()
-
-    # %% convert input image to FITS
-    new_file = in_file.parent / (in_file.stem + "_new.fits")
-    img = aio.load_image(in_file)
-    aio.write_fits(img, new_file)
-
-    scale = ael.fits2azel(new_file, latlon=latlon, time=ut1, solve=solve, args=args)
-
-    # %% write to file
-    netcdf_file = Path(scale.filename).with_suffix(".nc")
-    print("saving", netcdf_file)
-    aio.write_netcdf(scale, netcdf_file)
-
-    return scale, img
-
-
-def convert(
-    infn: Path,
-    ut1: datetime,
-    solve: bool,
-    latlon: tuple[float, float],
-    args: str = "",
-) -> Path:
-    """
-    Obtain plate scale data from image file and write to netCDF file.
-
-    Parameters
-    ----------
-
-    infn: pathlib.Path
-        input file name
-    ut1: datetime.datetime
-        UT1 time of image
-    P: argparse.Namespace
-        command line arguments
-    """
-
-    scale, img = doplatescale(infn, latlon, ut1, solve, args)
-
-    outfn = Path(scale.filename)
-    outdir = outfn.parent
-    outstem = outfn.stem
-
-    fnr = outdir / (outstem + "_radec.png")
-    fna = outdir / (outstem + "_azel.png")
-
-    print("writing", fnr, fna)
-
-    fg = plot.ra_dec(scale, img=img)
-    fg.savefig(fnr)
-
-    fg = plot.az_el(scale, img=img)
-    fg.savefig(fna)
-
-    return outfn
 
 
 p = ArgumentParser(description="do plate scaling for image data")
@@ -95,4 +25,20 @@ path = Path(P.infn).expanduser()
 
 print(P.latlon)
 
-convert(path, P.ut1, P.solve, P.latlon, P.args)
+
+scale, img = plate_scale(path, P.latlon, P.ut1, P.solve, P.args)
+
+outfn = Path(scale.filename)
+outdir = outfn.parent
+outstem = outfn.stem
+
+fnr = outdir / (outstem + "_radec.png")
+fna = outdir / (outstem + "_azel.png")
+
+print("writing", fnr, fna)
+
+fg = plot.ra_dec(scale, img=img)
+fg.savefig(fnr)
+
+fg = plot.az_el(scale, img=img)
+fg.savefig(fna)

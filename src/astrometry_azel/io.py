@@ -49,6 +49,13 @@ def rgb2grey(rgb_img):
     return grey_img
 
 
+def read_data(in_file: Path):
+    img = xarray.open_dataset(in_file)
+    img["image"] = (("y", "x"), load_image(img.filename))
+
+    return img
+
+
 def load_image(file: Path):
     """
     load netCDF from PlateScale.py and original image
