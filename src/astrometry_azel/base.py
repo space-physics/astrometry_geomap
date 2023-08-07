@@ -142,8 +142,9 @@ def doSolve(fitsfn: Path, args: str = "") -> None:
     # %% execute
     # bufsize=1: line-buffered
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=1, text=True) as p:
-        for line in p.stdout:  # type: ignore
-            print(line, end="")
+        if p.stdout:
+            for line in p.stdout:
+                print(line, end="")
 
     if "Did not solve" in line:
         raise RuntimeError(f"could not solve {fitsfn}")
