@@ -134,7 +134,7 @@ def doSolve(fitsfn: Path, args: str = "") -> None:
         raise FileNotFoundError("Astrometry.net solve-file exectuable not found")
 
     # %% build command
-    cmd = [solve, "--overwrite", str(fitsfn)]
+    cmd = [solve, "--overwrite", str(fitsfn), "--verbose"]
     if args:
         # if args is a string, split it. Don't append an empty space or solve-field CLI fail
         cmd += args.split(" ")
