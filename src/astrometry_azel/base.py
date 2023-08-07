@@ -140,9 +140,13 @@ def doSolve(fitsfn: Path, args: str = "") -> None:
         cmd += args.split(" ")
     print("\n", " ".join(cmd), "\n")
     # %% execute
-    ret = subprocess.check_output(cmd, text=True)
-    print(ret)
-    fitsfn.with_suffix(".log").write_text(" ".join(cmd) + "\n\n" + ret)
+    # bufsize=1: line-buffered
+    with subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=1, text=True) as p:
+        for line in p.stdout:  # type: ignore
+            print(line, end="")
+
+    if "Did not solve" in line:
+        raise RuntimeError(f"could not solve {fitsfn}")
 
 
 def fits2azel(
