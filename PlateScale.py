@@ -15,8 +15,8 @@ import astrometry_azel.plot as plot
 
 p = ArgumentParser(description="do plate scaling for image data")
 p.add_argument("infn", help="image data file name (HDF5 or FITS)")
-p.add_argument("-c", "--latlon", help="wgs84 coordinates of cameras (deg.)", nargs=2, type=float)
-p.add_argument("-t", "--ut1", help="override file UT1 time yyyy-mm-ddTHH:MM:SSZ or (start, stop)")
+p.add_argument("latlon", help="wgs84 coordinates of cameras (deg.)", nargs=2, type=float)
+p.add_argument("ut1", help="UT1 time yyyy-mm-ddTHH:MM:SSZ")
 p.add_argument("-s", "--solve", help="run solve-field step of astrometry.net", action="store_true")
 p.add_argument("-a", "--args", help="arguments to pass through to solve-field", default="")
 P = p.parse_args()
