@@ -25,8 +25,13 @@ path = Path(P.infn).expanduser()
 
 print(P.latlon)
 
-
-scale, img = plate_scale(path, P.latlon, P.ut1, P.solve, P.args)
+try:
+    scale, img = plate_scale(path, P.latlon, P.ut1, P.solve, P.args)
+except FileNotFoundError as e:
+    if "could not find WCS file" in str(e):
+        raise RuntimeError(
+            f"Please specify PlateScale.py --solve option to run solve-field on {path}"
+        )
 
 outfn = Path(scale.filename)
 outdir = outfn.parent
