@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        use_pymap: [true, false]
+        python_version: ['3.9', '3.12']
 
     runs-on: ${{ matrix.os }}
 
@@ -36,12 +36,9 @@ jobs:
 
     - uses: actions/setup-python@v5
       with:
-        python-version: '3.8'
+        python-version: ${{ matrix.python_version }}
 
     - run: pip install .[tests,lint]
-
-    - run: pip install pymap3d
-      if: ${{ matrix.use_pymap }}
 
     - run: flake8
     - run: mypy

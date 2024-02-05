@@ -29,6 +29,28 @@ except ImportError:
     loadmat = None
 
 
+def get_sources(fn: Path) -> xarray.Dataset:
+    """
+    read source (star) coordinates from .rdls file
+
+    Parameters
+    ----------
+
+    fn: pathlib.Path
+        .rdls file computed by astrometry.net solve-field (astrometry_azel.doSolve())
+
+    Returns
+    -------
+
+    radec: xarray.Dataset
+        RA, Dec of sources
+    """
+
+    fn = Path(fn).expanduser().resolve(strict=True)
+    with fits.open(fn, "readonly") as f:
+        return f[1].data
+
+
 def rgb2grey(rgb_img):
     """
     rgb_img: ndarray
@@ -38,7 +60,7 @@ def rgb2grey(rgb_img):
 
     ndim = rgb_img.ndim
     if ndim == 2:
-        logging.info("assuming its already gray since ndim=2")
+        logging.info("assuming it's already gray since ndim=2")
         grey_img = rgb_img
     elif ndim == 3 and rgb_img.shape[-1] == 3:  # this is the normal case
         grey_img = np.around(rgb_img[..., :] @ [0.299, 0.587, 0.114]).astype(rgb_img.dtype)
@@ -174,7 +196,7 @@ def write_netcdf(ds: xarray.Dataset, out_file: Path) -> None:
             "zlib": True,
             "complevel": 3,
             "fletcher32": True,
-            "chunksizes": tuple(map(lambda x: x // 2, ds[k].shape))
+            "chunksizes": tuple(map(lambda x: x // 2, ds[k].shape)),
             # arbitrary, little impact on compression
         }
 

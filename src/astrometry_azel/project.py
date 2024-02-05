@@ -6,7 +6,7 @@ import xarray
 import numpy as np
 
 from .io import load_image, write_fits, write_netcdf
-from .base import fits2azel
+from . import fits2azel
 
 import pymap3d
 
