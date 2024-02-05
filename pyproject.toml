@@ -4,7 +4,6 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "astrometry_azel"
-version = "1.3.0"
 description = "Register images to geographic maps using the astrometry.net program"
 keywords = ["astrometry", "plate-scale", "astronomy", "aurora"]
 classifiers = [
@@ -15,7 +14,7 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Topic :: Scientific/Engineering :: Atmospheric Science"
 ]
-dynamic = ["readme"]
+dynamic = ["readme", "version"]
 requires-python = ">=3.8"
 dependencies = ["python-dateutil", "numpy", "astropy", "xarray", "netcdf4"]
 
@@ -25,6 +24,7 @@ lint = ["flake8", "flake8-bugbear", "flake8-builtins", "flake8-blind-except", "m
 
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
+version = {attr = "astrometry_azel.__version__"}
 
 [tool.black]
 line-length = 100
