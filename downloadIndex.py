@@ -12,7 +12,6 @@ from argparse import ArgumentParser
 from pathlib import Path
 import urllib.request
 import urllib.error
-import socket
 
 url_2mass = "http://broiler.astrometry.net/~dstn/4200/"
 url_tycho = "http://broiler.astrometry.net/~dstn/4100/"
@@ -60,10 +59,7 @@ def url_retrieve(url: str, outfile: Path, overwrite: bool = False):
     # need .resolve() in case intermediate relative dir doesn't exist
     if overwrite or not outfile.is_file():
         outfile.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            urllib.request.urlretrieve(url, str(outfile))
-        except (socket.gaierror, urllib.error.URLError) as err:
-            raise ConnectionError(f"could not download {url} due to {err}")
+        urllib.request.urlretrieve(url, outfile)
 
 
 p = ArgumentParser()

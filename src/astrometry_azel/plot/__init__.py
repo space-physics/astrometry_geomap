@@ -1,5 +1,6 @@
 from pathlib import Path
 import logging
+import typing
 from matplotlib.figure import Figure
 
 
@@ -8,8 +9,8 @@ def az_el(scale, plottype: str = "singlecontour", img=None):
     plot azimuth and elevation mapped to sky
     """
     if plottype == "singlecontour":
-        fg = Figure()
-        ax = fg.gca()
+        fg: typing.Any = Figure()
+        ax: typing.Any = fg.gca()
         if img is not None:
             ax.imshow(img, origin="lower", cmap="gray")
         cs = ax.contour(scale["x"], scale["y"], scale["azimuth"])
@@ -72,8 +73,8 @@ def ra_dec(scale, plottype: str = "singlecontour", img=None):
         return None
 
     if plottype == "singlecontour":
-        fg = Figure()
-        ax = fg.gca()
+        fg: typing.Any = Figure()
+        ax: typing.Any = fg.gca()
         if img is not None:
             ax.imshow(img, origin="lower", cmap="gray")
         cs = ax.contour(scale["x"], scale["y"], scale["ra"])

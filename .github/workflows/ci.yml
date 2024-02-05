@@ -6,8 +6,11 @@ on:
       - "**.py"
       - ".github/workflows/ci.yml"
 
-jobs:
+env:
+  HOMEBREW_NO_INSTALL_CLEANUP: 1
 
+
+jobs:
 
   core:
 
@@ -15,7 +18,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         use_pymap: [true, false]
-
 
     runs-on: ${{ matrix.os }}
 
@@ -29,12 +31,10 @@ jobs:
     # FIXME: would also need data installed
       if: runner.os == 'macOS'
       run: brew install astrometry-net
-      env:
-        HOMEBREW_NO_INSTALL_CLEANUP: 1
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
       with:
         python-version: '3.8'
 
