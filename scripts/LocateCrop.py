@@ -16,7 +16,7 @@ import argparse
 from matplotlib.pyplot import figure, show
 
 
-def load_gray(fn1: Path, fn2: Path) -> tuple[np.ndarray, np.ndarray]:
+def load_gray(fn1: Path, fn2: Path) -> tuple:
     """
     load images in grayscale and same bit depth
     """
@@ -29,7 +29,7 @@ def load_gray(fn1: Path, fn2: Path) -> tuple[np.ndarray, np.ndarray]:
     return im1, im2
 
 
-def find_crop(im1: np.ndarray, im2: np.ndarray) -> tuple[int, ...]:
+def find_crop(im1, im2) -> tuple[int, ...]:
     res = skf.match_template(im1, im2)
     # values (-1, 1) and peak is at upper left corner of match.
     Ul = np.unravel_index(res.argmax(), res.shape)
@@ -37,7 +37,7 @@ def find_crop(im1: np.ndarray, im2: np.ndarray) -> tuple[int, ...]:
     return Ul
 
 
-def plot_overlay(im1: np.ndarray, im2: np.ndarray, Ul: typing.Sequence[int], fn1: Path, fn2: Path):
+def plot_overlay(im1, im2, Ul: typing.Sequence[int], fn1: Path, fn2: Path):
     overlay = np.zeros((*im1.shape, 3), dtype=im1.dtype)
     rows = slice(Ul[0], Ul[0] + im2.shape[0])
     cols = slice(Ul[1], Ul[1] + im2.shape[1])
@@ -49,9 +49,9 @@ def plot_overlay(im1: np.ndarray, im2: np.ndarray, Ul: typing.Sequence[int], fn1
     print("sum(im1-im2) over ROI is:", diff.sum())
 
     fg = figure()
-    axs = fg.subplots(1, 2)
+    axs: typing.Any = fg.subplots(1, 2)
     h1 = axs[0].imshow(overlay, alpha=0.6)
-    axs[0].set_title(f"overlay: original {fn1.name}:red\ncrop {fn2.name}:blue")
+    axs[0].set_title(f"overlay: original {fn1.name}:red   crop {fn2.name}:blue", wrap=True)
     fg.colorbar(h1, ax=axs[0])
 
     h2 = axs[1].imshow(diff)

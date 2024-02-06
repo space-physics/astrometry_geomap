@@ -72,9 +72,10 @@ def geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
     ax.pcolormesh(img.longitude_proj, img.latitude_proj, masked, norm=LogNorm(), cmap="Greys_r")
 
     ax.set_title(
-        f"{str(img.time.values)[:-10]}\n"
+        f"{str(img.time.values)[:-10]}  "
         f"Projection alt. (km): {projection_altitude_km}  "
-        f"Min. Elv. (deg): {minimum_elevation}"
+        f"Min. Elv. (deg): {minimum_elevation}",
+        wrap=True,
     )
     ax.set_xlabel("geographic longitude")
     ax.set_ylabel("geographic latitude")

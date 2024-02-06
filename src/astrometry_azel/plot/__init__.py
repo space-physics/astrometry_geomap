@@ -1,7 +1,13 @@
 from pathlib import Path
 import logging
 import typing
+
+import numpy as np
+from astropy.io import fits
+from astropy.wcs import wcs
+
 from matplotlib.figure import Figure
+from matplotlib.colors import LogNorm
 
 
 def az_el(scale, plottype: str = "singlecontour", img=None):
@@ -21,7 +27,8 @@ def az_el(scale, plottype: str = "singlecontour", img=None):
         ax.set_ylabel("y-pixel")
         ax.set_title(
             f"{Path(scale.filename).name}  ({scale.observer_latitude:.2f}, {scale.observer_longitude:.2f})"
-            f"  {scale.time}\nAzimuth / Elevation"
+            f"  {scale.time}  Azimuth / Elevation",
+            wrap=True,
         )
         fg.set_tight_layout(True)
         return fg
@@ -57,8 +64,9 @@ def az_el(scale, plottype: str = "singlecontour", img=None):
     axe.set_xlabel("x-pixel")
     axe.set_title("elevation")
     fg.suptitle(
-        f"{Path(scale.filename).name}\n({scale.observer_latitude:.2f}, {scale.observer_longitude:.2f})"
-        f"  {scale.time}"
+        f"{Path(scale.filename).name} ({scale.observer_latitude:.2f}, {scale.observer_longitude:.2f})"
+        f"  {scale.time}",
+        wrap=True,
     )
     fg.set_tight_layout(True)
 
@@ -165,3 +173,34 @@ def image_stack(img, fn: Path, clim=None):
     plotFN = fn.parent / (fn.stem + "_picture.png")
     print("writing", plotFN)
     fg.savefig(plotFN)
+
+
+def add_image(fn: Path, cm, ax, alpha=1):
+    """
+    Astrometry.net makes file ".new" with the image and the WCS SIP 2-D polynomial fit coefficients in the FITS header
+
+    We use DECL as "x" and RA as "y".
+    pcolormesh() is used as it handles arbitrary pixel shapes.
+    Note that pcolormesh() cannot tolerate NaN in X or Y (NaN in C is OK).
+
+    https://github.com/scivision/python-matlab-examples/blob/main/PlotPcolor/pcolormesh_NaN.py
+    """
+
+    fn = Path(fn).expanduser().resolve(True)
+
+    with fits.open(fn, mode="readonly", memmap=False) as f:
+        img = f[0].data
+
+        yPix, xPix = f[0].shape[-2:]
+        x, y = np.meshgrid(range(xPix), range(yPix))  # pixel indices to find RA/dec of
+        xy = np.column_stack((x.ravel(order="C"), y.ravel(order="C")))
+
+        radec = wcs.WCS(f[0].header).all_pix2world(xy, 0)
+
+    ra = radec[:, 0].reshape((yPix, xPix), order="C")
+    dec = radec[:, 1].reshape((yPix, xPix), order="C")
+
+    ax.set_title(fn.name)
+    ax.pcolormesh(ra, dec, img, alpha=alpha, cmap=cm, norm=LogNorm())
+    ax.set_ylabel("Right Ascension [deg.]")
+    ax.set_xlabel("Declination [deg.]")
