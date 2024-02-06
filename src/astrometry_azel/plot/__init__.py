@@ -175,11 +175,12 @@ def image_stack(img, fn: Path, clim=None):
     fg.savefig(plotFN)
 
 
-def add_image(fn: Path, cm, ax, alpha=1):
+def wcs_image(fn: Path, cmap, ax, alpha=1):
     """
     Astrometry.net makes file ".new" with the image and the WCS SIP 2-D polynomial fit coefficients in the FITS header
 
-    We use DECL as "x" and RA as "y".
+    Warps the image to sky coordinates using the WCS.
+
     pcolormesh() is used as it handles arbitrary pixel shapes.
     Note that pcolormesh() cannot tolerate NaN in X or Y (NaN in C is OK).
 
@@ -201,6 +202,28 @@ def add_image(fn: Path, cm, ax, alpha=1):
     dec = radec[:, 1].reshape((yPix, xPix), order="C")
 
     ax.set_title(fn.name)
-    ax.pcolormesh(ra, dec, img, alpha=alpha, cmap=cm, norm=LogNorm())
+    ax.pcolormesh(ra, dec, img, alpha=alpha, cmap=cmap, norm=LogNorm())
     ax.set_ylabel("Right Ascension [deg.]")
     ax.set_xlabel("Declination [deg.]")
+
+
+def xy_image(fn: Path, cmap, ax):
+    """
+    Astrometry.net makes file ".new" with the image and the WCS SIP 2-D polynomial fit coefficients in the FITS header
+
+    We use DECL as "x" and RA as "y".
+    pcolormesh() is used as it handles arbitrary pixel shapes.
+    Note that pcolormesh() cannot tolerate NaN in X or Y (NaN in C is OK).
+
+    https://github.com/scivision/python-matlab-examples/blob/main/PlotPcolor/pcolormesh_NaN.py
+    """
+
+    fn = Path(fn).expanduser().resolve(True)
+
+    with fits.open(fn, mode="readonly", memmap=False) as f:
+        img = f[0].data
+
+    ax.set_title(fn.name)
+    ax.pcolormesh(img, cmap=cmap, norm=LogNorm())
+    ax.set_ylabel("y - pixel")
+    ax.set_xlabel("x - pixel")
