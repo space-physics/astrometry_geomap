@@ -29,7 +29,7 @@ except ImportError:
     loadmat = None
 
 
-def get_sources(fn: Path) -> xarray.Dataset:
+def get_sources(fn: Path):
     """
     read source (star) coordinates from .rdls file
 
@@ -42,7 +42,7 @@ def get_sources(fn: Path) -> xarray.Dataset:
     Returns
     -------
 
-    radec: xarray.Dataset
+    radec: astropy.fits.fitsrec.FITS_rec
         RA, Dec of sources
     """
 
