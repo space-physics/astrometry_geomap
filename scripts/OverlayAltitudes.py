@@ -17,7 +17,7 @@ import typing
 from pathlib import Path
 from argparse import ArgumentParser
 
-from astrometry_azel.plot import add_image
+from astrometry_azel.plot import wcs_image
 
 from matplotlib.pyplot import figure, show
 
@@ -37,11 +37,11 @@ fg.suptitle(p.suptitle)
 if p.subplots:
     axs: typing.Any = fg.subplots(1, len(flist), sharey=True, sharex=True)
     for fn, ax in zip(flist, axs):
-        add_image(fn, "gray", ax)
+        wcs_image(fn, "gray", ax)
 
 else:
     ax = fg.gca()
     for fn, cm in zip(flist, cmaps):
-        add_image(fn, cm, ax, alpha=0.05)
+        wcs_image(fn, cm, ax, alpha=0.05)
 
 show()
