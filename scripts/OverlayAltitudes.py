@@ -7,6 +7,10 @@ The program could be slightly upgraded to optionally use the original image and 
 
 Note: one can use WCS projection:
 http://docs.astropy.org/en/stable/visualization/wcsaxes/
+
+Example
+
+    python OverlayAltitudes.py blue.new red.new green.new
 """
 
 from pathlib import Path
