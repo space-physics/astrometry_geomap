@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 """
-Use output netCDF from PlateScale.py to plot image as if the photons emitted at a single altitude.
+Use output netCDF from
+
+python -m astrometry_azel
+
+to plot image as if the photons emitted at a single altitude.
 This technique is used in aeronomy for aurora and airglow.
 """
 
@@ -16,7 +20,7 @@ import astrometry_azel.plot.project as plot_project
 p = argparse.ArgumentParser(
     description="plot geomap of image as if photons emitted at a single altitude"
 )
-p.add_argument("in_file", help="netCDF file from PlateScale.py")
+p.add_argument("in_file", help="netCDF file from  python -m astrometry_azel")
 p.add_argument("projection_altitude_km", type=float, help="altitude of emission (kilometers)")
 p.add_argument(
     "-minel", "--minimum_elevation", type=float, default=0.0, help="minimum elevation (degrees)"

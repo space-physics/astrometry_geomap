@@ -16,6 +16,7 @@ def plate_scale(
     ut1: datetime,
     solve: bool,
     args: str,
+    index_dir: str | None = None,
 ) -> tuple:
     # %% filenames
     in_file = Path(in_file).expanduser().resolve()
@@ -25,7 +26,7 @@ def plate_scale(
     img = load_image(in_file)
     write_fits(img, new_file)
 
-    scale = fits2azel(new_file, latlon=latlon, time=ut1, solve=solve, args=args)
+    scale = fits2azel(new_file, latlon=latlon, time=ut1, solve=solve, args=args, index_dir=index_dir)
 
     # %% write to file
     netcdf_file = Path(scale.filename).with_suffix(".nc")

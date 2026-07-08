@@ -3,6 +3,7 @@ from datetime import datetime
 from datetime import timezone as tz
 import functools
 import shutil
+import shlex
 import subprocess
 
 import numpy as np
@@ -18,17 +19,19 @@ import astropy.wcs as awcs
 
 __all__ = ["fits2azel", "fits2radec", "radec2azel", "doSolve"]
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 
-def fits2radec(fitsfn: Path, solve: bool = False, args: str = ""):
+def fits2radec(
+    fitsfn: Path, solve: bool = False, args: str = "", index_dir: str | None = None
+) -> xarray.Dataset:
     """
     get RA, Decl from FITS file
     """
     fitsfn = Path(fitsfn).expanduser()
 
     if solve:
-        doSolve(fitsfn, args)
+        doSolve(fitsfn, args, index_dir=index_dir)
 
     with fits.open(fitsfn, mode="readonly") as f:
         yPix, xPix = f[0].shape[-2:]
@@ -78,10 +81,11 @@ def fits2azel(
     time: datetime,
     solve: bool = False,
     args: str = "",
+    index_dir: str | None = None,
 ):
     fitsfn = Path(fitsfn).expanduser()
 
-    radec = fits2radec(fitsfn, solve, args)
+    radec = fits2radec(fitsfn, solve, args, index_dir=index_dir)
 
     return radec2azel(radec, latlon, time)
 
@@ -171,34 +175,39 @@ def pymap3d_radec2azel(
 
 
 @functools.cache
-def get_solve_exe() -> str:
-    if not (solve := shutil.which("solve-field")):
-        raise FileNotFoundError("Astrometry.net solve-file exectuable not found")
-
-    return solve
+def get_solve_exe() -> str | None:
+    return shutil.which("solve-field")
 
 
-def doSolve(fitsfn: Path, args: str = "") -> None:
+def doSolve(fitsfn: Path, args: str = "", index_dir: str | None = None) -> None:
     """
     run Astrometry.net solve-field from Python
     """
 
-    fitsfn = Path(fitsfn).expanduser()
+    fitsfn = Path(fitsfn).expanduser().resolve(strict=True)
     if not fitsfn.is_file():
-        raise FileNotFoundError(f"{fitsfn} not found")
+        raise FileNotFoundError(f"{fitsfn} is not a specific file")
 
     # %% build command
-    cmd = [get_solve_exe(), "--overwrite", str(fitsfn), "--verbose"]
+    exe = get_solve_exe()
+    if exe is None:
+        raise FileNotFoundError("solve-field executable not found in PATH")
+
+    cmd = [exe, "--overwrite", str(fitsfn), "--verbose"]
+
+    if index_dir:
+        if not Path(index_dir).is_dir():
+            raise NotADirectoryError(f"{index_dir} is not a directory")
+        cmd += ["--index-dir", str(index_dir)]
+
     if args:
         # if args is a string, split it. Don't append an empty space or solve-field CLI fail
-        cmd += args.split(" ")
-    print("\n", " ".join(cmd), "\n")
-    # %% execute
-    # bufsize=1: line-buffered
-    with subprocess.Popen(cmd, stdout=subprocess.PIPE, bufsize=1, text=True) as p:
-        if p.stdout:
-            for line in p.stdout:
-                print(line, end="")
+        cmd += shlex.split(args)
 
-    if "Did not solve" in line:
-        raise RuntimeError(f"could not solve {fitsfn}")
+    print("\n", " ".join(cmd), "\n")
+    # %% execute, with live progress output
+
+    with subprocess.Popen(cmd) as p:
+        p.wait()
+        if p.returncode != 0:
+            raise RuntimeError(f"solve-field failed with exit code {p.returncode}")

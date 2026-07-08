@@ -66,13 +66,13 @@ def read_data(in_file: Path):
 
 def load_image(file: Path):
     """
-    load netCDF from PlateScale.py and original image
+    load netCDF file from python -m astrometry_azel and original image
 
     Parameters
     ----------
 
     file: pathlib.Path
-        netCDF file from PlateScale.py
+        netCDF file from python -m astrometry_azel
     """
 
     file = Path(file).expanduser().resolve(strict=True)

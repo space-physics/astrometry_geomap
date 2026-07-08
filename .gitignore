@@ -1,3 +1,4 @@
+src/astrometry_azel/index_data/
 
 .mypy_cache/
 .pytest_cache/

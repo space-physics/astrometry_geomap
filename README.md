@@ -8,21 +8,48 @@
 
 [Tips and techniques article](https://www.scivision.dev/astrometry-tips-techniques), especially for DSLR citizen science data.
 
-Get
-[Astrometry.net &ge; 0.67](https://scivision.dev/astrometry-install-usage)
-or use the
-[astrometry.net cloud service](https://nova.astrometry.net/upload).
+## Installation
+
+You need Linux, macOS, or Windows Subsystem for Linux.
+
+* Linux: `apt install astrometry.net`
+* macOS: `brew install astrometry-net`
+
+Download this source code
 
 ```sh
-python3 -m pip install -e .
+git clone https://github.com/space-physics/astrometry_geomap.git
 ```
 
-The main program used is [PlateScale.py](./PlateScale.py).
-Auxiliary scripts are under [scripts/](./scripts/)
+Setup a Python virtual environment and install this package:
 
-## PlateScale.py
+```sh
+python3 -m venv astromenv
+# arbitrary virtual environment name, e.g. astromenv
+source astromenv/bin/activate
 
-The main script most users would use to register a star field image to Azimuth and Elevation is "PlateScale.py".
+pip install -e ./astrometry_geomap
+```
+
+Finally, the star index files are needed for astrometry.net to work.
+
+```sh
+python -m astrometry_azel.download -o src/astrometry_azel/index_data/
+```
+
+If you wish to run the self-tests, do from the "astrometry_geomap/" directory:
+
+```sh
+pytest -sv
+```
+
+## Usage
+
+The main program most users would use to register a star field image to Azimuth and Elevation is
+
+```sh
+python -m astrometry_azel -h
+```
 
 The "--args" command line option allows passing through a variety of parameters to `solve-field`, which underlies this program.
 Type `solve-field -h` or `man solve-field` for a brief description of the nearly 100 options available.
@@ -31,7 +58,7 @@ Be sure to enclose the options in quotes.
 For example, to specify that the image field is at least 20 degrees in extent:
 
 ```sh
-python PlateScale.py ~/data/myimg.jpg --args "--scale-low 20"
+python -m astrometry_azel ~/data/myimg.jpg --args "--scale-low 20"
 ```
 
 Citizen science images often contain extraneous items in the image field of view.
@@ -56,7 +83,7 @@ If the original image is in a lossy format such as JPEG, consider saving in a lo
 ### Astrometry.net installed on local computer
 
 ```sh
-python PlateScale.py myimg.fits 61.2 -149.9 2013-04-02T12:03:23Z
+python -m astrometry_azel myimg.fits 61.2 -149.9 2013-04-02T12:03:23Z
 ```
 
 gives netCDF .nc with az/el ra/dec and PNG plots of the data.
@@ -69,7 +96,7 @@ Both files contain the same data, just for your convenience.
 Download from nova.astrometry.net solved image the "new-image.fits" and "wcs.fits" files, then:
 
 ```sh
-python PlateScale.py 61.2 -149.9 2013-04-02T12:03:23Z new-image.fits
+python -m astrometry_azel 61.2 -149.9 2013-04-02T12:03:23Z new-image.fits
 ```
 
 ## Notes

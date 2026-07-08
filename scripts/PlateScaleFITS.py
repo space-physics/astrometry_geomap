@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 original frontend to fits2azel (requires fits input)
-Consider using the more general PlateScale.py
+Consider using the more general
+
+python -m astrometry_azel
 """
 
 from argparse import ArgumentParser

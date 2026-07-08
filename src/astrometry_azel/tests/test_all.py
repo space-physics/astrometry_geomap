@@ -10,30 +10,33 @@ import shutil
 
 import astrometry_azel as ael
 
-rdir = Path(__file__).parent
-fits = rdir / "apod4.fits"
-
-exe = shutil.which("solve-field")
+import importlib.resources as ir
 
 
-def test_nosolve(tmp_path):
+def test_nosolve(tmp_path, index_dir):
     with pytest.raises(FileNotFoundError):
-        ael.doSolve(tmp_path)
+        ael.doSolve(tmp_path, index_dir=index_dir)
 
+@pytest.fixture(scope="function")
+def index_dir() -> Path:
+    with ir.as_file(ir.files(f"{__package__}")) as pdir:
+        return pdir.parent / "index_data"
 
 @pytest.fixture(scope="function")
 def fits_file(tmp_path) -> Path:
-    shutil.copy(fits.with_suffix(".new"), tmp_path)
-    shutil.copy(fits.with_suffix(".wcs"), tmp_path)
+    with ir.as_file(ir.files(f"{__package__}") / "apod4.fits") as fits:
+        shutil.copy(fits.with_suffix(".new"), tmp_path)
+        shutil.copy(fits.with_suffix(".wcs"), tmp_path)
 
     return tmp_path / (fits.stem + ".new")
 
 
-@pytest.mark.skipif(exe is None, reason="solve-field missing")
-def test_solve(tmp_path):
-    shutil.copy(fits, tmp_path)
-
-    ael.doSolve(tmp_path / fits.name)
+@pytest.mark.skipif(ael.get_solve_exe() is None, reason="solve-field missing")
+def test_solve(tmp_path, index_dir):
+    with ir.as_file(ir.files(f"{__package__}") / "apod4.fits") as fits:
+        shutil.copy(fits, tmp_path)
+        # --scale-low isn't needed, just to speed up CI test
+        ael.doSolve(tmp_path / fits.name, args="--scale-low 20", index_dir=index_dir)
 
 
 def test_fits2radec(fits_file):

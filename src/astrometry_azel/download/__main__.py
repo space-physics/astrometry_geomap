@@ -10,6 +10,7 @@ Also, the Tycho index files are good for this FOV range and I sometimes need the
 from argparse import ArgumentParser
 from pathlib import Path
 import urllib.request
+import importlib.resources as ir
 
 url_2mass = "https://data.astrometry.net/4200/"
 url_tycho = "https://data.astrometry.net/4100/"
@@ -22,7 +23,7 @@ def download(odir: Path, source_url: str, irng: list[int]):
 
     assert len(irng) == 2, "specify start, stop indices"
 
-    odir = Path(odir).expanduser()
+    odir = Path(odir).expanduser().resolve()
     odir.mkdir(parents=True, exist_ok=True)
 
     ri = int(source_url.split("/")[-2][:2])
@@ -59,19 +60,19 @@ def url_retrieve(url: str, outfile: Path, overwrite: bool = False):
         outfile.parent.mkdir(parents=True, exist_ok=True)
         urllib.request.urlretrieve(url, outfile)
 
+if __name__ == "__main__":
+    p = ArgumentParser()
+    p.add_argument("-o", "--outdir", help="directory to save index files", default=ir.files(__package__) / "../index_data")
+    p.add_argument("-source", nargs="+", default=[url_2mass, url_tycho])
+    p.add_argument(
+        "-i",
+        "--indexrange",
+        help="start,stop (inclusive) index range",
+        nargs=2,
+        type=int,
+        default=(8, 19),
+    )
+    P = p.parse_args()
 
-p = ArgumentParser()
-p.add_argument("-o", "--outdir", help="directory to save index files", default="~/astrometry-data")
-p.add_argument("-source", nargs="+", default=[url_2mass, url_tycho])
-p.add_argument(
-    "-i",
-    "--indexrange",
-    help="start,stop (inclusive) index range",
-    nargs=2,
-    type=int,
-    default=(8, 19),
-)
-P = p.parse_args()
-
-for s in P.source:
-    download(P.outdir, s, P.indexrange)
+    for s in P.source:
+        download(P.outdir, s, P.indexrange)

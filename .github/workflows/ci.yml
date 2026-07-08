@@ -13,11 +13,15 @@ env:
 jobs:
 
   core:
+    timeout-minutes: 10
 
     strategy:
       matrix:
         os: [ubuntu-latest]
         python_version: ['3.10', '3.14']
+        include:
+          - os: macos-latest
+            python_version: '3.14'
 
     runs-on: ${{ matrix.os }}
 
@@ -25,10 +29,9 @@ jobs:
 
     - name: "astrometry.net (Linux)"
       if: runner.os == 'Linux'
-      run: sudo apt install --no-install-recommends astrometry.net astrometry-data-tycho2-10-19
+      run: sudo apt install --no-install-recommends astrometry.net
 
     - name: "astrometry.net (macOS)"
-    # FIXME: would also need data installed
       if: runner.os == 'macOS'
       run: brew install astrometry-net
 
@@ -40,7 +43,12 @@ jobs:
 
     - run: pip install .[tests]
 
-    - run: mypy
-      if: matrix.python_version == '3.14'
+    - run: |
+        pip install mypy
+        mypy
+      if: ${{ matrix.python_version == '3.14' && matrix.os == 'ubuntu-latest' }}
+
+    - name: download index data
+      run: python -m astrometry_azel.download -source https://data.astrometry.net/4100/ -i 10 15
 
     - run: pytest
