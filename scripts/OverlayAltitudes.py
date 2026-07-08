@@ -6,14 +6,13 @@ For simplicity, the FITS images with Astrometry.net inserted WCS coordinates are
 The program could be slightly upgraded to optionally use the original image and the .wcs file from Astrometry.net.
 
 Note: one can use WCS projection:
-http://docs.astropy.org/en/stable/visualization/wcsaxes/
+https://docs.astropy.org/en/stable/visualization/wcsaxes/
 
 Example
 
     python OverlayAltitudes.py blue.new red.new green.new
 """
 
-import typing
 from pathlib import Path
 from argparse import ArgumentParser
 
@@ -34,7 +33,7 @@ fg = figure()
 fg.suptitle(p.suptitle)
 
 if p.subplots:
-    axs: typing.Any = fg.subplots(1, len(flist), sharey=True, sharex=True)
+    axs = fg.subplots(1, len(flist), sharey=True, sharex=True)
     for fn, ax in zip(flist, axs):
         wcs_image(fn, "gray", ax)
 

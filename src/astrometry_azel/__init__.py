@@ -42,7 +42,7 @@ def fits2radec(fitsfn: Path, solve: bool = False, args: str = ""):
             raise FileNotFoundError(f"could not find WCS file for {fitsfn}")
     with fits.open(wcsfn, mode="readonly") as f:
         # %% use astropy.wcs to register pixels to RA/DEC
-        # http://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS
+        # https://docs.astropy.org/en/stable/api/astropy.wcs.WCS.html#astropy.wcs.WCS
         # NOTE: it's normal to get this warning:
         # WARNING: FITSFixedWarning: The WCS transformation has more axes (2) than the image it is associated with (0) [astropy.wcs.wcs]
         if f[0].header["WCSAXES"] == 2:

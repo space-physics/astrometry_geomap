@@ -4,14 +4,14 @@
 [![Zenodo DOI](https://zenodo.org/badge/19366614.svg)](https://zenodo.org/badge/latestdoi/19366614)
 [![ci](https://github.com/space-physics/astrometry_geomap/actions/workflows/ci.yml/badge.svg)](https://github.com/space-physics/astrometry_geomap/actions/workflows/ci.yml)
 [![PyPI version](https://img.shields.io/pypi/pyversions/astrometry-azel.svg)](https://pypi.python.org/pypi/astrometry-azel)
-[![Downloads](http://pepy.tech/badge/astrometry-azel)](http://pepy.tech/project/astrometry-azel)
+[![Downloads](https://pepy.tech/badge/astrometry-azel)](https://pepy.tech/project/astrometry-azel)
 
 [Tips and techniques article](https://www.scivision.dev/astrometry-tips-techniques), especially for DSLR citizen science data.
 
 Get
 [Astrometry.net &ge; 0.67](https://scivision.dev/astrometry-install-usage)
 or use the
-[astrometry.net cloud service](http://nova.astrometry.net/upload).
+[astrometry.net cloud service](https://nova.astrometry.net/upload).
 
 ```sh
 python3 -m pip install -e .
@@ -74,11 +74,11 @@ python PlateScale.py 61.2 -149.9 2013-04-02T12:03:23Z new-image.fits
 
 ## Notes
 
-* 2MASS [index](http://broiler.astrometry.net/~dstn/4200/)
-* Tycho [index](http://broiler.astrometry.net/~dstn/4100/)
+* 2MASS [index](https://data.astrometry.net/4200/)
+* Tycho [index](https://data.astrometry.net/4100/)
 
-* ways to [use astrometry.net](http://astrometry.net/use.html)
-* astrometry.net [source code releases](http://astrometry.net/downloads/)
+* ways to [use astrometry.net](https://astrometry.net/use.html)
+* astrometry.net [source code releases](https://astrometry.net/downloads/)
 * astrometry.net [GitHub](https://github.com/dstndstn/astrometry.net)
 
 * [article](https://www.dsi.uni-stuttgart.de/institut/mitarbeiter/schindler/Schindler_et_al._2016.pdf) on good robustness of Astrometry.net to shaky, streaked images.

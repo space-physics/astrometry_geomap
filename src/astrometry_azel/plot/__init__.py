@@ -1,6 +1,5 @@
 from pathlib import Path
 import logging
-import typing
 
 import numpy as np
 from astropy.io import fits

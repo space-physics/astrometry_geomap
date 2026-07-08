@@ -1,6 +1,6 @@
 """
 solves test image from
-http://nova.astrometry.net/user_images/1572720
+https://nova.astrometry.net/user_images/1572720
 """
 
 import pytest

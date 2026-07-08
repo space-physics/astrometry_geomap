@@ -5,7 +5,7 @@ Usually we don't need to build Astrometry.net.
 Linux or Windows Subsystem for Linux:
 
 ```sh
-curl -O http://astrometry.net/downloads/astrometry.net-latest.tar.gz
+curl -O https://astrometry.net/downloads/astrometry.net-latest.tar.gz
 
 tar xf astrometry.net-latest.tar.gz
 

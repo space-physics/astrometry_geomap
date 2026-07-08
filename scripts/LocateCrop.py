@@ -6,7 +6,6 @@ Handy for when you cropped visually or forgot the cropping parameters.
 Template matching is used.
 """
 
-import typing
 import skimage.feature as skf
 import imageio
 import numpy as np
@@ -36,7 +35,7 @@ def find_crop(im1, im2) -> tuple[int, ...]:
     return Ul
 
 
-def plot_overlay(im1, im2, Ul: typing.Sequence[int], fn1: Path, fn2: Path):
+def plot_overlay(im1, im2, Ul: tuple[int, int], fn1: Path, fn2: Path):
     overlay = np.zeros((*im1.shape, 3), dtype=im1.dtype)
     rows = slice(Ul[0], Ul[0] + im2.shape[0])
     cols = slice(Ul[1], Ul[1] + im2.shape[1])
@@ -48,7 +47,7 @@ def plot_overlay(im1, im2, Ul: typing.Sequence[int], fn1: Path, fn2: Path):
     print("sum(im1-im2) over ROI is:", diff.sum())
 
     fg = figure()
-    axs: typing.Any = fg.subplots(1, 2)
+    axs = fg.subplots(1, 2)
     h1 = axs[0].imshow(overlay, alpha=0.6)
     axs[0].set_title(f"overlay: original {fn1.name}:red   crop {fn2.name}:blue", wrap=True)
     fg.colorbar(h1, ax=axs[0])

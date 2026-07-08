@@ -39,6 +39,8 @@ jobs:
         python-version: ${{ matrix.python_version }}
 
     - run: pip install .[tests]
+
     - run: mypy
+      if: matrix.python_version == '3.14'
 
     - run: pytest

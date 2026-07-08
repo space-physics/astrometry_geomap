@@ -1,6 +1,5 @@
 import xarray
 import numpy as np
-import typing
 
 from matplotlib.pyplot import figure
 from matplotlib.colors import LogNorm
@@ -34,7 +33,7 @@ def geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
 
     fg = figure()
 
-    ax: typing.Any = fg.add_subplot(projection=proj)
+    ax = fg.add_subplot(projection=proj)
 
     # plot observer
     ax.scatter(img.observer_longitude, img.observer_latitude, transform=proj, color="r", marker="*")

@@ -3,16 +3,16 @@
 aveage multi frame image stacks to improve SNR
 """
 
-import imageio
-from pathlib import Path
-import typing
-import numpy as np
 import argparse
+from pathlib import Path
+
+import numpy as np
+import imageio
 
 import astrometry_azel.io as aio
 
 
-def stackcollapse(imgfn: Path, inds: typing.Sequence[int]):
+def stackcollapse(imgfn: Path, inds: list[int]):
     imgs = np.asarray(imageio.mimread(imgfn))
 
     for i in range(len(inds) - 1):

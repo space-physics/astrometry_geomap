@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-http://astrometry.net/doc/readme.html#getting-index-files
+https://astrometry.net/doc/readme.html#getting-index-files
 
 Downloads 2MASS whole-sky index files, which worked well for me with a
 variety of non-all-sky auroral imagagers in the 5 to 50 degree FOV range.
@@ -11,8 +11,8 @@ from argparse import ArgumentParser
 from pathlib import Path
 import urllib.request
 
-url_2mass = "http://broiler.astrometry.net/~dstn/4200/"
-url_tycho = "http://broiler.astrometry.net/~dstn/4100/"
+url_2mass = "https://data.astrometry.net/4200/"
+url_tycho = "https://data.astrometry.net/4100/"
 
 
 def download(odir: Path, source_url: str, irng: list[int]):
