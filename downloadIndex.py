@@ -7,11 +7,9 @@ variety of non-all-sky auroral imagagers in the 5 to 50 degree FOV range.
 Also, the Tycho index files are good for this FOV range and I sometimes need them too.
 """
 
-from __future__ import annotations
 from argparse import ArgumentParser
 from pathlib import Path
 import urllib.request
-import urllib.error
 
 url_2mass = "http://broiler.astrometry.net/~dstn/4200/"
 url_tycho = "http://broiler.astrometry.net/~dstn/4100/"

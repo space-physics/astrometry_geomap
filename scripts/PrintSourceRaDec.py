@@ -8,7 +8,6 @@ import argparse
 
 from astrometry_azel.io import get_sources
 
-
 p = argparse.ArgumentParser(description="show RA DEC in .rdls files after solving an image")
 p.add_argument("fn", help=".rdls file from astrometry.net")
 p = p.parse_args()

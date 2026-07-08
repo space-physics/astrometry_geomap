@@ -6,7 +6,7 @@ import numpy as np
 from astropy.io import fits
 from astropy.wcs import wcs
 
-from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
 
 
@@ -14,52 +14,51 @@ def az_el(scale, plottype: str = "singlecontour", img=None):
     """
     plot azimuth and elevation mapped to sky
     """
-    if plottype == "singlecontour":
-        fg: typing.Any = Figure()
-        ax: typing.Any = fg.gca()
-        if img is not None:
-            ax.imshow(img, origin="lower", cmap="gray")
-        cs = ax.contour(scale["x"], scale["y"], scale["azimuth"])
-        ax.clabel(cs, inline=1, fmt="%0.1f")
-        cs = ax.contour(scale["x"], scale["y"], scale["elevation"])
-        ax.clabel(cs, inline=True, fmt="%0.1f")
-        ax.set_xlabel("x-pixel")
-        ax.set_ylabel("y-pixel")
-        ax.set_title(
-            f"{Path(scale.filename).name}  ({scale.observer_latitude:.2f}, {scale.observer_longitude:.2f})"
-            f"  {scale.time}  Azimuth / Elevation",
-            wrap=True,
-        )
-        fg.set_tight_layout(True)
-        return fg
-    elif plottype == "image":
-        fg = Figure(figsize=(12, 5))
-        ax = fg.subplots(1, 2, sharey=True)
-        hia = ax[0].imshow(scale["azimuth"], origin="lower")
-        hc = fg.colorbar(hia)
-        hc.set_label("Azimuth [deg]")
-    elif plottype == "contour":
-        fg = Figure(figsize=(12, 5))
-        ax = fg.subplots(1, 2, sharey=True)
-        if img is not None:
-            ax[0].imshow(img, origin="lower", cmap="gray")
-        cs = ax[0].contour(scale["x"], scale["y"], scale["azimuth"])
-        ax[0].clabel(cs, inline=1, fmt="%0.1f")
+    match plottype:
+        case "singlecontour":
+            fg, ax = plt.subplots(layout="constrained")
+            if img is not None:
+                ax.imshow(img, origin="lower", cmap="gray")
+            cs = ax.contour(scale["x"], scale["y"], scale["azimuth"])
+            ax.clabel(cs, inline=1, fmt="%0.1f")
+            cs = ax.contour(scale["x"], scale["y"], scale["elevation"])
+            ax.clabel(cs, inline=True, fmt="%0.1f")
+            ax.set_xlabel("x-pixel")
+            ax.set_ylabel("y-pixel")
+            ax.set_title(
+                f"{Path(scale.filename).name}  ({scale.observer_latitude:.2f}, {scale.observer_longitude:.2f})"
+                f"  {scale.time}  Azimuth / Elevation",
+                wrap=True,
+            )
+
+            return fg
+        case "image":
+            fg, ax = plt.subplots(1, 2, figsize=(12, 5), layout="constrained")
+            hia = ax[0].imshow(scale["azimuth"], origin="lower")
+            hc = fg.colorbar(hia)
+            hc.set_label("Azimuth [deg]")
+        case "contour":
+            fg, ax = plt.subplots(1, 2, figsize=(12, 5), sharey=True, layout="constrained")
+            if img is not None:
+                ax[0].imshow(img, origin="lower", cmap="gray")
+            cs = ax[0].contour(scale["x"], scale["y"], scale["azimuth"])
+            ax[0].clabel(cs, inline=1, fmt="%0.1f")
 
     ax[0].set_xlabel("x-pixel")
     ax[0].set_ylabel("y-pixel")
     ax[0].set_title("azimuth")
     # %%
     axe = ax[1]
-    if plottype == "image":
-        hie = axe.imshow(scale["elevation"], origin="lower")
-        hc = fg.colorbar(hie)
-        hc.set_label("Elevation [deg]")
-    elif plottype == "contour":
-        if img is not None:
-            axe.imshow(img, origin="lower", cmap="gray")
-        cs = axe.contour(scale["x"], scale["y"], scale["elevation"])
-        axe.clabel(cs, inline=True, fmt="%0.1f")
+    match plottype:
+        case "image":
+            hie = axe.imshow(scale["elevation"], origin="lower")
+            hc = fg.colorbar(hie)
+            hc.set_label("Elevation [deg]")
+        case "contour":
+            if img is not None:
+                axe.imshow(img, origin="lower", cmap="gray")
+            cs = axe.contour(scale["x"], scale["y"], scale["elevation"])
+            axe.clabel(cs, inline=True, fmt="%0.1f")
 
     axe.set_xlabel("x-pixel")
     axe.set_title("elevation")
@@ -68,7 +67,6 @@ def az_el(scale, plottype: str = "singlecontour", img=None):
         f"  {scale.time}",
         wrap=True,
     )
-    fg.set_tight_layout(True)
 
     return fg
 
@@ -80,53 +78,50 @@ def ra_dec(scale, plottype: str = "singlecontour", img=None):
     if "ra" not in scale:
         return None
 
-    if plottype == "singlecontour":
-        fg: typing.Any = Figure()
-        ax: typing.Any = fg.gca()
-        if img is not None:
-            ax.imshow(img, origin="lower", cmap="gray")
-        cs = ax.contour(scale["x"], scale["y"], scale["ra"])
-        ax.clabel(cs, inline=1, fmt="%0.1f")
-        cs = ax.contour(scale["x"], scale["y"], scale["dec"])
-        ax.clabel(cs, inline=True, fmt="%0.1f")
-        ax.set_xlabel("x-pixel")
-        ax.set_ylabel("y-pixel")
-        ax.set_title(f"{Path(scale.filename).name}   Right Ascension / Declination")
-        fg.set_tight_layout(True)
-        return fg
-    elif plottype == "image":
-        fg = Figure(figsize=(12, 5))
-        ax = fg.subplots(1, 2, sharey=True)
-        hri = ax[0].imshow(scale["ra"], origin="lower")
-        hc = fg.colorbar(hri)
-        hc.set_label("RA [deg]")
-    elif plottype == "contour":
-        fg = Figure(figsize=(12, 5))
-        ax = fg.subplots(1, 2, sharey=True)
-        if img is not None:
-            ax[0].imshow(img, origin="lower", cmap="gray")
-        cs = ax[0].contour(scale["x"], scale["y"], scale["ra"])
-        ax[0].clabel(cs, inline=1, fmt="%0.1f")
+    match plottype:
+        case "singlecontour":
+            fg, ax = plt.subplots(layout="constrained")
+            if img is not None:
+                ax.imshow(img, origin="lower", cmap="gray")
+            cs = ax.contour(scale["x"], scale["y"], scale["ra"])
+            ax.clabel(cs, inline=1, fmt="%0.1f")
+            cs = ax.contour(scale["x"], scale["y"], scale["dec"])
+            ax.clabel(cs, inline=True, fmt="%0.1f")
+            ax.set_xlabel("x-pixel")
+            ax.set_ylabel("y-pixel")
+            ax.set_title(f"{Path(scale.filename).name}   Right Ascension / Declination")
+
+            return fg
+        case "image":
+            fg, ax = plt.subplots(1, 2, figsize=(12, 5), sharey=True, layout="constrained")
+            hri = ax[0].imshow(scale["ra"], origin="lower")
+            hc = fg.colorbar(hri)
+            hc.set_label("RA [deg]")
+        case "contour":
+            fg, ax = plt.subplots(1, 2, figsize=(12, 5), sharey=True, layout="constrained")
+            if img is not None:
+                ax[0].imshow(img, origin="lower", cmap="gray")
+            cs = ax[0].contour(scale["x"], scale["y"], scale["ra"])
+            ax[0].clabel(cs, inline=1, fmt="%0.1f")
 
     ax[0].set_xlabel("x-pixel")
     ax[0].set_ylabel("y-pixel")
     ax[0].set_title("Right Ascension ")
     # %%
-    if plottype == "image":
-        hdi = ax[1].imshow(scale["dec"], origin="lower")
-        hc = fg.colorbar(hdi)
-        hc.set_label("Dec [deg]")
-    elif plottype == "contour":
-        if img is not None:
-            ax[1].imshow(img, origin="lower", cmap="gray")
-        cs = ax[1].contour(scale["x"], scale["y"], scale["dec"])
-        ax[1].clabel(cs, inline=1, fmt="%0.1f")
+    match plottype:
+        case "image":
+            hdi = ax[1].imshow(scale["dec"], origin="lower")
+            hc = fg.colorbar(hdi)
+            hc.set_label("Dec [deg]")
+        case "contour":
+            if img is not None:
+                ax[1].imshow(img, origin="lower", cmap="gray")
+            cs = ax[1].contour(scale["x"], scale["y"], scale["dec"])
+            ax[1].clabel(cs, inline=1, fmt="%0.1f")
 
     ax[1].set_xlabel("x-pixel")
     ax[1].set_title("Declination")
     fg.suptitle(Path(scale.filename).name)
-
-    fg.set_tight_layout(True)
 
     return fg
 
@@ -146,8 +141,7 @@ def image_stack(img, fn: Path, clim=None):
         imnorm = None
         # imnorm = LogNorm()
 
-    fg = Figure()
-    ax = fg.gca()
+    fg, ax = plt.subplots(layout="constrained")
     if clim is None:
         hi = ax.imshow(img, origin="lower", interpolation="none", cmap=cmap, norm=imnorm)
     else:

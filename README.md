@@ -89,7 +89,7 @@ python PlateScale.py 61.2 -149.9 2013-04-02T12:03:23Z new-image.fits
 python downloadIndex.py
 ```
 
-Edit file /etc/astrometry.cfg or similar:
+Edit file "/etc/astrometry.cfg" or similar:
 
 Be sure `add_path` points to /home/username/astrometry-data, where username is your Linux username.
 Don't use ~ or $HOME.

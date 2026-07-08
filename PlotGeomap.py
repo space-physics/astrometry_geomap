@@ -4,7 +4,6 @@ Use output netCDF from PlateScale.py to plot image as if the photons emitted at 
 This technique is used in aeronomy for aurora and airglow.
 """
 
-from __future__ import annotations
 import argparse
 from pathlib import Path
 
@@ -13,7 +12,6 @@ from matplotlib.pyplot import show
 from astrometry_azel.io import read_data, write_netcdf
 import astrometry_azel.project as project
 import astrometry_azel.plot.project as plot_project
-
 
 p = argparse.ArgumentParser(
     description="plot geomap of image as if photons emitted at a single altitude"

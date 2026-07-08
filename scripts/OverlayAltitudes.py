@@ -21,7 +21,6 @@ from astrometry_azel.plot import wcs_image
 
 from matplotlib.pyplot import figure, show
 
-
 p = ArgumentParser()
 p.add_argument("flist", help='FITS ".new" WCS registered filenames to plot together', nargs="+")
 p.add_argument("-s", "--subplots", help="subplots instead of overlay", action="store_true")

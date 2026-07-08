@@ -12,7 +12,6 @@ from argparse import ArgumentParser
 from astrometry_azel.project import plate_scale
 import astrometry_azel.plot as plot
 
-
 p = ArgumentParser(description="do plate scaling for image data")
 p.add_argument("infn", help="image data file name (HDF5 or FITS)")
 p.add_argument("latlon", help="wgs84 coordinates of cameras (deg.)", nargs=2, type=float)

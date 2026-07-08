@@ -6,7 +6,6 @@ Handy for when you cropped visually or forgot the cropping parameters.
 Template matching is used.
 """
 
-from __future__ import annotations
 import typing
 import skimage.feature as skf
 import imageio

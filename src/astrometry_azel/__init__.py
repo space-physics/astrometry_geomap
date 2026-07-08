@@ -9,7 +9,6 @@ import numpy as np
 import xarray
 
 import logging
-from dateutil.parser import parse
 
 from astropy.time import Time
 from astropy.coordinates import AltAz, Angle, EarthLocation, SkyCoord
@@ -92,14 +91,15 @@ def radec2azel(scale: xarray.Dataset, latlon: tuple[float, float], time: datetim
     right ascension/declination to azimuth/elevation
     """
 
-    if isinstance(time, datetime):
-        pass
-    elif isinstance(time, (float, int)):  # assume UT1_Unix
-        time = datetime.fromtimestamp(time, tz=tz.UTC)
-    elif isinstance(time, str):
-        time = parse(time)
-    else:
-        raise TypeError(f"expected datetime, float, int, or str -- got {type(time)}")
+    match time:
+        case datetime():
+            pass
+        case float() | int():  # assume UT1_Unix
+            time = datetime.fromtimestamp(time, tz=tz.UTC)
+        case str():
+            time = datetime.fromisoformat(time)
+        case _:
+            raise TypeError(f"expected datetime, float, int, or str -- got {type(time)}")
 
     print("image time:", time)
     # %% knowing camera location, time, and sky coordinates observed, convert to az/el for each pixel

@@ -6,7 +6,6 @@ average the specified frames then write a FITS file.
 Averaging a selected stack of images improves SNR for astrometry.net
 """
 
-from __future__ import annotations
 from pathlib import Path
 import numpy as np
 from datetime import datetime
@@ -14,19 +13,6 @@ import logging
 
 from astropy.io import fits
 import xarray
-
-try:
-    import imageio.v3 as iio
-except ImportError:
-    imageio = None  # type: ignore
-try:
-    import h5py
-except ImportError:
-    h5py = None
-try:
-    from scipy.io import loadmat
-except ImportError:
-    loadmat = None
 
 
 def get_sources(fn: Path):
@@ -95,6 +81,8 @@ def load_image(file: Path):
         with fits.open(file, mode="readonly", memmap=False) as f:
             image = f[0].data
     else:
+        import imageio.v3 as iio
+
         image = rgb2grey(iio.imread(file))
 
     return image
@@ -103,9 +91,7 @@ def load_image(file: Path):
 def meanstack(
     infn: Path, Navg: slice | int, ut1: datetime | None = None, method: str = "mean"
 ) -> tuple:
-    infn = Path(infn).expanduser().resolve()
-    if not infn.is_file():
-        raise FileNotFoundError(infn)
+    infn = Path(infn).expanduser().resolve(strict=True)
 
     # %% parse indicies to load
     if isinstance(Navg, slice):
@@ -122,30 +108,31 @@ def meanstack(
     """
     some methods handled individually to improve efficiency with huge files
     """
-    if infn.suffix == ".h5":
-        if h5py is None:
-            raise ImportError("pip install h5py")
-        img, ut1 = _h5mean(infn, ut1, key, method)
-    elif infn.suffix in {".fits", ".new"}:
-        # mmap doesn't work with BZERO/BSCALE/BLANK
-        with fits.open(infn, mode="readonly", memmap=False) as f:
-            img = collapsestack(f[0].data, key, method)
-    elif infn.suffix == ".mat":
-        if loadmat is None:
-            raise ImportError("pip install scipy")
-        img = loadmat(infn)
-        img = collapsestack(img["data"].T, key, method)  # matlab is fortran order
-    else:  # .tif etc.
-        if imageio is None:
-            raise ImportError("pip install imageio")
-        img = imageio.imread(infn, as_gray=True)
-        if img.ndim in {3, 4} and img.shape[-1] == 3:  # assume RGB
-            img = collapsestack(img, key, method)
+    match infn.suffix:
+        case ".h5":
+            img, ut1 = _h5mean(infn, ut1, key, method)
+        case ".fits", ".new":
+            # mmap doesn't work with BZERO/BSCALE/BLANK
+            with fits.open(infn, mode="readonly", memmap=False) as f:
+                img = collapsestack(f[0].data, key, method)
+        case ".mat":
+            from scipy.io import loadmat
+
+            img = loadmat(infn)
+            img = collapsestack(img["data"].T, key, method)  # matlab is fortran order
+        case _:  # .tif etc.
+            import imageio.v3 as iio
+
+            img = iio.imread(infn, as_gray=True)
+            if img.ndim in {3, 4} and img.shape[-1] == 3:  # assume RGB
+                img = collapsestack(img, key, method)
 
     return img, ut1
 
 
 def _h5mean(fn: Path, ut1: datetime | None, key: slice, method: str) -> tuple:
+    import h5py
+
     with h5py.File(fn, "r") as f:
         img = collapsestack(f["/rawimg"], key, method)
         # %% time
@@ -171,12 +158,13 @@ def collapsestack(img, key: slice, method: str):
     if img.ndim == 2:
         return img
     # %% 3-D
-    if method == "mean":
-        func = np.mean
-    elif method == "median":
-        func = np.median  # type: ignore
-    else:
-        raise TypeError(f"unknown method {method}")
+    match method:
+        case "mean":
+            func = np.mean
+        case "median":
+            func = np.median
+        case _:
+            raise TypeError(f"unknown method {method}")
 
     colaps = func(img[key, ...], axis=0).astype(img.dtype)
     assert colaps.ndim > 0
@@ -212,6 +200,8 @@ def write_fits(img, outfn: Path) -> None:
 
 
 def readh5coord(fn: Path) -> tuple[float, float] | None:
+    import h5py
+
     with h5py.File(fn, "r") as f:
         try:
             latlon = (f["/sensorloc"]["glat"], f["/sensorloc"]["glon"])

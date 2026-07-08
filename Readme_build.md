@@ -1,9 +1,10 @@
-# build astrometry.net
+# build astrometry.net from source code
 
 Usually we don't need to build Astrometry.net.
 
 Linux or Windows Subsystem for Linux:
 
+```sh
 curl -O http://astrometry.net/downloads/astrometry.net-latest.tar.gz
 
 tar xf astrometry.net-latest.tar.gz
@@ -19,5 +20,6 @@ make py -j
 make extra -j
 
 make install -j INSTALL_DIR=$HOME/.local/astrometry
+```
 
 open a new terminal to use.

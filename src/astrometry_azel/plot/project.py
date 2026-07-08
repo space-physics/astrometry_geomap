@@ -25,7 +25,7 @@ def geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
     proj = cartopy.crs.PlateCarree()
 
     elevation_mask = img.elevation.data < minimum_elevation
-    masked = np.ma.masked_array(img.image, mask=elevation_mask)  # type: ignore
+    masked = np.ma.masked_array(img.image, mask=elevation_mask)
 
     # fg2 = figure()
     # axi = fg2.add_subplot()
@@ -62,8 +62,8 @@ def geomap(img: xarray.Dataset, minimum_elevation: float = 0.0):
         ax.text(v[1], v[0], k, transform=proj, alpha=0.8)
 
     # prettify figure
-    latitude = np.ma.masked_array(img.latitude_proj, mask=elevation_mask)  # type: ignore
-    longitude = np.ma.masked_array(img.longitude_proj, mask=elevation_mask)  # type: ignore
+    latitude = np.ma.masked_array(img.latitude_proj, mask=elevation_mask)
+    longitude = np.ma.masked_array(img.longitude_proj, mask=elevation_mask)
     lat_bounds = (latitude.min() - 0.5, latitude.max() + 0.5)
     lon_bounds = (longitude.min() - 0.5, longitude.max() + 0.5)
     hgl.bottom_labels = True
