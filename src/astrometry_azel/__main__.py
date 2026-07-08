@@ -8,10 +8,11 @@ the ".new" FITS file is the input to this program.
 
 from pathlib import Path
 from argparse import ArgumentParser
-import importlib.resources as ir
 
-from astrometry_azel.project import plate_scale
-import astrometry_azel.plot as plot
+from . import default_index_dir
+
+from .project import plate_scale
+from . import plot
 
 
 def main(path, latlon, ut1, solve, args, index_dir):
@@ -19,9 +20,7 @@ def main(path, latlon, ut1, solve, args, index_dir):
         scale, img = plate_scale(path, latlon, ut1, solve, args, index_dir=index_dir)
     except FileNotFoundError as e:
         if "could not find WCS file" in str(e):
-            raise RuntimeError(
-                f"Please specify --solve option to run solve-field on {path}"
-            )
+            raise RuntimeError(f"Please specify --solve option to run solve-field on {path}")
 
     outfn = Path(scale.filename)
     outdir = outfn.parent
@@ -48,9 +47,11 @@ if __name__ == "__main__":
         "-i",
         "--index-dir",
         help="directory containing astrometry.net index files",
-        default=ir.files(f"{__package__}") / "index_data",
+        default=default_index_dir(),
     )
-    p.add_argument("-s", "--solve", help="run solve-field step of astrometry.net", action="store_true")
+    p.add_argument(
+        "-s", "--solve", help="run solve-field step of astrometry.net", action="store_true"
+    )
     p.add_argument("-a", "--args", help="arguments to pass through to solve-field", default="")
     P = p.parse_args()
 

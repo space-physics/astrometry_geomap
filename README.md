@@ -10,7 +10,10 @@
 
 ## Installation
 
-You need Linux, macOS, or Windows Subsystem for Linux.
+The supported operating systems are Linux, macOS, or Windows Subsystem for Linux.
+Astrometry.net 0.95 or newer is recommended to have "solve-field --index-dir" option.
+This is available with Ubuntu 26.04 or newer, or macOS Homebrew.
+For Windows, use Windows Subsystem for Linux with Ubuntu 26.04 or newer.
 
 * Linux: `apt install astrometry.net`
 * macOS: `brew install astrometry-net`
@@ -34,7 +37,7 @@ pip install -e ./astrometry_geomap
 Finally, the star index files are needed for astrometry.net to work.
 
 ```sh
-python -m astrometry_azel.download -o src/astrometry_azel/index_data/
+python -m astrometry_azel.download
 ```
 
 If you wish to run the self-tests, do from the "astrometry_geomap/" directory:

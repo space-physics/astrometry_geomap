@@ -10,7 +10,8 @@ Also, the Tycho index files are good for this FOV range and I sometimes need the
 from argparse import ArgumentParser
 from pathlib import Path
 import urllib.request
-import importlib.resources as ir
+
+from .. import default_index_dir
 
 url_2mass = "https://data.astrometry.net/4200/"
 url_tycho = "https://data.astrometry.net/4100/"
@@ -60,9 +61,12 @@ def url_retrieve(url: str, outfile: Path, overwrite: bool = False):
         outfile.parent.mkdir(parents=True, exist_ok=True)
         urllib.request.urlretrieve(url, outfile)
 
+
 if __name__ == "__main__":
     p = ArgumentParser()
-    p.add_argument("-o", "--outdir", help="directory to save index files", default=ir.files(__package__) / "../index_data")
+    p.add_argument(
+        "-o", "--outdir", help="directory to save index files", default=default_index_dir()
+    )
     p.add_argument("-source", nargs="+", default=[url_2mass, url_tycho])
     p.add_argument(
         "-i",

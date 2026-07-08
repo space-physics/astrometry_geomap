@@ -5,6 +5,7 @@ import functools
 import shutil
 import shlex
 import subprocess
+from packaging.version import Version
 
 import numpy as np
 import xarray
@@ -174,6 +175,16 @@ def pymap3d_radec2azel(
     return altaz.az.degree, altaz.alt.degree
 
 
+def default_index_dir() -> Path:
+    """
+    default directory to store astrometry.net index files.
+    We don't use the package directory with importlib.resources because the package might not be zipsafe,
+    and there is amibuigity when running pytest from the source directory even on non-editable install.
+    The best solution seemed to be installing under the user home directory.
+    """
+    return Path("~/astrometry_index_data").expanduser().resolve()
+
+
 @functools.cache
 def get_solve_exe() -> str | None:
     return shutil.which("solve-field")
@@ -193,11 +204,21 @@ def doSolve(fitsfn: Path, args: str = "", index_dir: str | None = None) -> None:
     if exe is None:
         raise FileNotFoundError("solve-field executable not found in PATH")
 
-    cmd = [exe, "--overwrite", str(fitsfn), "--verbose"]
+    cmd = [exe, str(fitsfn), "--overwrite", "--verbose"]
 
-    if index_dir:
-        if not Path(index_dir).is_dir():
-            raise NotADirectoryError(f"{index_dir} is not a directory")
+    version = Version(subprocess.check_output([exe, "--version"], text=True).strip())
+
+    # need version 0.95 or newer to have "--index-dir" option
+    if version >= Version("0.95"):
+        if index_dir is None:
+            index_dir = default_index_dir()
+
+    if index_dir is not None:
+        if version < Version("0.95"):
+            raise RuntimeError(
+                f"solve-field version {version} does not support --index-dir option."
+                "Please upgrade to Astrometry.net 0.95 or newer."
+            )
         cmd += ["--index-dir", str(index_dir)]
 
     if args:

@@ -26,7 +26,9 @@ def plate_scale(
     img = load_image(in_file)
     write_fits(img, new_file)
 
-    scale = fits2azel(new_file, latlon=latlon, time=ut1, solve=solve, args=args, index_dir=index_dir)
+    scale = fits2azel(
+        new_file, latlon=latlon, time=ut1, solve=solve, args=args, index_dir=index_dir
+    )
 
     # %% write to file
     netcdf_file = Path(scale.filename).with_suffix(".nc")

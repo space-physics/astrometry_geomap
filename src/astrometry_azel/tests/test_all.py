@@ -13,14 +13,10 @@ import astrometry_azel as ael
 import importlib.resources as ir
 
 
-def test_nosolve(tmp_path, index_dir):
+def test_nosolve(tmp_path):
     with pytest.raises(FileNotFoundError):
-        ael.doSolve(tmp_path, index_dir=index_dir)
+        ael.doSolve(tmp_path)
 
-@pytest.fixture(scope="function")
-def index_dir() -> Path:
-    with ir.as_file(ir.files(f"{__package__}")) as pdir:
-        return pdir.parent / "index_data"
 
 @pytest.fixture(scope="function")
 def fits_file(tmp_path) -> Path:
@@ -32,11 +28,11 @@ def fits_file(tmp_path) -> Path:
 
 
 @pytest.mark.skipif(ael.get_solve_exe() is None, reason="solve-field missing")
-def test_solve(tmp_path, index_dir):
+def test_solve(tmp_path):
     with ir.as_file(ir.files(f"{__package__}") / "apod4.fits") as fits:
         shutil.copy(fits, tmp_path)
         # --scale-low isn't needed, just to speed up CI test
-        ael.doSolve(tmp_path / fits.name, args="--scale-low 20", index_dir=index_dir)
+        ael.doSolve(tmp_path / fits.name, args="--scale-low 20")
 
 
 def test_fits2radec(fits_file):

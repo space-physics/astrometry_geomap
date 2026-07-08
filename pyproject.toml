@@ -16,7 +16,7 @@ classifiers = [
 ]
 dynamic = ["readme", "version"]
 requires-python = ">=3.10"
-dependencies = ["numpy", "astropy", "xarray", "netcdf4"]
+dependencies = ["packaging", "numpy", "astropy", "xarray", "netcdf4"]
 
 [project.optional-dependencies]
 tests = ["pytest"]
