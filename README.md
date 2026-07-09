@@ -1,10 +1,8 @@
 
 # Azimuth/Elevation converter for [Astrometry.net](https://github.com/dstndstn/astrometry.net)
 
-[![Zenodo DOI](https://zenodo.org/badge/19366614.svg)](https://zenodo.org/badge/latestdoi/19366614)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4527817.svg)](https://doi.org/10.5281/zenodo.4527817)
 [![ci](https://github.com/space-physics/astrometry_geomap/actions/workflows/ci.yml/badge.svg)](https://github.com/space-physics/astrometry_geomap/actions/workflows/ci.yml)
-[![PyPI version](https://img.shields.io/pypi/pyversions/astrometry-azel.svg)](https://pypi.python.org/pypi/astrometry-azel)
-[![Downloads](https://pepy.tech/badge/astrometry-azel)](https://pepy.tech/project/astrometry-azel)
 
 [Tips and techniques article](https://www.scivision.dev/astrometry-tips-techniques), especially for DSLR citizen science data.
 
